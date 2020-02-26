@@ -1,0 +1,73 @@
+<style>
+  .footer {
+    background-color: #eff3f8;
+    height: 25px;
+    text-align: center;
+    font-size: 13px;
+    float: none;
+  }
+  a {
+    color: #070707;
+  }
+  a:hover {
+    text-decoration: none;
+    font-weight: 600;
+  }
+  footer {
+    background-color: #eff1f3;
+    padding-top: 10px;
+  }
+  .botbar-left {
+    float: left;
+    margin: 5px 60px 0 20px;
+  }
+  .botbar-right {
+    height: 65px;
+  }
+  .nav-pills li {
+    margin-right: 40px;
+    font-weight: 600;
+  }
+  hr {
+    margin: 0 0 5px 0;
+  }
+  .padding_top {
+    padding-top: 15px;
+  }
+  @media (max-width: 434px) {
+    .padding_top {
+      padding-top: 0px;
+    }
+  }
+</style>
+
+<footer class="">
+  <div class="botbar-top container-fluid">
+    <div class="botbar-left">
+      <a class="logo" routerLink="/dashboard"
+        ><img src="/assets/img/Logo_Head.png"
+      /></a>
+    </div>
+    <div class="botbar-right">
+      <ul class="nav nav-pills padding_top">
+        <li>
+          <a routerLink="/help">{{ 'links.help' | translate }}</a>
+        </li>
+        <li>
+          <a routerLink="/terms-of-service">{{
+            'links.terms_of_service_link' | translate
+          }}</a>
+        </li>
+        <li>
+          <a routerLink="/privacy-policy">{{
+            'links.privacy_policy_link' | translate
+          }}</a>
+        </li>
+      </ul>
+    </div>
+    <hr />
+    <div class="footer">
+      <a routerLink="/dashboard"> &copy; 2020 - BlackBox.Global</a>
+    </div>
+  </div>
+</footer>

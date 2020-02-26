@@ -1,0 +1,35 @@
+<style>
+  .scrollbar {
+    height: 260px;
+    overflow: auto;
+  }
+  .scrollbar::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  .scrollbar::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  .scrollbar::-webkit-scrollbar-thumb {
+    background: #888;
+  }
+
+  .scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+  .scrollbar {
+    scrollbar-width: thin;
+  }
+  .btn.btn-link {
+    color: #539dff !important;
+  }
+</style>
+
+<div class="scrollbar">
+  <div class="tab-content">
+    <div *ngFor="let template of downloadTemplates">
+      <button class="btn btn-link" (click)="download(template.value)">{{template.title}}</button>
+    </div>
+  </div>
+</div>

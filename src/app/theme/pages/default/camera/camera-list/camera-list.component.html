@@ -1,0 +1,194 @@
+<div class="heading" style="margin-bottom: 7px;">
+  <button
+    type="button"
+    class="btn btn-info m-btn m-btn--icon m-btn--pill"
+    (click)="show()"
+  >
+    <span>
+      <i class="fa fa-plus"></i>
+      <span>Add a camera type Used</span>
+    </span>
+  </button>
+</div>
+
+<div *ngIf="!cameras.length" class="text-center">
+  <span>No available camera type used</span>
+</div>
+
+<table *ngIf="cameras.length" class="table hover">
+  <thead>
+    <tr>
+      <th>Camera Type</th>
+      <th>Camera Brand</th>
+      <th>Set Default</th>
+      <th width="200"></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let item of cameras">
+      <td>
+        {{ item.cameraType }}
+      </td>
+      <td>
+        <span *ngIf="item.cameraBrand">{{ item.cameraBrand }}</span>
+        <span *ngIf="item.cameraBrandOther">
+          - {{ item.cameraBrandOther }}</span
+        >
+      </td>
+      <td>
+        <label class="m-radio">
+          <input
+            type="radio"
+            name="selection"
+            [value]="item.cameraId"
+            [(ngModel)]="selectedCameraId"
+            (change)="change(selectedCameraId)"
+          />
+          <span></span>
+        </label>
+      </td>
+      <td>
+        <div class="list-button">
+          <button
+            style="margin-right: 5px;"
+            type="button"
+            class="btn btn-outline-info btn-sm 	m-btn m-btn--icon m-btn--pill"
+            (click)="edit(item)"
+          >
+            <span>
+              <i class="la la-edit"></i>
+              <span>Edit</span>
+            </span>
+          </button>
+          <button
+            type="button"
+            class="btn btn-outline-danger btn-sm m-btn m-btn--icon m-btn--pill"
+            (click)="remove(item)"
+          >
+            <span>
+              <i class="la la-remove"></i>
+              <span>Remove</span>
+            </span>
+          </button>
+        </div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<div
+  class="modal fade"
+  id="newCameraTypeModal"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="newCameraTypeModalTitle"
+  aria-hidden="true"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add a New Camera Type Used</h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="m-form">
+          <div class="form-group m-form__group">
+            <label>
+              Camera Type
+            </label>
+            <select
+              name="cameraType"
+              class="form-control"
+              #cameraType="ngModel"
+              [(ngModel)]="cameraInfo.cameraType"
+              (change)="onSelectCameraType(cameraInfo.cameraType)"
+            >
+              <option value="">-- Select a camera type --</option>
+              <option *ngFor="let item of cameraTypes" [value]="item.type">{{
+                item.type
+              }}</option>
+            </select>
+          </div>
+
+          <div
+            *ngIf="
+              cameraInfo.cameraType &&
+              cameraInfo.cameraType !== 'NOT APPLICABLE'
+            "
+            class="form-group m-form__group"
+          >
+            <label>
+              Camera Brand
+            </label>
+            <select
+              name="cameraBrand"
+              class="form-control"
+              #cameraBrand="ngModel"
+              [(ngModel)]="cameraInfo.cameraBrand"
+            >
+              <option value="">-- Select a camera brand --</option>
+              <option
+                *ngFor="let item of selectedCameraType.brands"
+                [value]="item.name"
+                >{{ item.name }}</option
+              >
+            </select>
+          </div>
+
+          <div
+            *ngIf="cameraInfo.cameraBrand === 'Other (specify)'"
+            class="form-group m-form__group"
+          >
+            <label for="cameraBrandOther">
+              Other
+            </label>
+            <input
+              name="cameraBrandOther"
+              class="form-control"
+              #cameraBrandOther="ngModel"
+              [(ngModel)]="cameraInfo.cameraBrandOther"
+              placeholder="Write a camera brand other..."
+            />
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-outline-danger m-btn m-btn--icon m-btn--pill"
+          data-dismiss="modal"
+        >
+          <span>
+            <i class="la la-close"></i>
+            <span>Cancel</span>
+          </span>
+        </button>
+        <button
+          type="button"
+          class="btn btn-success m-btn m-btn--icon m-btn--pill"
+          (click)="createCamera()"
+          [disabled]="!cameraInfo.cameraType || loading"
+        >
+          <span>
+            <i *ngIf="!loading" class="la la-check"></i>
+            <i *ngIf="loading" class="la la-spin la-spinner"></i>
+            <span>Save</span>
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-camera-edit
+  #editCameraModal
+  [currentCamera]="currentCamera"
+  (onUpdateSuccess)="loadCameras()"
+></app-camera-edit>

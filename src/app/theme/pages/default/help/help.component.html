@@ -1,0 +1,55 @@
+<div class="container-fluid" style="margin-top: 15px;">
+  <!-- BEGIN PAGE CONTENT INNER -->
+  <div class="m-content">
+    <div class="row">
+      <div class="col-lg-6">
+        <div class="m-portlet m-portlet--head-sm" m-portlet="true">
+          <div class="m-portlet__head">
+            <div class="m-portlet__head-caption">
+              <div class="m-portlet__head-title">
+                <span class="m-portlet__head-icon">
+                  <i class="fa fa-wpforms" style="font-size: 1.8rem;"></i>
+                </span>
+                <h3 class="m-portlet__head-text">
+                  {{ 'links.forms_and_templates' | translate }}
+                </h3>
+              </div>
+            </div>
+          </div>
+          <div class="m-portlet__body">
+            <app-forms-and-templates></app-forms-and-templates>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <!-- BEGIN Portlet PORTLET-->
+        <div class="m-portlet m-portlet--head-sm" m-portlet="true">
+          <div class="m-portlet__head">
+            <div class="m-portlet__head-caption">
+              <div class="m-portlet__head-title">
+                <span class="m-portlet__head-icon">
+                  <i
+                    class="fa fa-question-circle-o"
+                    style="font-size: 1.8rem;"
+                  ></i>
+                </span>
+                <h3 class="m-portlet__head-text">
+                  {{ 'links.faq' | translate }}
+                </h3>
+              </div>
+            </div>
+          </div>
+          <div class="m-portlet__body">
+            <div class="scroller" style="min-height:250px">
+              <app-faq></app-faq>
+            </div>
+          </div>
+        </div>
+        <!-- END GRID PORTLET-->
+      </div>
+      <div class="col-lg-12">
+        <app-usage-guide></app-usage-guide>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,386 @@
+<div class="container-fluid">
+  <div class="page-content-inner" style="margin: 15px 0">
+    <div class="row justify-content-md-center">
+      <div class="col-md-12" style="max-width: 1225px;">
+        <div class="profile-sidebar">
+          <div class="portlet light profile-sidebar-portlet">
+            <div class="profile-userpic">
+              <img
+                (click)="acctiveChangeAvatarTab()"
+                [src]="userAvatarUrlW"
+                class="img-responsive"
+                style="width: 150px; height: 150px"
+                alt=""
+              />
+            </div>
+            <div class="profile-usertitle">
+              <div class="profile-usertitle-name">{{ user.fullName }}</div>
+              <div class="profile-usertitle-job">
+                {{ user.Profile.expertisePrimary }}
+              </div>
+            </div>
+            <!-- <div class="profile-userbuttons" style="margin-top: 30px">
+                          <button type="button" class="btn btn-circle green btn-sm">Follow</button>
+                          <button type="button" class="btn btn-circle red btn-sm">Message</button>
+                      </div> -->
+            <!-- <div class="profile-usermenu">
+                          <ul class="nav">
+                              <li class="active">
+                                  <a>
+                                      <i class="icon-settings"></i> {{ 'account.account_settings' | translate }} </a>
+                              </li>
+                          </ul>
+                      </div> -->
+          </div>
+          <div class="portlet light">
+            <div>
+              <!-- <h4 class="profile-desc-title">{{ 'account.preference_interests_field' | translate }}</h4>
+                          <span class="profile-desc-text"> {{user.Profile.preferenceInterests}} </span> -->
+              <h4 class="profile-desc-title">
+                {{ 'account.social_media_links' | translate }}
+              </h4>
+              <div
+                class="profile-desc-link row social"
+                *ngFor="let social of socials"
+              >
+                <div class="col-md-8 col-sm-10 col-xs-8">
+                  <i [class]="social.class"></i>
+                  <a (click)="openLink(social.link)"
+                    ><span
+                      style="text-transform: capitalize; cursor: pointer;"
+                      >{{ social.name }}</span
+                    ></a
+                  >
+                </div>
+                <div class="col-md-4 col-sm-2 col-xs-4">
+                  <div class="pull-right" [class.in]="device === 'desktop'">
+                    <div style="margin-top: 10px;">
+                      <a
+                        class="outline-none"
+                        data-toggle="modal"
+                        href="#edit-social"
+                        (click)="dataModal(social)"
+                        ><i style="color:#34bfa3" class="fa fa-edit"></i
+                      ></a>
+                      <a
+                        class="outline-none"
+                        data-toggle="modal"
+                        href="#delete-social"
+                        (click)="dataModal(social)"
+                        ><i style="color:#ed6b75" class="fa fa-trash"></i
+                      ></a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="add">
+                <div
+                  *ngIf="!addSocial"
+                  [hidden]="fullSocial"
+                  class="margin-top-20"
+                >
+                  <button
+                    type="button"
+                    class="btn btn-primary m-btn"
+                    (click)="addSocials()"
+                  >
+                    <span>
+                      <i class="fa fa-plus" style="color: inherit"></i>
+                      <span>{{ 'account.add' | translate }}</span>
+                    </span>
+                  </button>
+                </div>
+
+                <div *ngIf="addSocial">
+                  <form
+                    #add="ngForm"
+                    (ngSubmit)="add.form.valid && saveProfileSettings()"
+                    class="m-form m-form--state"
+                  >
+                    <div class="form-body" style="margin-bottom: 0px">
+                      <div class="form-group">
+                        <div>
+                          <select
+                            class="form-control input-sm"
+                            #addSocial
+                            name="addsocialMedia"
+                            [(ngModel)]="addsocialMedia"
+                            required
+                          >
+                            <option value=""
+                              >{{ 'account.select_social_media' | translate }}
+                            </option>
+                            <option
+                              *ngFor="let item of masterData.socials"
+                              [value]="item.value"
+                              >{{ item.name }}</option
+                            >
+                          </select>
+                        </div>
+                      </div>
+
+                      <div
+                        class="form-group"
+                        [ngClass]="{
+                          'has-danger': adds.invalid,
+                          'has-success': adds.valid
+                        }"
+                      >
+                        <input
+                          name="addsocialMediaAddress"
+                          placeholder="{{
+                            'account.social_link_placeholder' | translate
+                          }}"
+                          class="form-control input-sm"
+                          [(ngModel)]="addsocialMediaAddress"
+                          #adds="ngModel"
+                          pattern="^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$"
+                          required
+                        />
+                        <span
+                          class="help-block text-danger"
+                          *ngIf="adds.errors?.pattern"
+                          >{{ 'url_invalid' | translate }}</span
+                        >
+                        <span
+                          class="help-block text-danger"
+                          *ngIf="adds.errors?.required"
+                          >{{ 'required_desc' | translate }}</span
+                        >
+                      </div>
+                      <div class="margin-top-20 actions text-right">
+                        <button
+                          type="button"
+                          style="margin-right: 10px;"
+                          class="btn btn-danger m-btn"
+                          (click)="cancel()"
+                        >
+                          <span>
+                            <i class="fa fa-close"></i>
+                            <span>{{ 'common.cancel' | translate }}</span>
+                          </span>
+                        </button>
+                        <button type="submit" class="btn btn-success m-btn">
+                          <span>
+                            <i class="fa fa-check"></i>
+                            <span>{{ 'common.save' | translate }}</span>
+                          </span>
+                        </button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- END PORTLET MAIN -->
+        </div>
+        <!-- END BEGIN PROFILE SIDEBAR -->
+        <!-- BEGIN PROFILE CONTENT -->
+        <div class="profile-content">
+          <div class="row">
+            <div class="col-md-12">
+              <div class="m-portlet m-portlet--tabs">
+                <div class="m-portlet__head">
+                  <div class="m-portlet__head-caption">
+                    <div class="m-portlet__head-title">
+                      <h3 class="m-portlet__head-text">
+                        {{ 'account.profile_account' | translate }}
+                      </h3>
+                    </div>
+                  </div>
+                  <div class="m-portlet__head-tools">
+                    <ul
+                      class="nav nav-tabs m-tabs-line m-tabs-line--right m-tabs-line--2x "
+                      role="tablist"
+                      id="profileTab"
+                    >
+                      <li class="nav-item m-tabs__item">
+                        <a
+                          class="nav-link m-tabs__link"
+                          [routerLink]="['./personal-info']"
+                          routerLinkActive="active"
+                          >{{ 'account.personal_info' | translate }}</a
+                        >
+                      </li>
+                      <li class="nav-item m-tabs__item">
+                        <a
+                          class="nav-link m-tabs__link"
+                          [routerLink]="['./change-avatar']"
+                          routerLinkActive="active"
+                          >{{ 'account.change_avatar' | translate }}</a
+                        >
+                      </li>
+                      <li class="nav-item m-tabs__item">
+                        <a
+                          class="nav-link m-tabs__link"
+                          [routerLink]="['./change-password']"
+                          routerLinkActive="active"
+                          >{{ 'account.change_password' | translate }}</a
+                        >
+                      </li>
+                      <li class="nav-item m-tabs__item">
+                        <a
+                          class="nav-link m-tabs__link"
+                          [routerLink]="['./settings']"
+                          routerLinkActive="active"
+                          >{{ 'account.privacy_settings' | translate }}</a
+                        >
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+                <div class="m-portlet__body">
+                  <div class="tab-content">
+                    <div class="tab-pane active">
+                      <router-outlet></router-outlet>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- END PROFILE CONTENT -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade"
+  id="edit-social"
+  role="basic"
+  tabindex="-1"
+  role="dialog"
+  aria-hidden="true"
+  data-backdrop="static"
+  data-keyboard="false"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form
+        #editLink="ngForm"
+        (ngSubmit)="editLink.form.valid && editSocial()"
+        class="m-form m-form--state"
+      >
+        <div class="modal-header">
+          <h4 class="modal-title">
+            {{ 'account.edit_social_media_link' | translate }}
+          </h4>
+          <button type="button" class="close" data-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row form-group">
+            <div class="col-md-2">
+              <label class="edit">{{ editSocialLink.name }}</label>
+            </div>
+            <div
+              class="col-md-10"
+              [ngClass]="{
+                'has-danger': social.invalid,
+                'has-success': social.valid
+              }"
+            >
+              <input
+                name="social"
+                type="text"
+                class="form-control"
+                #social="ngModel"
+                [(ngModel)]="editSocialLink.link"
+                pattern="^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$"
+                required
+              />
+              <span
+                class="help-block text-danger"
+                *ngIf="social.errors?.pattern"
+                >{{ 'url_invalid' | translate }}</span
+              >
+              <span
+                class="help-block text-danger"
+                *ngIf="social.errors?.required"
+                >{{ 'required_desc' | translate }}</span
+              >
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer actions text-right">
+          <button
+            type="button"
+            class="btn btn-danger m-btn"
+            data-dismiss="modal"
+          >
+            <span>
+              <i class="fa fa-close"></i>
+              <span>{{ 'common.cancel' | translate }} </span>
+            </span>
+          </button>
+          <button type="submit" class="btn btn-success m-btn">
+            <span>
+              <i class="fa fa-check"></i>
+              <span>{{ 'common.save_changes' | translate }}</span>
+            </span>
+          </button>
+        </div>
+      </form>
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+
+<div
+  class="modal fade"
+  id="delete-social"
+  role="basic"
+  tabindex="-1"
+  aria-hidden="true"
+  data-backdrop="static"
+  data-keyboard="false"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">
+          {{ 'account.delete_social_media_title' | translate }}
+        </h4>
+        <button type="button" class="close" data-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p>
+          {{ 'account.delelte_social_media' | translate }}
+          <span style="text-transform: capitalize;"
+            ><b>{{ editSocialLink.name }}</b></span
+          >?
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button
+          style="margin-right: 5px;"
+          type="button"
+          data-dismiss="modal"
+          class="btn btn-danger m-btn"
+          (click)="cancel()"
+        >
+          <span>
+            <i class="fa fa-close"></i>
+            <span>{{ 'common.no' | translate }}</span>
+          </span>
+        </button>
+        <button
+          type="submit"
+          class="btn btn-success m-btn"
+          (click)="deleteSocial()"
+        >
+          <span>
+            <i class="fa fa-check"></i>
+            <span>{{ 'common.yes' | translate }}</span>
+          </span>
+        </button>
+      </div>
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>

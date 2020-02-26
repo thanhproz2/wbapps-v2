@@ -1,0 +1,1800 @@
+<div
+  class="m-grid__item m-grid__item--fluid m-grid m-grid--hor m-login m-login--signin m-login--2 m-login-2--skin-1 body-login container-fluid"
+  style="min-height:calc(100%)"
+>
+  <div
+    class="row justify-content-center"
+    style="margin: auto 0;"
+    [hidden]="hideLogin"
+  >
+    <div
+      class="m-login__container col-md-6 m-login__signin"
+      style="max-width: 525px;"
+    >
+      <ul
+        class="nav nav-tabs m-tabs-line m-tabs-line--primary justify-content-center"
+        style="border: none;margin-top: -25px;"
+        role="tablist"
+      >
+        <li class="nav-item m-tabs__item">
+          <a class="nav-link m-tabs__link active link" (click)="backLogin()">
+            {{ 'account.log_in' | translate }}
+          </a>
+        </li>
+        <li class="nav-item m-tabs__item" (click)="openUnRegister()">
+          <a class="nav-link m-tabs__link link">
+            {{ 'register' | translate }}
+          </a>
+        </li>
+      </ul>
+      <form
+        class="m-form"
+        action=""
+        style="margin-top: 2rem;"
+        (ngSubmit)="loginSubmit()"
+        style="padding: 0 3rem;"
+      >
+        <div class="alert alert-danger display-hide">
+          <span> {{ txtFailedLogin }} </span>
+        </div>
+        <div class="form-group">
+          <label class="title">{{
+            'account.username_field' | translate
+          }}</label>
+          <input
+            class="form-control m-input"
+            type="text"
+            placeholder="{{ 'account.your_email_address' | translate }}"
+            name="username"
+            [(ngModel)]="model.username"
+            #username="ngModel"
+            autocomplete="off"
+          />
+        </div>
+        <div class="form-group">
+          <label class="title">{{
+            'account.password_field' | translate
+          }}</label>
+          <input
+            class="form-control m-input m-login__form-input--last"
+            type="password"
+            autocomplete="off"
+            placeholder="{{ 'account.password_field' | translate }}"
+            name="password"
+            [(ngModel)]="model.password"
+            #password="ngModel"
+          />
+          <a
+            (click)="openForgotPassword()"
+            class="m-link"
+            style="font-size: 12px;"
+            >{{ 'tabs.forgot_password_tab' | translate }}?</a
+          >
+        </div>
+        <div
+          *ngIf="enableReCaptcha"
+          class="g-recaptcha"
+          style="margin-bottom: 20px;"
+        >
+          <!-- <re-captcha
+            (resolved)="resolved($event)"
+            siteKey="{{ grecaptcha }}"
+            required
+          ></re-captcha> -->
+          <div *ngIf="checkCaptcha">
+            <p class="help-block text-danger">
+              {{ 'required_desc' | translate }}
+            </p>
+          </div>
+        </div>
+        <div class="row m-login__form-sub">
+          <div class="col m--align-right">
+            <button
+              class="btn btn-dark"
+              type="submit"
+              style="width: 100px;"
+              [disabled]="isLoading"
+            >
+              <span>
+                <i class="fa fa-spinner fa-spin" *ngIf="isLogin"></i>
+                <span> {{ 'account.login_button' | translate }}</span>
+              </span>
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <div
+      class="m-login__container col-md-8 m-login__signup"
+      style="max-width: 880px;"
+    >
+      <ul
+        class="nav nav-tabs m-tabs-line m-tabs-line--primary justify-content-center"
+        style="border: none;margin-top: -25px;"
+        role="tablist"
+      >
+        <li class="nav-item m-tabs__item">
+          <a class="nav-link m-tabs__link link" (click)="backLogin()">
+            {{ 'account.log_in' | translate }}
+          </a>
+        </li>
+        <li class="nav-item m-tabs__item" (click)="openUnRegister()">
+          <a class="nav-link m-tabs__link active link">
+            {{ 'register' | translate }}
+          </a>
+        </li>
+      </ul>
+      <form
+        class="m-form m-form--state row"
+        [formGroup]="unRegisterForm"
+        (ngSubmit)="unRegister()"
+        action=""
+        style="margin-top: 2rem;"
+      >
+        <div class="m-option register col-md-5">
+          <p>
+            {{ 'account.about_us_note' | translate
+            }}<a
+              class="m-link"
+              target="_blank"
+              href="http://www.blackbox.global/"
+              >www.blackbox.global</a
+            >
+          </p>
+          <p>
+            <b>{{ 'account.please_note' | translate }}</b>
+          </p>
+          <p>{{ 'account.register_note' | translate }}</p>
+          <hr style="border-top: 2px solid rgba(0,0,0,.1);" />
+          <p>{{ 'account.register_note2' | translate }}</p>
+          <p>{{ 'account.register_note3' | translate }}</p>
+        </div>
+        <div class="col-md-7">
+          <div class="m-form__group form-group col-md-12">
+            <label
+              ><b>{{ 'fields.user_type_field' | translate }}</b></label
+            >
+            <div>
+              <div class="m-radio-inline">
+                <label
+                  class="m-radio m-radio--state-dark"
+                  style="font-size: 13px;"
+                >
+                  <input
+                    type="radio"
+                    name="userType"
+                    value="personal"
+                    formControlName="userType"
+                    (change)="changeUnRegister()"
+                  />
+                  {{ 'account.personal' | translate }}
+                  <span></span>
+                </label>
+                <label
+                  class="m-radio m-radio--state-dark"
+                  style="font-size: 13px;"
+                >
+                  <input
+                    type="radio"
+                    name="userType"
+                    value="company"
+                    formControlName="userType"
+                    (change)="changeUnRegister()"
+                  />
+                  {{ 'account.company' | translate }}
+                  <span></span>
+                </label>
+              </div>
+            </div>
+          </div>
+          <div
+            [hidden]="unRegisterForm.value.userType == 'company'"
+            class="row"
+          >
+            <div class="col-md-6">
+              <div
+                class="form-group"
+                [ngClass]="{
+                  'has-danger':
+                    (u.firstName.invalid && submitted) ||
+                    (u.firstName.invalid &&
+                      (u.firstName.dirty || u.firstName.touched)),
+                  'has-success': u.firstName.valid
+                }"
+              >
+                <label class=""
+                  >{{ 'fields.first_name_field' | translate
+                  }}<span class="required">{{
+                    'required_symbol' | translate
+                  }}</span></label
+                >
+                <input
+                  class="form-control"
+                  type="text"
+                  name="firstName"
+                  formControlName="firstName"
+                  maxlength="255"
+                />
+                <div
+                  *ngIf="
+                    (u.firstName.invalid && submitted) ||
+                    (u.firstName.invalid &&
+                      (u.firstName.dirty || u.firstName.touched))
+                  "
+                >
+                  <span
+                    class="text-danger"
+                    *ngIf="u.firstName.errors?.required"
+                    >{{ 'required_desc' | translate }}</span
+                  >
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div
+                class="form-group"
+                [ngClass]="{
+                  'has-danger':
+                    (u.lastName.invalid && submitted) ||
+                    (u.lastName.invalid &&
+                      (u.lastName.dirty || u.lastName.touched)),
+                  'has-success': u.lastName.valid
+                }"
+              >
+                <label class=""
+                  >{{ 'fields.last_name_field' | translate
+                  }}<span class="required">{{
+                    'required_symbol' | translate
+                  }}</span></label
+                >
+                <input
+                  class="form-control"
+                  type="text"
+                  name="lastName"
+                  formControlName="lastName"
+                />
+                <div
+                  *ngIf="
+                    (u.lastName.invalid && submitted) ||
+                    (u.lastName.invalid &&
+                      (u.lastName.dirty || u.lastName.touched))
+                  "
+                >
+                  <span
+                    class="text-danger"
+                    *ngIf="u.lastName.errors?.required"
+                    >{{ 'required_desc' | translate }}</span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="row"
+            [hidden]="unRegisterForm.value.userType != 'company'"
+          >
+            <div
+              class="form-group col-md-12"
+              [ngClass]="{
+                'has-danger':
+                  (u.companyName.invalid && submitted) ||
+                  (u.companyName.invalid &&
+                    (u.companyName.dirty || u.companyName.touched)),
+                'has-success':
+                  u.companyName.valid &&
+                  (u.companyName.dirty || u.companyName.touched)
+              }"
+            >
+              <label class=""
+                >{{ 'fields.company_name_field' | translate
+                }}<span class="required">{{
+                  'required_symbol' | translate
+                }}</span></label
+              >
+              <input
+                class="form-control placeholder-no-fix"
+                type="text"
+                name="companyName"
+                formControlName="companyName"
+                maxlength="255"
+              />
+              <div
+                *ngIf="
+                  (u.companyName.invalid && submitted) ||
+                  (u.companyName.errors?.required &&
+                    (u.companyName.dirty || u.companyName.touched))
+                "
+              >
+                <span class="text-danger">{{
+                  'required_desc' | translate
+                }}</span>
+              </div>
+            </div>
+            <div
+              class="form-group col-md-12"
+              [ngClass]="{
+                'has-danger':
+                  (u.representativeFirstName.invalid && submitted) ||
+                  (u.representativeFirstName.invalid &&
+                    (u.representativeFirstName.dirty ||
+                      u.representativeFirstName.touched)),
+                'has-success':
+                  u.representativeFirstName.valid &&
+                  (u.representativeFirstName.dirty ||
+                    u.representativeFirstName.touched)
+              }"
+            >
+              <label class=""
+                >{{ 'account.representative_first_name_field' | translate
+                }}<span class="required">{{
+                  'required_symbol' | translate
+                }}</span></label
+              >
+              <input
+                class="form-control placeholder-no-fix"
+                type="text"
+                name="representativeFirstName"
+                formControlName="representativeFirstName"
+                maxlength="255"
+              />
+              <div
+                *ngIf="
+                  (u.representativeFirstName.invalid && submitted) ||
+                  (u.representativeFirstName.errors?.required &&
+                    (u.representativeFirstName.dirty ||
+                      u.representativeFirstName.touched))
+                "
+              >
+                <span class="text-danger">{{
+                  'required_desc' | translate
+                }}</span>
+              </div>
+            </div>
+            <div
+              class="form-group col-md-12"
+              [ngClass]="{
+                'has-danger':
+                  (u.representativeLastName.invalid && submitted) ||
+                  (u.representativeLastName.invalid &&
+                    (u.representativeLastName.dirty ||
+                      u.representativeLastName.touched)),
+                'has-success':
+                  u.representativeLastName.valid &&
+                  (u.representativeLastName.dirty ||
+                    u.representativeLastName.touched)
+              }"
+            >
+              <label class=""
+                >{{ 'account.representative_last_name_field' | translate
+                }}<span class="required">{{
+                  'required_symbol' | translate
+                }}</span></label
+              >
+              <input
+                class="form-control placeholder-no-fix"
+                type="text"
+                name="representativeLastName"
+                formControlName="representativeLastName"
+                maxlength="255"
+              />
+              <div
+                *ngIf="
+                  (u.representativeLastName.invalid && submitted) ||
+                  (u.representativeLastName.errors?.required &&
+                    (u.representativeLastName.dirty ||
+                      u.representativeLastName.touched))
+                "
+              >
+                <span class="text-danger">{{
+                  'required_desc' | translate
+                }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div
+              class="form-group col-md-12"
+              [ngClass]="{
+                'has-danger':
+                  (u.telephone.invalid && submitted) ||
+                  (u.telephone.invalid &&
+                    (u.telephone.dirty || u.telephone.touched)),
+                'has-success': u.telephone.valid
+              }"
+            >
+              <label class=""
+                >{{ 'fields.telephone_field' | translate
+                }}<span class="required">{{
+                  'required_symbol' | translate
+                }}</span></label
+              >
+              <input
+                class="form-control"
+                type="text"
+                minlength="10"
+                name="telephone"
+                formControlName="telephone"
+                [pattern]="patternTelephone"
+              />
+
+              <div *ngIf="u.telephone.errors">
+                <span
+                  class="help-block text-danger"
+                  *ngIf="u.telephone.errors.pattern"
+                  >{{ 'account.telephone_numeric_only' | translate }}</span
+                >
+                <p
+                  class="help-block text-danger"
+                  *ngIf="u.telephone.errors.minlength"
+                >
+                  {{ 'account.telephone_minlength' | translate }}
+                </p>
+              </div>
+            </div>
+            <div
+              class="form-group col-md-12"
+              [ngClass]="{
+                'has-danger':
+                  (u.email.invalid && submitted) ||
+                  (u.email.invalid && (u.email.dirty || u.email.touched)),
+                'has-success': u.email.valid
+              }"
+            >
+              <label class=""
+                >{{ 'fields.email_field' | translate
+                }}<span class="required">{{
+                  'required_symbol' | translate
+                }}</span></label
+              >
+              <input
+                class="form-control"
+                type="text"
+                name="email"
+                maxlength="255"
+                formControlName="email"
+                required
+                [pattern]="patternEmail"
+              />
+              <div *ngIf="u.email.errors">
+                <p
+                  class="help-block text-danger"
+                  *ngIf="u.email.errors.pattern"
+                >
+                  {{ 'email_invalid' | translate }}
+                </p>
+              </div>
+              <div
+                *ngIf="
+                  (u.email.invalid && submitted) ||
+                  (u.email.errors?.required &&
+                    (u.email.dirty || u.email.touched))
+                "
+              >
+                <span
+                  *ngIf="u.confirmEmail.errors?.required"
+                  class="text-danger"
+                  >{{ 'required_desc' | translate }}</span
+                >
+              </div>
+            </div>
+            <div
+              class="form-group col-md-12"
+              [ngClass]="{
+                'has-danger':
+                  (u.confirmEmail.invalid && submitted) ||
+                  (u.confirmEmail.invalid &&
+                    (u.confirmEmail.dirty || u.confirmEmail.touched)),
+                'has-success': u.confirmEmail.valid
+              }"
+            >
+              <label class=""
+                >{{ 'account.confirm_email_field' | translate
+                }}<span class="required">{{
+                  'required_symbol' | translate
+                }}</span></label
+              >
+              <input
+                class="form-control"
+                onpaste="return false;"
+                type="text"
+                name="confirmEmail"
+                maxlength="255"
+                formControlName="confirmEmail"
+                required
+                [pattern]="patternEmail"
+              />
+              <div *ngIf="u.confirmEmail.errors">
+                <p
+                  class="help-block text-danger"
+                  *ngIf="u.confirmEmail.errors.pattern"
+                >
+                  {{ 'email_invalid' | translate }}
+                </p>
+                <p
+                  class="help-block text-danger"
+                  *ngIf="u.confirmEmail.errors.mustMatch"
+                >
+                  {{ 'account.confirm_email_validate' | translate }}
+                </p>
+              </div>
+              <div
+                *ngIf="
+                  (u.confirmEmail.invalid && submitted) ||
+                  (u.confirmEmail.errors?.required &&
+                    (u.confirmEmail.dirty || u.confirmEmail.touched))
+                "
+              >
+                <span
+                  *ngIf="u.confirmEmail.errors?.required"
+                  class="text-danger"
+                  >{{ 'required_desc' | translate }}</span
+                >
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div
+              class="form-group col-md-6"
+              [ngClass]="{
+                'has-danger':
+                  (u.city.invalid && submitted) ||
+                  (u.city.invalid && (u.city.dirty || u.city.touched)),
+                'has-success': u.city.valid
+              }"
+            >
+              <label class=""
+                >{{ 'fields.city_field' | translate
+                }}<span class="required">{{
+                  'required_symbol' | translate
+                }}</span></label
+              >
+              <input
+                class="form-control placeholder-no-fix"
+                type="text"
+                name="city"
+                maxlength="255"
+                formControlName="city"
+              />
+              <div
+                *ngIf="
+                  (u.city.invalid && submitted) ||
+                  (u.city.invalid && (u.city.dirty || u.city.touched))
+                "
+              >
+                <span class="text-danger">{{
+                  'required_desc' | translate
+                }}</span>
+              </div>
+            </div>
+            <div
+              class="form-group col-md-6"
+              [ngClass]="{
+                'has-danger':
+                  (u.country.invalid && submitted) ||
+                  (u.country.invalid && (u.country.dirty || u.country.touched)),
+                'has-success':
+                  u.country.valid && (u.country.dirty || u.country.touched)
+              }"
+            >
+              <label class=""
+                >{{ 'fields.country_field' | translate
+                }}<span class="required">{{
+                  'required_symbol' | translate
+                }}</span></label
+              >
+              <select
+                name="country"
+                class="form-control"
+                formControlName="country"
+              >
+                <option
+                  *ngFor="let item of masterData.countries"
+                  [value]="item.value"
+                  >{{ item.name }}</option
+                >
+              </select>
+              <div
+                *ngIf="
+                  (u.country.invalid && submitted) ||
+                  (u.country.invalid && (u.country.dirty || u.country.touched))
+                "
+              >
+                <span class="text-danger">{{
+                  'required_desc' | translate
+                }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="alert alert-danger display-hide"
+            style="margin: 0px 15px 0px 15px;"
+          >
+            <span> {{ txtFailedRegister }} </span>
+          </div>
+          <div class="form-group row" style="margin-top: 20px;">
+            <div class="col-md-8">
+              <label class="m-checkbox m-checkbox--solid m-checkbox--dark">
+                <input
+                  type="checkbox"
+                  name="isValidAge"
+                  formControlName="isValidAge"
+                />
+                <strong class="required">{{
+                  'required_symbol' | translate
+                }}</strong>
+                {{ 'age_label' | translate }}
+                <span></span>
+              </label>
+              <div
+                *ngIf="
+                  (u.isValidAge.invalid && submitted) ||
+                  (u.isValidAge.invalid &&
+                    (u.isValidAge.dirty || u.isValidAge.touched))
+                "
+              >
+                <span
+                  class="text-danger "
+                  *ngIf="u.isValidAge.errors?.required"
+                  >{{ 'required_desc' | translate }}</span
+                >
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="pull-right">
+                <button
+                  style="width: 80px;"
+                  type="submit"
+                  class="btn btn-dark"
+                  [disabled]="isLoading"
+                >
+                  <span>
+                    <i class="fa fa-spinner fa-spin" *ngIf="isUnregister"></i>
+                    <span> {{ 'next_label' | translate }}</span>
+                  </span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <div
+      class="m-login__container col-md-8 m-login__signup2"
+      style="max-width: 750px;"
+    >
+      <ul
+        class="nav nav-tabs m-tabs-line m-tabs-line--primary justify-content-center"
+        style="border: none;margin-top: -15px;"
+        role="tablist"
+      >
+        <!-- <li class="nav-item m-tabs__item">
+            <a class="nav-link m-tabs__link link" (click)="backLogin()">
+              {{'account.log_in'| translate}}
+            </a>
+          </li>
+          <li class="nav-item m-tabs__item" (click)="openUnRegister()">
+            <a class="nav-link m-tabs__link active link">
+              {{'register'| translate}}
+            </a>
+          </li> -->
+        <li
+          class="nav-item m-tabs__item"
+          style="font-size: 18px; font-weight: 600"
+        >
+          {{ 'account.registration_completion' | translate }}
+        </li>
+      </ul>
+      <form
+        class="m-form m-form--state"
+        [formGroup]="registerForm"
+        action=""
+        (ngSubmit)="registerSubmit()"
+        style="margin-top: 2rem;"
+      >
+        <div
+          style="padding-left: 15px; padding-right: 15px;"
+          class="form-group"
+        >
+          <label class=""
+            >{{ 'i_am_a' | translate
+            }}<span class="required">{{
+              'required_symbol' | translate
+            }}</span></label
+          >
+          <select
+            name="professionalType"
+            class="form-control"
+            formControlName="professionalType"
+            (change)="changeRegister('professionalType')"
+          >
+            <option
+              *ngFor="let item of masterData.professionalTypes"
+              [value]="item.value"
+              >{{ item.name }}</option
+            >
+          </select>
+        </div>
+
+        <div
+          *ngIf="registerForm.value.professionalType == 'sharer/collaborator'"
+          style="padding-left: 15px; padding-right: 15px;"
+          class="form-group"
+          [ngClass]="{
+            'has-danger':
+              (r.sharingWith.invalid && submittedRegister) ||
+              (r.sharingWith.invalid &&
+                (r.sharingWith.dirty || r.sharingWith.touched)),
+            'has-success':
+              r.sharingWith.valid &&
+              (r.sharingWith.dirty || r.sharingWith.touched)
+          }"
+        >
+          <label class="">
+            <span>{{ 'fields.i_am_sharing' | translate }}</span>
+            <span class="required">{{ 'required_symbol' | translate }}</span>
+          </label>
+          <input
+            type="text"
+            name="sharingWith"
+            class="form-control"
+            formControlName="sharingWith"
+            placeholder="{{ 'account.i_am_sharing_placeholder' | translate }}"
+          />
+          <div
+            *ngIf="
+              (r.sharingWith.invalid && submittedRegister) ||
+              (r.sharingWith.errors?.required &&
+                (r.sharingWith.dirty || r.sharingWith.touched))
+            "
+          >
+            <span class="text-danger">{{ 'required_desc' | translate }}</span>
+          </div>
+        </div>
+
+        <div class="row">
+          <div
+            class="form-group col-lg-4 col-sm-12"
+            [ngClass]="{
+              'has-danger':
+                (r.expertisePrimary.invalid && submittedRegister) ||
+                (r.expertisePrimary.invalid &&
+                  (r.expertisePrimary.dirty || r.expertisePrimary.touched)),
+              'has-success': r.expertisePrimary.valid
+            }"
+          >
+            <label class=""
+              >{{ 'fields.expertise_primary_field' | translate
+              }}<span class="required">{{
+                'required_symbol' | translate
+              }}</span></label
+            >
+            <select
+              name="expertisePrimary"
+              class="form-control"
+              formControlName="expertisePrimary"
+            >
+              <option
+                *ngFor="let item of masterData.roles"
+                [value]="item.value"
+                [disabled]="
+                  item.value == registerForm.value.expertiseSecondary ||
+                  item.value == registerForm.value.expertiseTierary
+                "
+              >
+                {{ item.name }}</option
+              >
+            </select>
+            <div
+              *ngIf="
+                (r.expertisePrimary.invalid && submittedRegister) ||
+                (r.expertisePrimary.errors?.required &&
+                  (r.expertisePrimary.dirty || r.expertisePrimary.touched))
+              "
+            >
+              <span class="text-danger">{{ 'required_desc' | translate }}</span>
+            </div>
+          </div>
+          <div class="form-group col-lg-4">
+            <label>{{ 'fields.expertise_secondary_field' | translate }}</label>
+            <select
+              name="expertiseSecondary"
+              class="form-control"
+              formControlName="expertiseSecondary"
+            >
+              <option
+                *ngFor="let item of masterData.roles"
+                [value]="item.value"
+                [disabled]="
+                  item.value == registerForm.value.expertisePrimary ||
+                  item.value == registerForm.value.expertiseTierary
+                "
+              >
+                {{ item.name }}</option
+              >
+            </select>
+          </div>
+          <div class="form-group col-lg-4">
+            <label>{{ 'fields.expertise_tierary_field' | translate }}</label>
+            <select
+              name="expertiseTierary"
+              class="form-control"
+              formControlName="expertiseTierary"
+            >
+              <option
+                *ngFor="let item of masterData.roles"
+                [value]="item.value"
+                [disabled]="
+                  item.value == registerForm.value.expertisePrimary ||
+                  (item.value == registerForm.value.expertiseSecondary &&
+                    item.value != '')
+                "
+              >
+                {{ item.name }}</option
+              >
+            </select>
+          </div>
+        </div>
+        <div style="padding: 0 15px">
+          <div
+            class="form-group"
+            *ngIf="registerForm.value.professionalType == 'other'"
+            [ngClass]="{
+              'has-danger':
+                (r.professionalTypeDescription.invalid && submittedRegister) ||
+                (r.professionalTypeDescription.invalid &&
+                  (r.professionalTypeDescription.dirty ||
+                    r.professionalTypeDescription.touched)),
+              'has-success':
+                r.professionalTypeDescription.valid &&
+                (r.professionalTypeDescription.dirty ||
+                  r.professionalTypeDescription.touched)
+            }"
+          >
+            <label class=""
+              >{{ 'your_answer' | translate }}
+              <span class="required"> {{ 'required_symbol' | translate }}</span>
+            </label>
+            <input
+              type="text"
+              name="professionalTypeDescription"
+              placeholder="Please be specific"
+              class="form-control"
+              formControlName="professionalTypeDescription"
+              maxlength="512"
+            />
+            <div
+              *ngIf="
+                (r.professionalTypeDescription.invalid && submittedRegister) ||
+                (r.professionalTypeDescription.errors?.required &&
+                  (r.professionalTypeDescription.dirty ||
+                    r.professionalTypeDescription.touched))
+              "
+            >
+              <span class="text-danger">{{ 'required_desc' | translate }}</span>
+            </div>
+          </div>
+          <div class="form-group" style="margin: 0px;">
+            <label class="">
+              <span>{{ 'fields.about_field' | translate }}</span>
+              <span *ngIf="required.bio" class="required">{{
+                'required_symbol' | translate
+              }}</span>
+              <span class="field-desc">
+                ({{ 'account.bio_desc' | translate }})</span
+              >
+            </label>
+          </div>
+
+          <div
+            class="form-group sub-form"
+            [ngClass]="{
+              'has-danger':
+                (r.bioAnswer_1.invalid && submittedRegister) ||
+                (r.bioAnswer_1.invalid &&
+                  (r.bioAnswer_1.dirty || r.bioAnswer_1.touched)),
+              'has-success': r.bioAnswer_1.valid
+            }"
+          >
+            <label class="">
+              <span>{{ 'account.bio_question_1' | translate }}</span>
+              <span *ngIf="required.bio" class="required">{{
+                'required_symbol' | translate
+              }}</span>
+            </label>
+            <div>
+              <input
+                class="form-control"
+                name="bioAnswer_1"
+                placeholder="{{
+                  'account.your_answer_placeholder' | translate
+                }}"
+                formControlName="bioAnswer_1"
+                maxlength="50"
+              />
+            </div>
+
+            <div
+              *ngIf="
+                (r.bioAnswer_1.invalid && submittedRegister) ||
+                (r.bioAnswer_1.errors?.required &&
+                  (r.bioAnswer_1.dirty || r.bioAnswer_1.touched))
+              "
+            >
+              <span
+                *ngIf="r.bioAnswer_1.errors?.required"
+                class="text-danger"
+                >{{ 'required_desc' | translate }}</span
+              >
+            </div>
+          </div>
+
+          <div
+            class="form-group sub-form"
+            [ngClass]="{
+              'has-danger':
+                (r.bioAnswer_2.invalid && submittedRegister) ||
+                (r.bioAnswer_2.invalid &&
+                  (r.bioAnswer_2.dirty || r.bioAnswer_2.touched)),
+              'has-success': r.bioAnswer_2.valid
+            }"
+          >
+            <label class="">
+              <span>{{ 'account.bio_question_2' | translate }}</span>
+              <span *ngIf="required.bio" class="required">{{
+                'required_symbol' | translate
+              }}</span>
+            </label>
+            <div>
+              <input
+                class="form-control"
+                name="bioAnswer_2"
+                placeholder="{{
+                  'account.your_answer_placeholder' | translate
+                }}"
+                formControlName="bioAnswer_2"
+                maxlength="100"
+              />
+            </div>
+
+            <div
+              *ngIf="
+                (r.bioAnswer_2.invalid && submittedRegister) ||
+                (r.bioAnswer_2.errors?.required &&
+                  (r.bioAnswer_2.dirty || r.bioAnswer_2.touched))
+              "
+            >
+              <span
+                *ngIf="r.bioAnswer_2.errors?.required"
+                class="text-danger"
+                >{{ 'required_desc' | translate }}</span
+              >
+            </div>
+          </div>
+
+          <div
+            class="form-group sub-form"
+            [ngClass]="{
+              'has-danger':
+                (r.bioAnswer_3.invalid && submittedRegister) ||
+                (r.bioAnswer_3.invalid &&
+                  (r.bioAnswer_3.dirty || r.bioAnswer_3.touched)),
+              'has-success': r.bioAnswer_3.valid
+            }"
+          >
+            <label class="">
+              <span>{{ 'account.bio_question_3' | translate }}</span>
+              <span *ngIf="required.bio" class="required">{{
+                'required_symbol' | translate
+              }}</span>
+            </label>
+            <div>
+              <input
+                class="form-control"
+                name="bioAnswer_3"
+                placeholder="{{
+                  'account.your_answer_placeholder' | translate
+                }}"
+                formControlName="bioAnswer_3"
+                maxlength="50"
+              />
+            </div>
+
+            <div
+              *ngIf="
+                (r.bioAnswer_3.invalid && submittedRegister) ||
+                (r.bioAnswer_3.errors?.required &&
+                  (r.bioAnswer_3.dirty || r.bioAnswer_3.touched))
+              "
+            >
+              <span
+                *ngIf="r.bioAnswer_3.errors?.required"
+                class="text-danger"
+                >{{ 'required_desc' | translate }}</span
+              >
+            </div>
+          </div>
+
+          <div
+            class="form-group sub-form"
+            [ngClass]="{
+              'has-danger':
+                (r.bioAnswer_4.invalid && submittedRegister) ||
+                (r.bioAnswer_4.invalid &&
+                  (r.bioAnswer_4.dirty || r.bioAnswer_4.touched)),
+              'has-success': r.bioAnswer_4.valid
+            }"
+          >
+            <label class="">
+              <span>{{ 'account.bio_question_4' | translate }}</span>
+              <span *ngIf="required.bio" class="required">{{
+                'required_symbol' | translate
+              }}</span>
+            </label>
+            <div>
+              <input
+                class="form-control"
+                name="bioAnswer_4"
+                placeholder="{{
+                  'account.your_answer_placeholder' | translate
+                }}"
+                formControlName="bioAnswer_4"
+                maxlength="100"
+              />
+            </div>
+
+            <div
+              *ngIf="
+                (r.bioAnswer_4.invalid && submittedRegister) ||
+                (r.bioAnswer_4.errors?.required &&
+                  (r.bioAnswer_4.dirty || r.bioAnswer_4.touched))
+              "
+            >
+              <span
+                *ngIf="r.bioAnswer_4.errors?.required"
+                class="text-danger"
+                >{{ 'required_desc' | translate }}</span
+              >
+            </div>
+          </div>
+
+          <div
+            class="form-group sub-form"
+            [ngClass]="{
+              'has-danger':
+                (r.bioAnswer_5.invalid && submittedRegister) ||
+                (r.bioAnswer_5.invalid &&
+                  (r.bioAnswer_5.dirty || r.bioAnswer_5.touched)),
+              'has-success': r.bioAnswer_5.valid
+            }"
+          >
+            <label class="">
+              <span>{{ 'account.bio_question_5' | translate }}</span>
+              <span *ngIf="required.bio" class="required">{{
+                'required_symbol' | translate
+              }}</span>
+            </label>
+            <div>
+              <input
+                class="form-control"
+                name="bioAnswer_5"
+                placeholder="{{
+                  'account.your_answer_placeholder' | translate
+                }}"
+                formControlName="bioAnswer_5"
+                maxlength="100"
+              />
+            </div>
+
+            <div
+              *ngIf="
+                (r.bioAnswer_5.invalid && submittedRegister) ||
+                (r.bioAnswer_5.errors?.required &&
+                  (r.bioAnswer_5.dirty || r.bioAnswer_5.touched))
+              "
+            >
+              <span
+                *ngIf="r.bioAnswer_5.errors?.required"
+                class="text-danger"
+                >{{ 'required_desc' | translate }}</span
+              >
+            </div>
+          </div>
+
+          <div
+            class="form-group"
+            [ngClass]="{
+              'has-danger':
+                (r.portfolioLink.invalid && submittedRegister) ||
+                (r.portfolioLink.invalid &&
+                  (r.portfolioLink.dirty || r.portfolioLink.touched)),
+              'has-success': r.portfolioLink.valid
+            }"
+          >
+            <label class="">
+              <span>{{ 'fields.portfolio_link' | translate }}</span>
+              <span *ngIf="required.portfolio" class="required">{{
+                'required_symbol' | translate
+              }}</span>
+              <span style="margin-left: 5px;">
+                <i
+                  class="fa fa-info-circle text-info"
+                  style="cursor: pointer;"
+                  (click)="showDetailInfo()"
+                ></i>
+              </span>
+              <span class="field-desc" *ngIf="!required.portfolio">
+                ({{ 'optional_label' | translate }})</span
+              >
+            </label>
+            <div>
+              <input
+                class="form-control"
+                id="portfolioLink"
+                name="portfolioLink"
+                title="{{ 'account.portfolio_link_placeholder' | translate }}"
+                placeholder="{{
+                  'account.portfolio_link_placeholder' | translate
+                }}"
+                formControlName="portfolioLink"
+                maxlength="255"
+              />
+            </div>
+            <div
+              *ngIf="r.portfolioLink.errors?.pattern"
+              class="light-small text-danger"
+            >
+              {{ 'url_invalid' | translate }}
+            </div>
+            <div
+              *ngIf="
+                (r.portfolioLink.invalid && submittedRegister) ||
+                (r.portfolioLink.errors?.required &&
+                  (r.portfolioLink.dirty || r.portfolioLink.touched))
+              "
+            >
+              <span
+                *ngIf="r.portfolioLink.errors?.required"
+                class="text-danger"
+                >{{ 'required_desc' | translate }}</span
+              >
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>
+              <span *ngIf="unRegisterForm.value.userType == 'personal'">{{
+                'govermentId' | translate
+              }}</span>
+              <span *ngIf="unRegisterForm.value.userType == 'company'">{{
+                'account.business_ID' | translate
+              }}</span>
+              <span class="field-desc" *ngIf="!required.governmentId">
+                ({{ 'optional_label' | translate }})</span
+              >
+              <span *ngIf="required.governmentId" class="required">{{
+                'required_symbol' | translate
+              }}</span>
+            </label>
+            <p
+              *ngIf="unRegisterForm.value.userType == 'personal'"
+              style="margin-top:0px;font-weight: 500"
+            >
+              {{ 'account.government_ID_desc' | translate }}
+            </p>
+            <p
+              *ngIf="unRegisterForm.value.userType == 'company'"
+              style="margin-top:0px;font-weight: 500"
+            >
+              {{ 'account.business_ID_desc' | translate }}
+            </p>
+            <div class="" *ngIf="registerForm.value.governmentFileName">
+              <p>
+                <i>- {{ registerForm.value.governmentFileName }}</i>
+              </p>
+            </div>
+            <div class="">
+              <input
+                id="fGovernment"
+                name="government"
+                type="file"
+                data-msg-placeholder="Select file (.tiff, .doc, .pdf, .gif, .jpeg, .jpg, .png)"
+              />
+            </div>
+          </div>
+
+          <div
+            *ngIf="unRegisterForm.value.country === 'Canada'"
+            class="form-group"
+            [ngClass]="{
+              'has-danger':
+                (r.HSTRegistrationNumber.invalid && submittedRegister) ||
+                (r.HSTRegistrationNumber.invalid &&
+                  (r.HSTRegistrationNumber.dirty ||
+                    r.HSTRegistrationNumber.touched)),
+              'has-success': r.HSTRegistrationNumber.valid
+            }"
+          >
+            <label class=""
+              >{{ 'fields.HST_registration_number' | translate }}
+              <span>(Harmonized Sale Tax)</span>
+            </label>
+            <input
+              class="form-control"
+              type="text"
+              name="HSTRegistrationNumber"
+              formControlName="HSTRegistrationNumber"
+              [pattern]="patternTelephone"
+              placeholder="{{
+                'account.HST_registration_number_placeholder' | translate
+              }}"
+            />
+
+            <div *ngIf="r.HSTRegistrationNumber.errors">
+              <span
+                class="help-block text-danger"
+                *ngIf="r.HSTRegistrationNumber.errors.pattern"
+                >{{
+                  'account.HST_registration_number_invalid' | translate
+                }}</span
+              >
+            </div>
+          </div>
+
+          <div *ngIf="enableReferral"
+            class="form-group"
+            [ngClass]="{
+              'has-danger':
+                (r.referralSourceId.invalid && submittedRegister) ||
+                (r.referralSourceId.invalid &&
+                  (r.referralSourceId.dirty || r.referralSourceId.touched)),
+              'has-success': r.referralSourceId.valid
+            }"
+          >
+            <label class="">
+              <span>{{ 'fields.member_referral_field' | translate }}</span>
+              <span class="required">{{ 'required_symbol' | translate }}</span>
+            </label>
+            <div class="">
+              <select
+                class="form-control"
+                name="referralSourceId"
+                formControlName="referralSourceId"
+                (change)="
+                  referralSourceChange(); changeRegister('referralSourceId')
+                "
+                [attr.disabled]="
+                  registerForm.value.registerValue.disabledCode == true
+                    ? true
+                    : null
+                "
+              >
+                <option
+                  *ngFor="let r of masterData.referralSources"
+                  [value]="r.value"
+                  >{{ r.name }}</option
+                >
+              </select>
+              <div
+                *ngIf="
+                  (r.referralSourceId.invalid && submittedRegister) ||
+                  (r.referralSourceId.errors?.required &&
+                    (r.referralSourceId.dirty || r.referralSourceId.touched))
+                "
+              >
+                <span class="text-danger">{{
+                  'required_desc' | translate
+                }}</span>
+              </div>
+            </div>
+          </div>
+          <div
+            class="form-group"
+            *ngIf="
+              enableReferral &&
+              (registerForm.value.referralSourceId == 'blackbox' ||
+              registerForm.value.referralSourceId == 'other')
+            "
+            [ngClass]="{
+              'has-danger':
+                (r.referralDescription.invalid && submittedRegister) ||
+                (r.referralDescription.invalid &&
+                  (r.referralDescription.dirty ||
+                    r.referralDescription.touched)),
+              'has-success':
+                r.referralDescription.valid &&
+                (r.referralDescription.dirty || r.referralDescription.touched)
+            }"
+          >
+            <label class=""
+              ><b
+                >{{ 'your_answer' | translate
+                }}<span class="required">
+                  {{ 'required_symbol' | translate }}</span
+                ></b
+              >
+            </label>
+
+            <div class="m-typeahead">
+              <input
+                type="text"
+                name="referralDescription"
+                placeholder="{{ placeholderModalAnswer }}"
+                id="m_typeahead_1"
+                class="form-control"
+                formControlName="referralDescription"
+                maxlength="512"
+                [attr.disabled]="
+                  registerForm.value.registerValue.disabledCode == true
+                    ? true
+                    : null
+                "
+              />
+            </div>
+
+            <div
+              *ngIf="
+                (r.referralDescription.invalid && submittedRegister) ||
+                (r.referralDescription.errors?.required &&
+                  (r.referralDescription.dirty ||
+                    r.referralDescription.touched))
+              "
+            >
+              <span class="text-danger">{{ 'required_desc' | translate }}</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="">
+              {{ 'social_addresses' | translate }}
+              <span class="field-desc">
+                ({{ 'optional_label' | translate }})</span
+              >
+            </label>
+            <div class="row" style="margin-bottom: 0px">
+              <div
+                style="padding: 0;"
+                class="form-group col-xs-4 col-sm-4 col-md-4 col-lg-4"
+              >
+                <select
+                  class="form-control"
+                  name="firstSocial"
+                  formControlName="firstSocial"
+                >
+                  <option
+                    *ngFor="let item of masterData.socials"
+                    [value]="item.value"
+                    [disabled]="item.value == registerForm.value.secondSocial"
+                    >{{ item.name }}</option
+                  >
+                </select>
+              </div>
+              <div
+                style="padding-right: 0;"
+                class="form-group col-xs-8 col-sm-8 col-md-8 col-lg-8"
+                [ngClass]="{
+                  'has-danger':
+                    (checkSocial && r.firstSocialAddress.invalid) ||
+                    (r.firstSocialAddress.invalid &&
+                      (r.firstSocialAddress.dirty ||
+                        r.firstSocialAddress.touched)),
+                  'has-success':
+                    r.firstSocialAddress.valid &&
+                    !(registerForm.value.firstSocialAddress == '') &&
+                    (r.firstSocialAddress.dirty || r.firstSocialAddress.touched)
+                }"
+              >
+                <input
+                  name="firstSocialAddress"
+                  placeholder="{{
+                    'account.social_link_placeholder' | translate
+                  }}"
+                  class="form-control"
+                  [pattern]="patternUrl"
+                  formControlName="firstSocialAddress"
+                />
+                <span
+                  class="help-block text-danger"
+                  *ngIf="r.firstSocialAddress.errors?.pattern"
+                  >{{ 'url_invalid' | translate }}</span
+                >
+              </div>
+            </div>
+            <div class="row" style="margin-top: 0px">
+              <div
+                style="padding: 0;"
+                class="form-group col-xs-4 col-sm-4 col-md-4 col-lg-4"
+              >
+                <select
+                  class="form-control"
+                  name="secondSocial"
+                  formControlName="secondSocial"
+                >
+                  <option
+                    *ngFor="let item of masterData.socials"
+                    [value]="item.value"
+                    [disabled]="item.value == registerForm.value.firstSocial"
+                    >{{ item.name }}</option
+                  >
+                </select>
+              </div>
+              <div
+                style="padding-right: 0;"
+                class="form-group col-xs-8 col-sm-8 col-md-8 col-lg-8"
+                [ngClass]="{
+                  'has-danger':
+                    (checkSocial && r.secondSocialAddress.invalid) ||
+                    (r.secondSocialAddress.invalid &&
+                      (r.secondSocialAddress.dirty ||
+                        r.secondSocialAddress.touched)),
+                  'has-success':
+                    r.secondSocialAddress.valid &&
+                    !(registerForm.value.secondSocialAddress == '') &&
+                    (r.secondSocialAddress.dirty ||
+                      r.secondSocialAddress.touched)
+                }"
+              >
+                <input
+                  type="text"
+                  name="secondSocialAddress"
+                  placeholder="{{
+                    'account.social_link_placeholder' | translate
+                  }}"
+                  class="form-control"
+                  [pattern]="patternUrl"
+                  formControlName="secondSocialAddress"
+                />
+                <span
+                  class="help-block text-danger"
+                  *ngIf="r.secondSocialAddress.errors?.pattern"
+                  >{{ 'url_invalid' | translate }}</span
+                >
+              </div>
+            </div>
+            <div>
+              <p
+                style="margin-top:0px; text-align: justify"
+                [ngClass]="{
+                  'text-danger':
+                    checkSocial &&
+                    registerForm.value.firstSocialAddress == '' &&
+                    registerForm.value.secondSocialAddress == ''
+                }"
+              >
+                <i>{{ 'social_media_link_desc' | translate }}</i>
+              </p>
+            </div>
+          </div>
+          <div class="form-group pull-right actions">
+            <button
+              type="button"
+              class="btn btn-secondary active"
+              [disabled]="isLoading"
+              style="margin-right: 10px"
+              (click)="backUnRegister()"
+            >
+              {{ 'common.back' | translate }}
+            </button>
+            <button type="submit" class="btn btn-dark" [disabled]="isLoading">
+              <span>
+                <i class="fa fa-spinner fa-spin" *ngIf="isRegister"></i>
+                <span> {{ 'common.submit' | translate }}</span>
+              </span>
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <div
+      class="m-login__container col-md-6 m-login__forget-password"
+      style="max-width: 525px;"
+    >
+      <ul
+        class="nav nav-tabs m-tabs-line m-tabs-line--primary justify-content-center"
+        style="border: none;margin-top: -25px;"
+        role="tablist"
+      >
+        <li class="nav-item m-tabs__item">
+          <a class="nav-link m-tabs__link active link" (click)="backLogin()">
+            {{ 'account.log_in' | translate }}
+          </a>
+        </li>
+        <li class="nav-item m-tabs__item" (click)="openUnRegister()">
+          <a class="nav-link m-tabs__link link">
+            {{ 'register' | translate }}
+          </a>
+        </li>
+      </ul>
+      <form
+        class="m-form m-form--state"
+        action=""
+        (ngSubmit)="getPasswordSubmit()"
+      >
+        <div style="height: 155px;">
+          <div
+            class="form-group"
+            [ngClass]="{
+              'has-danger': successfulForget === false || checkEmail == false,
+              'has-success':
+                checkEmail == true &&
+                (email.dirty || email.touched) &&
+                models.username != ''
+            }"
+          >
+            <label class="">
+              {{ 'account.email_address' | translate }}
+            </label>
+            <input
+              class="form-control m-input"
+              type="text"
+              placeholder="Email"
+              required
+              name="email"
+              [(ngModel)]="models.username"
+              #email="ngModel"
+              (keyup)="checkEmails(models.username)"
+            />
+          </div>
+          <div
+            *ngIf="!forgetPassword"
+            class="alert"
+            [class.alert-danger]="
+              successfulForget === false || checkEmail == false
+            "
+            [class.alert-success]="successfulForget == true"
+          >
+            <span *ngIf="models.username != ''">{{ txtForget }}</span>
+            <span *ngIf="models.username == ''">{{
+              'required_desc' | translate
+            }}</span>
+          </div>
+        </div>
+        <div class="pull-right">
+          <button
+            class="btn btn-secondary active"
+            (click)="backForgotPassword()"
+            style="margin-right: 5px"
+          >
+            {{ 'common.cancel' | translate }}
+          </button>
+          <button class="btn btn-dark">
+            {{ 'account.send_reset_instructions' | translate }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div
+    class="row justify-content-center"
+    style="margin: 0; padding-top: 7%"
+    [hidden]="!hideLogin"
+  >
+    <div
+      class="m-login__container col-md-6 m-login__signin"
+      style="max-width: 525px;"
+    >
+      <ul
+        class="nav nav-tabs m-tabs-line m-tabs-line--primary justify-content-center"
+        style="border: none;margin-top: -25px;"
+        role="tablist"
+      >
+        <li class="nav-item m-tabs__item">
+          <a class="nav-link m-tabs__link link" (click)="backLogin(true)">
+            {{ 'account.log_in' | translate }}
+          </a>
+        </li>
+        <li class="nav-item m-tabs__item" (click)="openUnRegister(true)">
+          <a class="nav-link m-tabs__link link">
+            {{ 'register' | translate }}
+          </a>
+        </li>
+      </ul>
+      <h4>
+        <b>{{ 'account.reset_password_label' | translate }}</b>
+      </h4>
+      <form
+        #change_password="ngForm"
+        class="m-form m-form--state"
+        (ngSubmit)="
+          change_password.form.valid &&
+            validatePassword() &&
+            submitResetPassword();
+          isChange = true
+        "
+      >
+        <div>
+          <div
+            class="form-group"
+            [ngClass]="{
+              'has-danger':
+                (newPassword.invalid && isChange) ||
+                (isChange &&
+                  validatePassword() == undefined &&
+                  (newPassword.dirty || newPassword.touched)),
+              'has-success': newPassword.valid && validatePassword()
+            }"
+          >
+            <label class="control-label"
+              >{{ 'account.new_password' | translate
+              }}<span class="required">{{
+                'required_symbol' | translate
+              }}</span></label
+            ><br />
+            <span
+              class="help-block small"
+              [ngClass]="{
+                'text-danger':
+                  !newPassword.pristine &&
+                  validatePassword() == undefined &&
+                  isChange
+              }"
+              >{{ 'password_validate' | translate }}</span
+            >
+            <input
+              type="password"
+              name="newPassword"
+              #newPassword="ngModel"
+              class="form-control"
+              [(ngModel)]="changePassword.newPassword"
+              required
+              (ngModelChange)="validatePassword(); isChange = true"
+              maxlength="255"
+            />
+            <div *ngIf="newPassword.invalid && isChange">
+              <p class="text-danger">{{ 'required_desc' | translate }}</p>
+            </div>
+          </div>
+          <div
+            class="form-group"
+            [ngClass]="{
+              'has-danger':
+                (ReNewPassword.invalid && isChange) ||
+                (changePassword.ReNewPassword !== changePassword.newPassword &&
+                  isChange) ||
+                (validatePassword() == undefined && isChange),
+              'has-success':
+                ReNewPassword.valid &&
+                changePassword.ReNewPassword === changePassword.newPassword &&
+                validatePassword()
+            }"
+          >
+            <label class="control-label"
+              >{{ 'account.re_new_password' | translate
+              }}<span class="required">{{
+                'required_symbol' | translate
+              }}</span></label
+            >
+            <input
+              type="password"
+              name="ReNewPassword"
+              #ReNewPassword="ngModel"
+              class="form-control"
+              [(ngModel)]="changePassword.ReNewPassword"
+              (change)="isChange = true"
+              required
+              maxlength="255"
+              onpaste="return false;"
+            />
+            <div
+              *ngIf="
+                changePassword.ReNewPassword !== changePassword.newPassword &&
+                isChange
+              "
+            >
+              <p class="text-danger">
+                {{ 'account.confirm_password_validate' | translate }}
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="text-right">
+          <button type="submit" [disabled]="loading" class="btn btn-dark m-btn">
+            <span>
+              <i class="fa fa-check" *ngIf="!loading"></i>
+              <i class="fa fa-spinner fa-spin" *ngIf="loading"></i>
+              <span>{{ 'account.reset_password_button' | translate }}</span>
+            </span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="alertModal"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="alertModalTitleId"
+  aria-hidden="true"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ 'account.notice' | translate }}</h5>
+        <button
+          type="button"
+          class="close"
+          (click)="nextPage()"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        {{ 'account.notice_dec' | translate }}
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn
+          btn-secondary
+          m-btn m-btn--pill"
+          (click)="nextPage()"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail info demo reel link Modal -->
+  <div
+    class="modal fade"
+    id="detailDemoReelLink"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="detailDemoReelLinkTitle"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Detail Info</h5>
+          <button
+            type="button"
+            class="close"
+            data-dismiss="modal"
+            aria-label="Close"
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>
+            Please Provide a <em>YouTube</em> or <em>Vimeo</em> link to your 2-3
+            minute long DEMO REEL. This DEMO REEL should demonstrate your
+            ability to create technically excellent (no flaws), diverse,
+            professional, compelling and marketable video content.
+          </p>
+
+          <p>
+            We get many applications every day so we really need your DEMO REEL
+            to be simple, comprehensive and succinct as we simply do not have
+            time to sift through various links, websites and folders etc.. Note
+            that your DEMO REEL link will be used in your BlackBox profile so
+            that other members will be able to learn more about your
+            capabilities as a potential collaborator.
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn
+          btn-secondary
+          m-btn m-btn--pill"
+            data-dismiss="modal"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

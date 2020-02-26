@@ -1,0 +1,349 @@
+.row-chart {
+  width: 100%;
+  margin: 0;
+  /* margin: 0 15px; */
+}
+.col-md-7 {
+  padding-left: 0;
+}
+.background-row-chart {
+  box-shadow: 0px 1px 15px 1px rgba(69, 65, 78, 0.08);
+  background-color: #fff;
+  border-radius: 5px;
+}
+.login-time {
+  margin-top: 10px;
+  min-height: 50px;
+}
+.login-time p {
+  padding: 15px 20px 10px 20px;
+  font-size: 14px;
+}
+.revenue.table tr td {
+  padding-left: 20px;
+}
+.revenue.table tr th {
+  text-align: center;
+}
+a {
+  color: #539dff !important;
+  cursor: pointer;
+}
+.footage {
+  background: #fff;
+  width: 100%;
+  margin: 0;
+  margin-top: 10px;
+  padding: 10px 20px;
+}
+.cal:focus {
+  outline: none;
+}
+.cal {
+  cursor: pointer;
+}
+.search-result {
+  min-width: 675px;
+  width: 100%;
+  height: 200px;
+}
+.search-result img {
+  width: 100px;
+  height: 50px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.search-result .table {
+  word-wrap: break-word;
+  table-layout: fixed;
+  width: 100%;
+}
+.project-title {
+  padding: 0.75rem;
+  font-weight: 600;
+}
+.input-toggel a {
+  height: 37px;
+  border-radius: 0 2px 2px 0 !important;
+}
+.input-toggel ul li:hover {
+  background-color: #c7c7c7;
+}
+.input-toggel ul li:hover a span {
+  color: #fff !important;
+}
+.input-toggel ul li:hover label {
+  color: #fff !important;
+}
+.input-toggel ul li a {
+  padding: 10px;
+}
+.sub-menu-label label {
+  font-size: 9px;
+  color: #6f727d;
+}
+.sub-menu-label a {
+  margin-top: -20px;
+  margin-bottom: -5px;
+}
+.sub-menu-label {
+  border-bottom: 2px solid #e2e2e2;
+}
+.sub-datepicker {
+  border-top: 1px solid #e2e2e2;
+}
+.sub-datepicker .form-to {
+  border: 1px solid #e2e2e2;
+  border-radius: 5px;
+  height: 40px;
+  margin: 5px 20px;
+}
+.sub-datepicker input {
+  border: none;
+  padding-left: 10px !important;
+  margin-top: -10px;
+}
+.sub-datepicker label {
+  font-size: 9px;
+  color: #b8b8b8;
+  padding-left: 10px;
+}
+.sub-datepicker input {
+  width: 100%;
+  font-size: 14px;
+  color: #6f727d;
+}
+.sub-datepicker .m-input-icon {
+  color: #6f727d;
+  margin-top: -7px;
+}
+.sub-datepicker input:focus {
+  outline: none;
+}
+.popver-hover li:hover {
+  background: #c7c7c7;
+}
+.sub-datepicker .form-to span span {
+  margin-top: -5px;
+  text-align: right;
+  padding-right: 10px;
+}
+.popver-hover li {
+  padding: 0 10px;
+}
+.popver-hover li:hover label {
+  color: #fff;
+}
+.popver-hover li:hover a span {
+  color: #fff;
+}
+.sub-datepicker .form-to input::placeholder {
+  color: #b8b8b8;
+}
+
+a.link {
+  color: #4e94f3;
+  cursor: pointer;
+}
+
+a.link:hover {
+  text-decoration: underline;
+  color: #4e94f3;
+}
+.thumbnail-cover {
+  position: relative;
+  height: 120px;
+  background-size: cover;
+  background-position: center;
+  color: white;
+  border-radius: 3px;
+  margin-bottom: 15px;
+}
+
+@media (min-width: 576px) {
+  .thumbnail-cover {
+    height: 150px;
+    background-size: cover;
+    background-position: center;
+    color: white;
+    border-radius: 5px;
+    margin-bottom: 15px;
+  }
+}
+
+@media (min-width: 720px) {
+  .thumbnail-cover {
+    height: 135px;
+    background-size: cover;
+    background-position: center;
+    color: white;
+    border-radius: 5px;
+    margin-bottom: 15px;
+  }
+}
+
+.thumbnail-cover:hover .over-lay i {
+  opacity: 1;
+  transform: scale(1);
+  transition: all 0.3s;
+}
+
+.thumbnail-cover:hover .over-lay {
+  background: linear-gradient(
+    0deg,
+    rgba(186, 181, 181, 1) 0%,
+    rgba(233, 232, 231, 0) 100%
+  );
+}
+
+.thumbnail-cover .over-lay i {
+  cursor: pointer;
+  font-size: 50px;
+  opacity: 0;
+  transform: scale(0.5);
+  transition: all 0.3s;
+}
+
+.over-lay {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0px 5px;
+  background: linear-gradient(
+    0deg,
+    rgba(186, 181, 181, 1) 0%,
+    rgba(233, 232, 231, 0) 25%
+  );
+  border-radius: inherit;
+  transition: all 0.3s;
+}
+
+.thumbnail-cover .over-lay span {
+  position: absolute;
+  bottom: 5px;
+  left: 10px;
+}
+
+.recently-online {
+  text-align: center;
+  padding: 10px 0;
+  position: relative;
+}
+.recently-online img {
+  max-width: -webkit-fill-available;
+  max-width: -moz-available;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.recently-online a {
+  cursor: pointer;
+  position: absolute;
+  background-image: url('src/assets/img/play-icon.png');
+  background-size: 25px 25px;
+  height: 25px;
+  width: 25px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 999;
+  color: #fff;
+}
+.recently-online .top-left {
+  background-color: black;
+  color: white;
+  position: absolute;
+  top: 5px;
+  margin-top: 5px;
+  border-radius: 3px 3px 0 0;
+  width: 100%;
+  text-align: left;
+  padding-left: 10px;
+}
+.recently-online .top-left span {
+  text-transform: capitalize;
+}
+@media (max-width: 576px) {
+  .recently-online .top-left {
+    position: initial;
+    color: black;
+    text-align: center;
+    background-color: white;
+    margin-top: 0;
+  }
+  .recently-online .top-left span {
+    font-weight: 600;
+  }
+  .mobile {
+    margin-top: 30px !important;
+  }
+}
+@media (max-width: 938px) {
+  .notifications {
+    width: 100% !important;
+    margin-left: 15px;
+  }
+}
+@media (max-width: 767px) {
+  .mobile {
+    margin-top: 10px;
+  }
+  .col-md-7 {
+    padding-left: 15px;
+  }
+}
+
+.notifications {
+  margin-right: 15px;
+  width: 300px;
+  margin-bottom: 15px;
+}
+.notifications .item .notification-tilte {
+  cursor: pointer;
+}
+.notifications .item:hover {
+  background-color: #f7f8fa;
+}
+.notifications .new {
+  background-color: #edf2fa;
+  font-weight: 400 !important;
+  color: #539dff;
+}
+.notifications .body {
+  max-height: 305px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+.notifications .body::-webkit-scrollbar {
+  width: 5px;
+}
+
+.notifications .body::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.notifications .body::-webkit-scrollbar-thumb {
+  background: #888;
+}
+
+.notifications .body::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+.notifications .new a span {
+  font-weight: 450 !important;
+  color: #539dff;
+}
+.notification-tilte {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  max-width: 200px;
+}
+.icon-remove {
+  color: red;
+  cursor: pointer;
+}
+.hot-text {
+  margin-left: 5px;
+}

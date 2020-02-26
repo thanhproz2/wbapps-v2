@@ -1,0 +1,498 @@
+<style>
+  .screen {
+    height: 200px !important;
+  }
+  .btn.btn-link {
+    color: #539dff !important;
+  }
+</style>
+
+<div class="m-portlet m-portlet--head-sm m-portlet--last" m-portlet="true">
+  <div class="m-portlet__head">
+    <div class="m-portlet__head-caption">
+      <div class="row">
+        <div class="col-sm-6">
+          <div class="m-portlet__head-title">
+            <span class="m-portlet__head-icon">
+              <i class="fa fa-book"></i>
+            </span>
+            <h3 class="m-portlet__head-text">
+              {{ 'links.usage_guide' | translate }}
+            </h3>
+          </div>
+        </div>
+        <div class="col-sm-6 m-form__group">
+          <div class="input-group m-input-icon m-input-icon--right">
+            <input
+              #search
+              type="text"
+              class="form-control"
+              [(ngModel)]="keywords"
+              (keyup)="!keywords ? filterText() : keywords"
+              (keyup.enter)="filterText()"
+              placeholder="{{ 'footage.filter_footages' | translate }}"
+            />
+            <span
+              *ngIf="keywords != ''"
+              class="m-input-icon__icon m-input-icon__icon--right clear-icon-input"
+              (click)="clearSearch()"
+            >
+              <i class="fa fa-remove"></i>
+            </span>
+            <div class="input-group-append">
+              <button
+                class="btn btn-secondary active"
+                type="button"
+                (click)="filterText()"
+              >
+                <i class="fa fa-search"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="m-portlet__body">
+    <div class="scroller">
+      <div class="tab-nav container-fluid">
+        <div class="tab-content" style="text-align: justify">
+          <div>
+            <p>
+              Before getting started, please read the Blackbox User Guide
+              <a
+                href="https://www.notion.so/BlackBox-CURATION-GUIDE-0e2261b9974a4cc68c8ed3fc2dd7ad68"
+                class="btn-link"
+                target="_blank"
+                >[CLICK HERE]</a
+              >
+              to thoroughly understand the BlackBox guidelines and requirements.
+              The User Guide is designed to teach you how to get started and to
+              answer all your questions about how the platform works.
+            </p>
+          </div>
+          <br />
+
+          <p><strong>My Dashboard:</strong></p>
+
+          <p>
+            This overview of your account shows you the following information:
+            last login time, monthly earnings graph, revenue to date,
+            collaborative invitations, available opportunities, BlackBox
+            notifications, and recently approved member content.
+          </p>
+          <p>
+            If one of your expertise roles is set to "Curator", then you can
+            toggle off and on your availability to do curation work from "MY
+            DASHBOARD".
+          </p>
+          <p>
+            You can also search through your footage or Projects from this page.
+          </p>
+          <p>&nbsp;</p>
+          <p><strong>My Blackbox:</strong></p>
+
+          <ul>
+            <li>
+              <p>
+                The <span class="text-link">&ldquo;WORKSPACE&rdquo;</span> tab
+                is where you will find your edited clips after you upload them
+                via FTP.
+              </p>
+              <p>
+                You may be either the Primary Creator (Clip Owner) of these
+                edited clips or you may be the Curator who has edited these
+                clips for another member.
+              </p>
+              <p>
+                You can add "Sharers"<span class="required">{{
+                  'required_symbol' | translate
+                }}</span>
+                in this tab during the process of adding metadata.
+              </p>
+              <p>
+                Once submitted, the footage will be moved to the "SUBMITTED
+                CONTENT" tab.
+              </p>
+              <p>
+                <span class="required">{{ 'required_symbol' | translate }}</span
+                >"Sharers" are BlackBox members who have contributed to the
+                content creation in some way for a percentage of footage
+                ownership and sales.
+              </p>
+            </li>
+            <li>
+              <p>
+                The <span class="text-link">"CURATION"</span> tab will only
+                appear if you have one of your expertise roles set to "Curator".
+              </p>
+              <p>
+                From this tab, Metadata-Only Curators will be able to see edited
+                clips assigned to them by other members. You have the option to
+                add metadata<span class="required">{{
+                  'required_symbol' | translate
+                }}</span>
+                using the "Edit" button or to decline clips using the "Refuse"
+                button. You can also filter footage by owner.
+              </p>
+              <p>
+                <span class="required">{{ 'required_symbol' | translate }}</span
+                >Metadata consists of a unique clip description, keywords, a
+                category, any available model and/or property releases,
+                editorial information when applicable, and optional notes.
+              </p>
+            </li>
+            <li>
+              <p>
+                The
+                <span class="text-link">&ldquo;SUBMITTED CONTENT&rdquo;</span>
+                tab is where you will find a comprehensive list of all your
+                submitted content.<br />
+                You can filter by "My Assets" for clips you have uploaded
+                yourself and "My Shared Assets" for clips where you were a
+                Curator or a Sharer. You can browse through the list or search
+                for specific content using the search bar at the top right.<br />
+                In this tab, you can view content, approve work added by a
+                Curator as part of a Project, and delete submitted content that
+                has been rejected or still has "Pending Review" status.
+              </p>
+              <p>
+                Submitted clips can display the following statuses:<br />
+                <b>“Pending Review”</b> - the footage is waiting for the
+                BlackBox reviewer to approve.<br />
+                <b>“Ready”</b> - the footage has been submitted to BlackBox, was
+                reviewed/approved, and is ready for delivery to our partner
+                agencies.<br />
+                <b>“Online”</b> - the footage has been successfully accepted by
+                at least one of our partner agencies.<br />
+                <b>“Pending”</b> - the footage is waiting for the Clip Owner’s
+                approval after a Curator finished their work.<br />
+                <b>“Rejected”</b> - the footage was rejected by all of our
+                partner agencies due to quality issues or redundancy. The
+                footage can be deleted at this stage.
+              </p>
+            </li>
+            <li>
+              <p>
+                The
+                <span class="text-link">&ldquo;MY COLLABORATION&rdquo;</span>
+                tab is for creating new Projects and working on Projects in
+                progress.<br />
+                In this tab, you can create, save, submit, and complete
+                Projects. You can upload and download Project content from this
+                tab as either the Project Owner or the Curator and use the chat
+                feature to share details and ask questions.
+              </p>
+            </li>
+            <li>
+              <p>
+                The <span class="text-link">&ldquo;MARKETPLACE&rdquo;</span> tab
+                is the area where you will see postings of all available
+                Projects. Here you can browse Projects and accept a Project if
+                you are a Curator. You can use the search filter to see either
+                "All" or "My Postings"
+              </p>
+            </li>
+          </ul>
+
+          <p>&nbsp;</p>
+
+          <p><strong>My Earnings:</strong></p>
+
+          <ul>
+            <li>
+              <p>
+                The &ldquo;My Earnings&rdquo; tab gives you access to your
+                revenue earnings report.
+              </p>
+            </li>
+            <li>
+              <p>
+                “My Revenue” lists the earnings of recent sales that have not
+                yet been paid out.
+              </p>
+            </li>
+            <li>
+              <p>
+                “Total Earnings Report” lists all sold assets from a selected
+                time period.
+              </p>
+            </li>
+            <li>
+              <p>
+                “Payment History” lists all monthly payouts which have been paid
+                to you.
+              </p>
+            </li>
+            <li>
+              <p>
+                "Annual Summary" provides a revenue report for your own
+                accounting or tax purposes.
+              </p>
+            </li>
+          </ul>
+
+          <p>&nbsp;</p>
+
+          <p><strong>To upload content:</strong></p>
+
+          <p>Go to &ldquo;My Backbox&rdquo; menu</p>
+
+          <ul>
+            <li>
+              <p>
+                After you upload your clips via FTP<span class="required">{{
+                  'required_symbol' | translate
+                }}</span
+                >, your content will be transferred to the "WORKSPACE" tab.
+              </p>
+              <p>
+                The current supported FTP programs are FileZilla, WinSCP and
+                Totalcommander.
+              </p>
+              <p>
+                <span class="required">{{ 'required_symbol' | translate }}</span
+                >Check out the User Guide for complete FTP instructions.
+              </p>
+            </li>
+          </ul>
+
+          <p>&nbsp;</p>
+
+          <p>
+            <strong>To upload Metadata:</strong> ("Metadata" in this case refers
+            to a unique clip description, keywords, a category, any available
+            model and/or property releases, and editorial information when
+            applicable.)
+          </p>
+          <p>
+            You can add Metadata manually by using the “Edit” window <br />
+            - or - <br />
+            You can prepare the Metadata in a CSV/XLS file outside of Blackbox.
+            When you upload the finished document, your metadata will be added
+            to your corresponding uploaded clips.
+          </p>
+          CSV/XLS Instructions:
+          <ul>
+            <li>
+              You can download the .XLS template with the required format
+              <a class="btn-link" [routerLink]="['/legal-forms']">here</a>
+            </li>
+            <li>
+              Fill out all required fields.
+            </li>
+            <li>
+              Click on the “Upload CSV/XLS” button.<br />
+              NOTE: The "Upload CSV/XLS" button is only visible if you have
+              uploaded file(s) in your WORKSPACE or CURATION tab.
+            </li>
+
+            <li>
+              Select your completed .XLS file to upload.
+            </li>
+
+            <li>
+              The data in the .XLS file will automatically be added to the
+              matching clips in your “WORKSPACE” tab.
+            </li>
+            <li>
+              If you create a batch for a group of clips, you can then select
+              the “apply to batch”<span class="required">{{
+                'required_symbol' | translate
+              }}</span>
+              option for selected field(s), which will copy that same metadata
+              to all of the files under that batch name.
+            </li>
+          </ul>
+          <p style="margin-top: 1rem">
+            <span class="required">{{ 'required_symbol' | translate }}</span
+            >"Apply to batch" will take the metadata field you select
+            (description, keywords, category, model release, property release,
+            or a combo of any of these), and apply them to all the clips you
+            have grouped together under the same batch name.
+          </p>
+          <p>&nbsp;</p>
+
+          <p><strong>To upload Project Files:</strong></p>
+
+          <ul>
+            <li>
+              The following process is for Curators working on content provided
+              by another member as part of a Project when edited clips are ready
+              to be uploaded.
+            </li>
+            <li>
+              If you are working on a current Curation Project, a button will
+              appear in your "WORKSPACE" tab that says, "Upload Project Files".
+              This button will not be visible to you if you are not currently
+              working on a Collaborative Project.<br />
+              Clicking on the "Upload Project Files" button will send you to the
+              project page in the "MY COLLABORATION" tab. From that project
+              page, you can upload your final edited clips.
+            </li>
+
+            <li>
+              Once the clips are uploaded, you will find them in the "WORKSPACE"
+              tab where you can add metadata and submit the clips.
+            </li>
+          </ul>
+
+          <p>&nbsp;</p>
+
+          <p><strong>To share content ownership and revenue: </strong></p>
+
+          <p>
+            You can add Sharers and assign them an ownership percentage of the
+            content within the metadata "Edit" section of the "WORKPLACE" tab.
+          </p>
+          <p>
+            For a collaborative project, you can specify the Curator and
+            Sharers’ ownership percentages in the "Create a Project" window of
+            the "MY COLLABORATION" tab when setting up a new project.
+          </p>
+          <p>
+            BlackBox will then automatically distribute the submitted content to
+            global markets (i.e. our partner agencies). Every time shared
+            content sells, BlackBox will automatically split the revenue among
+            all sharers involved.
+          </p>
+          <p>&nbsp;</p>
+
+          <p><strong>To create a collaborative curation project:</strong></p>
+
+          <p>
+            In the &ldquo;MY COLLABORATION&rdquo; tab, create a new project and
+            select the project type "Curation Project". In the following window,
+            you can select your collaborators (Curator and Sharers).
+          </p>
+          <p>
+            NOTE: At this time, you can only select one Curator, but can add
+            multiple Sharer(s).
+          </p>
+          <p>
+            You can pick your own Curator or you can post the project to the
+            "MARKETPLACE" where qualified Curators can request to collaborate on
+            your project.
+          </p>
+          <p>
+            The Curator can submit edited footage on your behalf, which you need
+            to approve before submitting the project for distribution to the
+            agencies.
+          </p>
+
+          <p>&nbsp;</p>
+
+          <p><strong>Curation process:</strong></p>
+
+          <ul>
+            <li>
+              <p>
+                When working with a Curator, you can ask for Partial or Full
+                Curation.
+              </p>
+              <p style="margin-left: 40px; text-align: justify">
+                - <strong>Partial curation</strong> – Editing and Uploading Only
+                or Metadata Only<br />
+                You can ask an Editor to edit and upload only, or you can ask a
+                Metadata Curator to do your metadata tagging only (description,
+                keywords, category, editorial information when applicable).
+              </p>
+              <p style="margin-left: 40px; text-align: justify">
+                For Editing and Uploading Only, you can choose to specify the
+                type of work needed (such as Export, Grading, Selects, and Other
+                Processes), and can also write a note to your Curator with
+                additional information.
+              </p>
+              <p style="margin-left: 40px; text-align: justify">
+                For Metadata Only, you can specify whether you will transfer the
+                content to the Curator outside of BlackBox.<br />
+                - or -<br />
+                (Recommended) You can specify that you will upload the edited
+                content yourself and assign the clips to your agreed Curator
+                from your "WORKSPACE" tab.
+              </p>
+              <p style="margin-left: 40px; text-align: justify">
+                You can create a project to do partial curation for Editing and
+                Uploading in collaboration with one Curator, then open a second
+                project do metadata tagging in collaboration with another
+                Curator separately.
+              </p>
+              <p style="margin-left: 40px; text-align: justify">
+                - <strong>Full curation</strong> – Editing, Uploading, and
+                Metadata<br />
+                In this case, you will arrange to transfer your content to your
+                Curator outside of the BlackBox platform and they will finish
+                the entire curation process.
+              </p>
+            </li>
+            <li>
+              <p>
+                When creating a new project, you can set the project as
+                "Private" or as "Marketplace".<br />
+                If your project is set as "Private", then only the Curator you
+                have selected will be able to see your project in their
+                "MARKETPLACE" tab. An email will be sent to that curator asking
+                them to accept or reject the project.
+              </p>
+            </li>
+
+            <li>
+              <p>
+                If your project is set as "Marketplace", then any member can
+                express an interest in curating your project and you can approve
+                the Curator you prefer.
+              </p>
+            </li>
+
+            <li>
+              <p>
+                When creating a new project, the "Save" button will save the
+                unpublished project to your "MY COLLABORATION" tab and will not
+                post it to the "MARKETPLACE" yet.<br />
+                "Submit" will submit your project to the "MARKETPLACE" tab.
+              </p>
+            </li>
+
+            <li>
+              <p>
+                Interested Collaborators and Curators can chat with the Project
+                Owner to ask for more information about the project and the work
+                involved.<br />
+                After the Project Owner assigns a Curator, that Curator can then
+                accept or reject the project assignment.
+              </p>
+            </li>
+
+            <li>
+              <p>
+                Once the Curator finishes the curation work, they can then
+                upload the finished clips on behalf of the Project Owner for
+                approval.<br />
+                In the "MY COLLABORATION" tab, the Curator can use the “Upload
+                project files” button within the project to upload the finished
+                footage. The project name becomes the "batch name" for the
+                Curator’s organizational purposes.<br />
+                Uploaded footage will become visible in the "WORKSPACE" tab for
+                the final steps of metadata curation before finally submitting
+                the clips.
+              </p>
+            </li>
+
+            <li>
+              <p>
+                After submitting the footage on the Project Owner's behalf, the
+                Curator can mark the Project as “complete”. The Project owner
+                will get an email notification so they can either approve the
+                footage or simply mark the Project “complete”.<br />
+                NOTE: If the Project Owner marks the Project as “complete”
+                before approving the individual clips, all the footage within
+                that Project will be automatically approved.
+              </p>
+            </li>
+          </ul>
+          <br />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

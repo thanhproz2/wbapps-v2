@@ -1,0 +1,82 @@
+<style>
+  .menu {
+    margin: -2.2em -2.2em 2.2em -2.2em;
+    border-bottom: 2px solid #ebedf2;
+  }
+  .active {
+    color: #68a1ed !important;
+    border-bottom: 3px solid #68a1ed !important;
+  }
+  ul.nav li:hover .nav-link {
+    color: #68a1ed !important;
+    border-bottom: 3px solid #68a1ed !important;
+  }
+</style>
+
+<div class="m-content">
+  <div class="m-portlet m-portlet--ngviewer ng-star-inserted" style="margin: 0">
+    <div class="m-portlet__body m-portlet__body--no-padding">
+      <div class="m-portlet__preview">
+        <div class="m-section__content">
+          <div class="m-portlet__body">
+            <div class="menu">
+              <ul
+                class="nav nav-tabs m-tabs-line m-tabs-line--primary nav-justified"
+                style=" margin: 0 5%; border-bottom: none"
+              >
+                <li class="nav-item m-tabs__item">
+                  <a
+                    [routerLink]="['./my-revenue']"
+                    class="nav-link m-tabs__link"
+                    routerLinkActive="active"
+                  >
+                    {{ 'tabs.my_revenue_tab' | translate }}
+                    <span class="m-badge m-badge--info m-badge--wide">{{
+                      total.myRevenue
+                    }}</span>
+                  </a>
+                </li>
+                <li class="nav-item m-tabs__item">
+                  <a
+                    [routerLink]="['./total-earnings-report']"
+                    class="nav-link m-tabs__link"
+                    routerLinkActive="active"
+                  >
+                    {{ 'tabs.total_earnings_report_tab' | translate }}
+                    <span class="m-badge m-badge--info m-badge--wide">{{
+                      total.totalEarningsReport
+                    }}</span>
+                  </a>
+                </li>
+                <li class="nav-item m-tabs__item">
+                  <a
+                    [routerLink]="['./payment-history']"
+                    class="nav-link m-tabs__link"
+                    routerLinkActive="active"
+                  >
+                    {{ 'tabs.payment_history_tab' | translate }}
+                    <span class="m-badge m-badge--info m-badge--wide">{{
+                      total.paymentHistory
+                    }}</span>
+                  </a>
+                </li>
+                <li class="nav-item m-tabs__item" *ngIf="isAnnualSummary">
+                  <a
+                    [routerLink]="['./annual-summary']"
+                    class="nav-link m-tabs__link"
+                    routerLinkActive="active"
+                  >
+                    {{ 'tabs.annual_summary_tab' | translate }}</a
+                  >
+                </li>
+              </ul>
+            </div>
+            <div class="tab-content">
+              <router-outlet></router-outlet>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

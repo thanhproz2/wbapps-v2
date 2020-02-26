@@ -1,0 +1,180 @@
+<style>
+  .form {
+    font-size: 16px;
+    font-family: DINNextW1GRegular, NotoSansRegular, NotoSansThaiRegular, arial,
+      sans-serif;
+  }
+  .form p {
+    font-size: 14px;
+    color: rgba(12, 18, 28, 0.6);
+    margin: 0;
+  }
+  .form .language {
+    font-size: 13px;
+    color: rgba(12, 18, 28, 0.6);
+  }
+  .form button {
+    margin-top: 20px;
+    width: 100%;
+  }
+  .row {
+    margin: 5px 0;
+  }
+
+  .m-portlet__body {
+    padding: 1rem 1rem;
+  }
+
+  .m-portlet .m-portlet__head {
+    height: 4rem !important;
+  }
+
+  .col-md-6 {
+    padding-right: 5px;
+    padding-left: 5px;
+  }
+</style>
+
+<div class="container-fluid">
+  <div class="row justify-content-md-center">
+    <div class="col-md-10">
+      <div class="row">
+        <div class="col-md-12">
+          <div class="row">
+            <div class="col-md-6">
+              <div
+                class="m-portlet m-portlet--bordered m-portlet--rounded  m-portlet--last"
+              >
+                <div class="m-portlet__head">
+                  <div class="m-portlet__head-caption">
+                    <div class="m-portlet__head-title">
+                      <h3 class="m-portlet__head-text">
+                        {{ 'legalForms.guidelines' | translate }}
+                        <!-- <small>none</small> -->
+                      </h3>
+                    </div>
+                  </div>
+                </div>
+                <div class="m-portlet__body">
+                  <label class="language">{{
+                    'legalForms.language' | translate
+                  }}</label>
+                  <select class="form-control" disabled>
+                    <option value="en">English</option>
+                  </select>
+                  <div class="form">
+                    <button class="btn btn-dark" (click)="download(3)">
+                      {{ 'legalForms.download' | translate }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div
+                class="m-portlet m-portlet--bordered m-portlet--rounded  m-portlet--last"
+              >
+                <div class="m-portlet__head">
+                  <div class="m-portlet__head-caption">
+                    <div class="m-portlet__head-title">
+                      <h3 class="m-portlet__head-text">
+                        {{ 'legalForms.model_release' | translate }}
+                        <small>{{
+                          'legalForms.model_release_dec' | translate
+                        }}</small>
+                      </h3>
+                    </div>
+                  </div>
+                </div>
+                <div class="m-portlet__body">
+                  <label class="language">{{
+                    'legalForms.language' | translate
+                  }}</label>
+                  <select class="form-control" disabled>
+                    <option value="en">English</option>
+                  </select>
+                  <div class="form">
+                    <button class="btn btn-dark" (click)="download(4)">
+                      {{ 'legalForms.download' | translate }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-12">
+          <div class="row">
+            <div class="col-md-6">
+              <div
+                class="m-portlet m-portlet--bordered m-portlet--rounded  m-portlet--last"
+              >
+                <div class="m-portlet__head">
+                  <div class="m-portlet__head-caption">
+                    <div class="m-portlet__head-title">
+                      <h3 class="m-portlet__head-text">
+                        {{ 'legalForms.minor_release' | translate }}
+                        <small>{{
+                          'legalForms.minor_release_dec' | translate
+                        }}</small>
+                      </h3>
+                    </div>
+                  </div>
+                </div>
+                <div class="m-portlet__body">
+                  <label class="language">{{
+                    'legalForms.language' | translate
+                  }}</label>
+                  <select class="form-control" disabled>
+                    <option value="en">English</option>
+                  </select>
+                  <div class="form">
+                    <button class="btn btn-dark" (click)="download(5)">
+                      {{ 'legalForms.download' | translate }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div
+                class="m-portlet m-portlet--bordered m-portlet--rounded  m-portlet--last"
+              >
+                <div class="m-portlet__head">
+                  <div class="m-portlet__head-caption">
+                    <div class="m-portlet__head-title">
+                      <h3 class="m-portlet__head-text">
+                        {{ 'legalForms.property_release' | translate }}
+                        <small>{{
+                          'legalForms.property_release_dec' | translate
+                        }}</small>
+                      </h3>
+                    </div>
+                  </div>
+                </div>
+                <div class="m-portlet__body">
+                  <label class="language">{{
+                    'legalForms.language' | translate
+                  }}</label>
+                  <select class="form-control" disabled>
+                    <option value="en">English</option>
+                  </select>
+                  <div class="form">
+                    <button class="btn btn-dark" (click)="download(6)">
+                      {{ 'legalForms.download' | translate }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="pull-right" style="padding-right: 20px">
+        <button (click)="return()" type="button" class="btn btn-outline-dark">
+          <i class="fa fa-undo"></i> Return
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

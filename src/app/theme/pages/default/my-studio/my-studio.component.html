@@ -1,0 +1,172 @@
+<div style="display: flex" id="wrap">
+  <div id="left-aside-menu" class="m-aside-menu">
+    <ul class="nav navbar-nav">
+      <li class="nav-item" routerLinkActive="active">
+        <a [routerLink]="[ './chat' ]">
+          <i tooltip="Chat" class="fa fa-comment-o"></i>
+        </a>
+      </li>
+
+      <li class="nav-item" routerLinkActive="active">
+        <a [routerLink]="[ './tasks' ]">
+          <i tooltip="Activities" class="fa fa-calendar-check-o"></i>
+        </a>
+      </li>
+
+      <!-- <li class="nav-item" routerLinkActive="active">
+        <a [routerLink]="[ './schedule' ]">
+          <i tooltip="Schedule" class="fa fa-calendar"></i>
+        </a>
+      </li> -->
+
+      <li class="nav-item" routerLinkActive="active">
+        <a [routerLink]="[ './content-review' ]">
+          <i tooltip="Content Review" class="fa fa-eye"></i>
+        </a>
+      </li>
+
+      <li class="nav-item" routerLinkActive="active">
+        <a [routerLink]="[ './content-upload' ]">
+          <i tooltip="Content Upload" class="fa fa-upload"></i>
+        </a>
+      </li>
+
+      <!-- <li class="nav-item" routerLinkActive="active">
+        <a [routerLink]="[ './buget' ]">
+          <i tooltip="Project Budget" class="fa fa-usd"></i>
+        </a>
+      </li> -->
+
+      <li class="nav-item" routerLinkActive="active">
+        <a [routerLink]="[ './team' ]">
+          <i tooltip="Team" class="fa fa-users"></i>
+        </a>
+      </li>
+
+      <li class="nav-item" routerLinkActive="active">
+          <a [routerLink]="[ './help' ]">
+            <i tooltip="Help" class="fa fa-question-circle"></i>
+          </a>
+        </li>
+    </ul>
+  </div>
+  <div id="content">
+    <div class="m-content">
+      <div class="m-portlet m-portlet--tab">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="row align-items-center">
+              <div class="col-auto">
+                <div class="m-subheader" style="padding-bottom: 0px;" appunwraptag="">
+                  <div class="d-flex align-items-center">
+                    <div class="mr-auto">
+                      <h3 class="m-subheader__title m-subheader__title--separator" style="font-size: 1.3rem; font-size: 400;">
+                        <span *ngIf="href === 'chat'">Group and Private Communication</span>
+                        <span *ngIf="href === 'tasks'">Activity/Task Planning</span>
+                        <span *ngIf="href === 'content-review'">Content Review</span>
+                        <span *ngIf="href === 'content-upload'">Content Upload</span>
+                        <span *ngIf="href === 'team'">Project Team</span>
+                        <span *ngIf="href === 'help'">Virtual Studio Guide</span>
+                      </h3>
+                      <ul class="m-subheader__breadcrumbs m-nav m-nav--inline">
+                        <li class="m-nav__item m-nav__item--home">
+                          <a [routerLink]="['/my-studio']" class="m-nav__link m-nav__link--icon">
+                            <i class="m-nav__link-icon la la-home"></i>
+                          </a>
+                        </li>
+                        <li class="m-nav__separator">
+                          -
+                        </li>
+                        <!-- <li class="m-nav__item">
+                          <a [routerLink]="['/my-studio']" class="m-nav__link">
+                            <span class="m-nav__link-text">
+                              Projects
+                            </span>
+                          </a>
+                        </li>
+                        <li class="m-nav__separator">
+                          -
+                        </li> -->
+                        <li class="m-nav__item">
+                          <a class="m-nav__link">
+                            <span class="m-nav__link-text">
+                              <span *ngIf="href === 'chat'">Group and Private Communication</span>
+                              <span *ngIf="href === 'tasks'">Activity/Task Planning</span>
+                              <span *ngIf="href === 'content-review'">Content Review</span>
+                              <span *ngIf="href === 'content-upload'">Content Upload</span>
+                              <span *ngIf="href === 'team'">Project Team</span>
+                              <span *ngIf="href === 'help'">Virtual Studio Guide</span>
+                            </span>
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col">
+                <div *ngIf="href !== 'help'" style="float: right !important;">
+                  <div style="display: table-cell" class="m-portlet__head-title">
+                    <div *ngIf="!projects.length" class="form-row align-items-center">
+                        <div class="col-auto">
+                            <button (click)="createStudioProject()" type="button"
+                              class="btn btn-gray m-btn m-btn--icon m-btn--pill">
+                              <span>
+                                <i class="fa fa-briefcase"></i>
+                                <span>Create Project</span>
+                              </span>
+                            </button>
+                          </div>
+                    </div>
+                    <div *ngIf="projects.length" class="form-row align-items-center">
+                      <div class="col-auto title">
+                        Select a project
+                      </div>
+                      <div class="col-auto">
+                        <label class="sr-only" for="projectSelect">Select a Project</label>
+                        <select class="form-control" [(ngModel)]="selectProjectModel" name="projectSelect" id="projectSelect" (change)="selectProject(selectProjectModel)">
+                          <option *ngFor="let item of projects" value="{{ item.projectId }}">{{ item.projectName }}</option>
+                        </select>
+                      </div>
+
+                      <div *ngIf="selectedProject.completedDate" class="col-auto" style="font-style: italic;">
+                        This project was completed on {{ selectedProject.completedDate | date }}
+                      </div>
+
+                      <div *ngIf="href === 'content-review'" class="col-auto title">
+                        Or
+                      </div>
+
+                      <div *ngIf="href === 'content-review'" class="col-auto">
+                        <button (click)="createStudioProject()" type="button"
+                        class="btn btn-gray m-btn m-btn--icon m-btn--pill">
+                          <span>
+                            <i class="fa fa-briefcase"></i>
+                            <span>Create Project</span>
+                          </span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+          <!--begin::Section-->
+          <div class="m-section">
+            <div class="m-section__content">
+              <!-- <div *ngIf="!projects.length">
+                <p>No available projects</p>
+              </div> -->
+              <router-outlet></router-outlet>
+            </div>
+          </div>
+          <!--end::Section-->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

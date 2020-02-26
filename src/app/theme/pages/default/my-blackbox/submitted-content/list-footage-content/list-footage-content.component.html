@@ -1,0 +1,989 @@
+<style>
+  .header span {
+    padding-top: 5px;
+  }
+  .header select {
+    border-radius: 5px !important;
+    width: 65px;
+    margin: 0 5px;
+  }
+  .header {
+    display: flex;
+  }
+  .table div {
+    word-wrap: break-word;
+  }
+  .action {
+    width: 120px;
+    /* text-align: right; */
+  }
+  .action a {
+    width: 90px;
+    margin-bottom: 5px;
+  }
+  .action a.btn-outline-success {
+    margin-right: 5px;
+  }
+  .table tr td {
+    vertical-align: middle;
+  }
+  .table tr {
+    border-bottom: 1px solid #e7ecf1;
+  }
+  #footageView-modal label {
+    font-weight: 500;
+  }
+</style>
+
+<div class="page">
+  <div class="top">
+    <div class="row">
+      <div class="col-md-8 text">
+        <p>
+          {{ 'footage.inventory_tab_title' | translate }}
+          <span class="help-in-app" (click)="showHelpModal()"
+            ><i class="fa fa-info"></i
+          ></span>
+        </p>
+      </div>
+      <div class="col-md-4">
+        <div class="form-group m-form__group">
+          <div class="input-group m-input-icon m-input-icon--right">
+            <input
+              #search
+              type="text"
+              class="form-control"
+              (keyup.enter)="filterFootages()"
+              [(ngModel)]="keywords"
+              placeholder="{{ 'footage.filter_footages' | translate }}"
+              (keyup)="!keywords ? filterFootages() : keywords"
+            />
+            <span
+              *ngIf="keywords != ''"
+              class="m-input-icon__icon m-input-icon__icon--right clear-icon-input"
+              (click)="clearSearch()"
+            >
+              <i class="fa fa-remove"></i>
+            </span>
+            <div class="input-group-append" (click)="filterFootages()">
+              <button class="btn btn-secondary active" type="button">
+                <i class="fa fa-search"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row form-group">
+      <div class="col">
+        <div class="row">
+          <div class="header" style="margin: 0px 10px;">
+            <label class="form-control">{{ 'common.view' | translate }}:</label>
+            <!-- <span><strong style="margin-top: 5px;">{{'common.max_per_page' | translate}}</strong></span> -->
+            <select
+              [(ngModel)]="paging.pageSize"
+              class="form-control input-sm"
+              (change)="pageSizeChange()"
+              tooltip="{{ 'common.pageSize_tooltip' | translate }}"
+              style="width: 150px; margin-right: 15px;"
+            >
+              <option *ngFor="let p of paging.pageSizeList" [value]="p.value">{{
+                p.name
+              }}</option>
+            </select>
+            <select
+              [(ngModel)]="contentType"
+              class="form-control"
+              (change)="filterFootages()"
+              tooltip="{{ 'footage.content-type_filter_tooltip' | translate }}"
+              style="width: 150px; margin-right: 15px;"
+            >
+              <option
+                *ngFor="let p of listSubmittedContentType"
+                [value]="p.value"
+                >{{ p.name }}</option
+              >
+            </select>
+            <select
+              *ngIf="contentType === 'footage'"
+              [(ngModel)]="contentFilter"
+              class="form-control"
+              (change)="filterFootages()"
+              tooltip="{{ 'footage.content_filter_tooltip' | translate }}"
+              style="min-width: 150px; margin-right: 10px;"
+            >
+              <option *ngFor="let p of contentFilters" [value]="p.value">{{
+                p.name
+              }}</option>
+            </select>
+          </div>
+          <div
+            class="col"
+            *ngIf="contentType === 'footage'"
+            style="padding-left: 0px"
+          >
+            <select
+              [(ngModel)]="filterStatus"
+              class="form-control"
+              (change)="filterFootages()"
+              tooltip="{{
+                'footage.footage_status_filter_tooltip' | translate
+              }}"
+              style="max-width: 250px;"
+            >
+              <option *ngFor="let p of statusFilters" [value]="p.value">{{
+                p.name
+              }}</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <hr class="hr" />
+  <div *ngIf="allowShow" class="text-center">
+    <br />
+    {{ 'common.no_file_label' | translate }}
+  </div>
+  <div class="paging-header" *ngIf="footages?.length">
+    <div class="pull-left">
+      <p>
+        <strong
+          >{{ 'common.showing' | translate }}
+          {{ paging.currentPage * paging.pageSize + 1 - paging.pageSize }}
+          {{ 'common.to' | translate }}
+          {{
+            paging.currentPage * paging.pageSize > paging.total
+              ? paging.total
+              : paging.currentPage * paging.pageSize
+          }}
+          {{ 'common.entries' | translate }} {{ paging.total }}</strong
+        >
+      </p>
+    </div>
+    <div class="pull-right">
+      <div class="pull-left">
+        <label class="paginator-goto">{{ 'common.goto' | translate }}</label>
+        <input
+          class="form-control paginator-goto-input"
+          maxlength="6"
+          type="text"
+          [(ngModel)]="paging.goToPage"
+          (keyup.enter)="goToPage()"
+        />
+      </div>
+      <div class="pull-right">
+        <pagination
+          [totalItems]="paging.total"
+          [maxSize]="10"
+          [rotate]="true"
+          [itemsPerPage]="paging.pageSize"
+          [(ngModel)]="paging.currentPage"
+          (pageChanged)="page($event)"
+          previousText="<"
+          nextText=">"
+          [boundaryLinks]="true"
+          firstText="{{ 'common.first' | translate }}"
+          lastText="{{ 'common.last' | translate }}"
+          [boundaryLinks]="showBoundaryLinks"
+        >
+        </pagination>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="footages?.length" class="max-width">
+    <div class="list-container files table block height-table">
+      <div class="table-list-body">
+        <div class="message-row head">
+          <table class="table table-hover">
+            <tbody>
+              <tr
+                style="background-color: #f4f5f8; border-bottom: 2px solid #e7ecf1;"
+              >
+                <th *ngIf="contentType === 'footage'">
+                  {{ 'footage.batch_name' | translate }}
+                </th>
+                <th>{{ 'footage.thumbnail' | translate }}</th>
+                <th>{{ 'footage.description_label' | translate }}</th>
+                <th>{{ 'footage.submission_date' | translate }}</th>
+                <th>{{ 'footage.owner' | translate }}</th>
+                <th>{{ 'footage.share_percentage' | translate }}</th>
+                <th>
+                  <span
+                    data-html="true"
+                    title="{{ 'footage.status_content_tooltip' | translate }}"
+                    onmouseenter="$(this).tooltip('show')"
+                    >{{ 'footage.status' | translate }}</span
+                  >
+                </th>
+                <th>{{ 'footage.actions' | translate }}</th>
+              </tr>
+            </tbody>
+            <tbody>
+              <tr *ngFor="let footage of footages">
+                <td *ngIf="contentType === 'footage'" width="100px">
+                  <div style="width: 100px">
+                    {{ footage.batchName }}
+                  </div>
+                </td>
+                <td width="150px">
+                  <div *ngIf="footage.footageId">
+                    <img
+                      [src]="thumbnailUrl + footage.footageId"
+                      width="150px"
+                      height="90px"
+                      (click)="previewFootage(footage)"
+                      class="thumbnail"
+                    />
+                  </div>
+
+                  <div *ngIf="!footage.footageId">
+                    <img
+                      [src]="thumbnailMediaProductUrl + footage.mediaProductId"
+                      width="150px"
+                      height="90px"
+                      (click)="previewFootage(footage)"
+                      class="thumbnail"
+                    />
+                  </div>
+                </td>
+                <td>
+                  <div style="min-width: 150px; word-break: break-all;">
+                    {{ footage.description }}
+                  </div>
+                </td>
+                <td width="145px">
+                  <div style="width: 145px">
+                    {{ footage.submissionDate | date: 'longDate' }}
+                  </div>
+                </td>
+                <td width="150px">
+                  <div style="width: 150px">{{ footage.ownerFullName }}</div>
+                </td>
+                <td width="150px">
+                  <div style="width:150px">{{ footage.ownership }}</div>
+                </td>
+                <td width="120px">
+                  <div style="width:120px">{{ footage.transitionStatus }}</div>
+                </td>
+                <td width="120px">
+                  <div class="action">
+                    <a
+                      class="btn btn-outline-warning btn-sm m-btn m-btn"
+                      (click)="openRatingModal(footage)"
+                      *ngIf="
+                        !footage.canReject &&
+                        !footage.rated &&
+                        contentType == 'footage' &&
+                        footage.allowRating
+                      "
+                    >
+                      <span>
+                        <i class="fa fa-star-o"></i>
+                        <span>{{ 'Rating' | translate }}</span>
+                      </span>
+                    </a>
+                    <a
+                      class="btn btn-outline-warning btn-sm m-btn m-btn"
+                      (click)="openRatingModal(footage)"
+                      *ngIf="
+                        !footage.canReject &&
+                        footage.rated &&
+                        contentType == 'footage' &&
+                        footage.allowRating
+                      "
+                    >
+                      <span>
+                        <i class="fa fa-star-o"></i>
+                        <span>{{ 'Rated' | translate }}</span>
+                      </span>
+                    </a>
+                    <a
+                      class="btn btn-outline-info btn-sm m-btn  m-btn"
+                      *ngIf="!footage.canReject"
+                      (click)="viewInventory(footage)"
+                    >
+                      <span>
+                        <i class="fa fa-eye"></i>
+                        <span>{{ 'footage.btn.view' | translate }}</span>
+                      </span>
+                    </a>
+                    <a
+                      class="btn btn-outline-primary btn-sm m-btn  m-btn"
+                      *ngIf="footage.canReject"
+                      (click)="editFootage(footage)"
+                    >
+                      <span>
+                        <i class="fa fa-edit"></i>
+                        <span>{{ 'footage.btn.edit' | translate }}</span></span
+                      >
+                    </a>
+                    <a
+                      class="btn btn-outline-success btn-sm m-btn  m-btn"
+                      [hidden]="!footage.canApprove"
+                      #popoverApprove="bs-popover"
+                      placement="left"
+                      [popover]="approveFootage"
+                      popoverTitle="{{
+                        'footage.approve_footage_title' | translate
+                      }}"
+                      [outsideClick]="true"
+                    >
+                      <span>
+                        <i class="fa fa-arrow-circle-o-up"></i>
+                        <span>{{ 'footage.btn.approve' | translate }}</span>
+                      </span>
+                    </a>
+                    <ng-template #approveFootage>
+                      <div>
+                        <p>{{ 'common.are_you_sure' | translate }}</p>
+                        <div style="height: 40px;color: #fff">
+                          <a
+                            class="btn btn-sm btn-danger"
+                            (click)="popoverApprove.hide()"
+                            ><i class="glyphicon glyphicon-remove"></i>
+                            {{ 'common.no' | translate }}</a
+                          >
+                          <a
+                            class="btn btn-sm btn-success"
+                            style="margin-left: 10px"
+                            (click)="
+                              approveInventory(footage); popoverApprove.hide()
+                            "
+                            ><i class="glyphicon glyphicon-ok"></i>
+                            {{ 'common.yes' | translate }}</a
+                          >
+                        </div>
+                      </div>
+                    </ng-template>
+                    <a
+                      class="btn btn-outline-danger btn-sm m-btn  m-btn"
+                      [hidden]="!footage.canReject"
+                      #popoverReject="bs-popover"
+                      placement="left"
+                      [popover]="rejectFootage"
+                      popoverTitle="{{
+                        'footage.reject_footage_title' | translate
+                      }}"
+                      [outsideClick]="true"
+                    >
+                      <span>
+                        <i class="fa 	fa-close"></i>
+                        <span>{{ 'footage.btn.reject' | translate }}</span>
+                      </span>
+                    </a>
+                    <ng-template #rejectFootage>
+                      <div>
+                        <p>{{ 'common.are_you_sure' | translate }}</p>
+                        <div style="height: 40px;color: #fff">
+                          <a
+                            class="btn btn-danger btn-sm"
+                            (click)="popoverReject.hide()"
+                          >
+                            <span>
+                              <i class="fa fa-close"></i>
+                              <span> {{ 'common.no' | translate }}</span>
+                            </span>
+                          </a>
+                          <a
+                            style="margin-left: 10px"
+                            class="btn btn-success btn-sm"
+                            (click)="
+                              rejectInventory(footage); popoverReject.hide()
+                            "
+                          >
+                            <span>
+                              <i class="fa fa-check"></i>
+                              <span> {{ 'common.yes' | translate }}</span>
+                            </span>
+                          </a>
+                        </div>
+                      </div>
+                    </ng-template>
+                    <a
+                      class="btn btn-outline-danger btn-sm m-btn  m-btn"
+                      [hidden]="!canDelete(footage)"
+                      #popoverDelete="bs-popover"
+                      placement="left"
+                      [popover]="deleteFootage"
+                      popoverTitle="{{
+                        'footage.delete_footage_title' | translate
+                      }}"
+                      [outsideClick]="true"
+                    >
+                      <span>
+                        <i *ngIf="!footage.deleting" class="fa fa-trash"></i>
+                        <i
+                          *ngIf="footage.deleting"
+                          class="fa fa-spinner fa-spin"
+                        ></i>
+                        <span>{{ 'footage.btn.delete' | translate }}</span>
+                      </span>
+                    </a>
+                    <ng-template #deleteFootage>
+                      <div>
+                        <p>{{ 'common.are_you_sure' | translate }}</p>
+                        <div style="height: 40px;color: #fff">
+                          <a
+                            class="btn btn-danger btn-sm"
+                            (click)="popoverDelete.hide()"
+                          >
+                            <span>
+                              <i class="fa fa-close"></i>
+                              <span> {{ 'common.no' | translate }}</span>
+                            </span>
+                          </a>
+                          <a
+                            style="margin-left: 10px"
+                            class="btn btn-success btn-sm"
+                            (click)="
+                              deleteInventory(footage); popoverDelete.hide()
+                            "
+                          >
+                            <span>
+                              <i class="fa fa-check"></i>
+                              <span> {{ 'common.yes' | translate }}</span>
+                            </span>
+                          </a>
+                        </div>
+
+                        <!-- <div style="height: 40px;color: #fff">
+                          <a class="btn btn-sm btn-success"
+                            (click)="deleteInventory(footage); popoverDelete.hide()"><i
+                              class="glyphicon glyphicon-ok"></i> {{'common.yes'| translate}}</a>
+                          <a class="btn btn-sm btn-danger" (click)="popoverDelete.hide()"><i
+                              class="glyphicon glyphicon-remove"></i> {{'common.no'| translate}}</a>
+                        </div> -->
+                      </div>
+                    </ng-template>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="paging" *ngIf="footages?.length">
+      <div class="pull-left">
+        <p>
+          <strong
+            >{{ 'common.showing' | translate }}
+            {{ paging.currentPage * paging.pageSize + 1 - paging.pageSize }}
+            {{ 'common.to' | translate }}
+            {{
+              paging.currentPage * paging.pageSize > paging.total
+                ? paging.total
+                : paging.currentPage * paging.pageSize
+            }}
+            {{ 'common.entries' | translate }} {{ paging.total }}</strong
+          >
+        </p>
+      </div>
+      <div class="pull-right">
+        <div class="pull-left">
+          <label class="paginator-goto">{{ 'common.goto' | translate }}</label>
+          <input
+            class="form-control paginator-goto-input"
+            maxlength="6"
+            type="text"
+            [(ngModel)]="paging.goToPage"
+            (keyup.enter)="goToPage()"
+          />
+        </div>
+        <div class="pull-right">
+          <pagination
+            [totalItems]="paging.total"
+            [maxSize]="10"
+            [rotate]="true"
+            [itemsPerPage]="paging.pageSize"
+            [(ngModel)]="paging.currentPage"
+            (pageChanged)="page($event)"
+            previousText="<"
+            nextText=">"
+            [boundaryLinks]="true"
+            firstText="{{ 'common.first' | translate }}"
+            lastText="{{ 'common.last' | translate }}"
+            [boundaryLinks]="showBoundaryLinks"
+          >
+          </pagination>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-video-modal #videoModal></app-video-modal>
+
+<div
+  id="help-footage-content-modal"
+  class="modal modal-inverse fade"
+  role="dialog"
+  tabindex="-1"
+>
+  <div class="modal-dialog modal-lg">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4>
+          <strong>{{ 'footage.footage_content' | translate }}</strong>
+        </h4>
+        <button type="button" class="close" data-dismiss="modal">
+          &times;
+        </button>
+      </div>
+      <div class="modal-body label-13" style="text-align: justify">
+        <p>
+          Submitted clips can display the following statuses:<br />
+          <strong>“Pending Review”</strong> - the footage is waiting for the
+          BlackBox reviewer to approve.<br />
+          <strong>“Ready”</strong> - the footage has been submitted to BlackBox,
+          was reviewed/approved, and is ready for delivery to our partner
+          agencies.<br />
+          <strong>“Online”</strong> - the footage has been successfully accepted
+          by at least one of our partner agencies.<br />
+          <strong>“Pending”</strong> - the footage is waiting for the Clip
+          Owner’s approval after a Curator finished their work.<br />
+          <strong>“Rejected”</strong> - the footage was rejected by all of our
+          partner agencies due to quality issues or redundancy. The footage can
+          be deleted at this stage.<br />
+        </p>
+        <p>
+          - Here, the Clip Owner can "Approve" or "Reject" curated clips. After
+          approving all footage, the Project Owner can mark the Project as
+          "Completed".<br />
+          - Rejected clips are sent back to the "WORKSPACE" tab, where the
+          Curator can edit and resubmit or delete the clips.
+        </p>
+        <p>
+          You can filter through your clips by status using the dropdown menu.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-secondary active"
+          data-dismiss="modal"
+        >
+          {{ 'common.close' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  id="footageView-modal"
+  class="modal modal-inverse fade"
+  role="dialog"
+  tabindex="-1"
+>
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5>{{ 'common.information' | translate }}</h5>
+        <button type="button" class="close" data-dismiss="modal">
+          &times;
+        </button>
+      </div>
+      <div class="modal-body label-13" *ngIf="currentFootage">
+        <form class="">
+          <div class="row form-group">
+            <div class="col-md-3">
+              <label>{{ 'footage.footage_name' | translate }}:</label>
+            </div>
+            <div class="col-md-9">
+              <input
+                type="text"
+                class="form-control"
+                name="originalFileName"
+                [(ngModel)]="currentFootage.originalFileName"
+                disabled
+              />
+            </div>
+          </div>
+          <div class="row form-group">
+            <div class="col-md-3">
+              <label>{{ 'footage.editorial_field' | translate }}:</label>
+            </div>
+            <div class="col-md-1">
+              <label
+                class="m-checkbox m-checkbox--solid m-checkbox--dark"
+                style="padding-left: 22px; margin: 5px 0;"
+              >
+                <input
+                  type="checkbox"
+                  [(ngModel)]="currentFootage.editorial"
+                  name="editorial"
+                  disabled
+                />
+                <span></span>
+              </label>
+            </div>
+            <div class="col-md-8" *ngIf="currentFootage.editorial">
+              <input
+                type="text"
+                class="form-control"
+                name="editorialText"
+                [(ngModel)]="currentFootage.editorialText"
+                disabled
+              />
+            </div>
+          </div>
+          <div *ngIf="currentFootage.editorial">
+            <div class="row form-group justify-content-end">
+              <div class="col-md-4">
+                <label>{{ 'footage.city_field' | translate }}</label>
+                <input
+                  name="city"
+                  type="text"
+                  class="form-control"
+                  [(ngModel)]="currentFootage.editorialCity"
+                  placeholder="City"
+                  disabled
+                />
+              </div>
+              <div class="col-md-4">
+                <label>{{ 'footage.state_field' | translate }}</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  name="editorialState"
+                  [(ngModel)]="currentFootage.editorialState"
+                  placeholder="State"
+                  disabled
+                />
+              </div>
+            </div>
+            <div class="row form-group justify-content-end">
+              <div class="col-md-4">
+                <label>{{ 'footage.country_field' | translate }}</label>
+                <select
+                  name="country"
+                  [(ngModel)]="currentFootage.editorialCountry"
+                  class="form-control"
+                  disabled
+                >
+                  <option
+                    *ngFor="let item of masterData.countries"
+                    value="{{ item.value }}"
+                    >{{ item.name }}</option
+                  >
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label>{{ 'footage.date_field' | translate }}</label>
+                <input
+                  name="date"
+                  type="text"
+                  class="form-control"
+                  [(ngModel)]="currentFootage.editorialDate"
+                  bsDatepicker
+                  disabled
+                />
+              </div>
+            </div>
+          </div>
+          <div class="row form-group">
+            <div class="col-md-3">
+              <label>{{ 'footage.description' | translate }}:</label>
+            </div>
+            <div class="col-md-9">
+              <textarea
+                class="form-control"
+                name="description"
+                [(ngModel)]="currentFootage.description"
+                disabled
+              ></textarea>
+            </div>
+          </div>
+          <div class="row form-group">
+            <div class="col-md-3">
+              <label>{{ 'footage.keywords_field' | translate }}:</label>
+            </div>
+            <div class="col-md-9">
+              <textarea
+                class="form-control"
+                name="keywords"
+                [(ngModel)]="currentFootage.keywords"
+                disabled
+              ></textarea>
+            </div>
+          </div>
+          <div class="row form-group">
+            <div class="col-md-3">
+              <label>{{ 'footage.attach_documents_field' | translate }}:</label>
+            </div>
+            <div class="col-md-9">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="row">
+                    <div class="col-md-12">
+                      <label
+                        >{{
+                          'footage.model_document_label' | translate
+                        }}:</label
+                      >
+                    </div>
+                    <div
+                      class="col-md-12"
+                      *ngIf="currentFootage.modelDocuments?.length == 0"
+                    >
+                      {{ 'footage.no_model_release' | translate }}
+                    </div>
+                    <div
+                      class="col-md-12"
+                      *ngIf="currentFootage.modelDocuments?.length != 0"
+                    >
+                      <p
+                        *ngFor="let item of currentFootage.modelDocuments"
+                        style="margin-bottom: 0; word-wrap: break-word"
+                      >
+                        <span class="pull-left">-&nbsp;</span
+                        >{{ item.modelAgreementName }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="col-md-12">
+                    <label
+                      >{{
+                        'footage.property_document_label' | translate
+                      }}:</label
+                    >
+                  </div>
+                  <div
+                    class="col-md-12"
+                    *ngIf="currentFootage.propertyDocuments?.length == 0"
+                  >
+                    {{ 'footage.no_property_release' | translate }}
+                  </div>
+                  <div
+                    class="col-md-12"
+                    *ngIf="currentFootage.propertyDocuments?.length != 0"
+                  >
+                    <p
+                      *ngFor="let item of currentFootage.propertyDocuments"
+                      style="margin-bottom: 0; word-wrap: break-word"
+                    >
+                      <span class="pull-left">-&nbsp;</span>
+                      {{ item.propertyAgreementName }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row form-group">
+            <div class="col-md-3">
+              <label>{{ 'footage.categories_field' | translate }}:</label>
+            </div>
+            <div class="col-md-9">
+              <select
+                name="category"
+                [(ngModel)]="currentFootage.category"
+                class="form-control"
+                disabled
+              >
+                <option
+                  *ngFor="let cat of masterData.footageCategories"
+                  value="{{ cat.value }}"
+                  >{{ cat.text }}</option
+                >
+              </select>
+            </div>
+          </div>
+          <div class="row form-group">
+            <div class="col-md-3">
+              <label>{{ 'footage.revenue_sharers_field' | translate }}:</label>
+            </div>
+            <div class="col-md-9">
+              <div [hidden]="!currentFootage.sharers">
+                <div [hidden]="!currentFootage.sharers">
+                  <div
+                    class="row form-group"
+                    *ngFor="let item of currentFootage.sharers"
+                  >
+                    <div class="col-md-4">
+                      {{ item.fullName }}
+                      <span *ngIf="item.collabType == 'curator'"
+                        >(Curator)</span
+                      >
+                    </div>
+                    <div class="col-md-8">{{ item.collabShare }}%</div>
+                  </div>
+                </div>
+              </div>
+              <div *ngIf="currentFootage.sharers?.length == 0">
+                {{ 'footage.no_sharer_note' | translate }}
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-secondary active"
+          data-dismiss="modal"
+        >
+          {{ 'common.close' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  id="media-product-info-modal"
+  class="modal modal-inverse fade"
+  role="dialog"
+  tabindex="-1"
+>
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5>{{ 'common.information' | translate }}</h5>
+        <button type="button" class="close" data-dismiss="modal">
+          &times;
+        </button>
+      </div>
+      <div class="modal-body label-13" *ngIf="currentFootage">
+        <form class="">
+          <div class="row form-group">
+            <div class="col-md-3">
+              <label>{{ 'footage.file_name_field' | translate }}:</label>
+            </div>
+            <div class="col-md-9">
+              <input
+                type="text"
+                class="form-control"
+                name="originalFileName"
+                [(ngModel)]="currentFootage.originalFileName"
+                disabled
+              />
+            </div>
+          </div>
+          <div class="row form-group">
+            <div class="col-md-3">
+              <label>{{ 'footage.description' | translate }}:</label>
+            </div>
+            <div class="col-md-9">
+              <textarea
+                class="form-control"
+                name="description"
+                [(ngModel)]="currentFootage.description"
+                disabled
+              ></textarea>
+            </div>
+          </div>
+          <div class="row form-group">
+            <div class="col-md-3">
+              <label>{{ 'footage.keywords_field' | translate }}:</label>
+            </div>
+            <div class="col-md-9">
+              <textarea
+                class="form-control"
+                name="keywords"
+                [(ngModel)]="currentFootage.keywords"
+                disabled
+              ></textarea>
+            </div>
+          </div>
+          <div class="row form-group">
+            <div class="col-md-3">
+              <label>{{ 'footage.categories_field' | translate }}:</label>
+            </div>
+            <div class="col-md-9">
+              <select
+                name="category"
+                [(ngModel)]="currentFootage.category"
+                class="form-control"
+                disabled
+              >
+                <option
+                  *ngFor="let cat of masterData.footageCategories"
+                  value="{{ cat.value }}"
+                  >{{ cat.text }}</option
+                >
+              </select>
+            </div>
+          </div>
+          <div class="row form-group">
+            <div class="col-md-3">
+              <label>{{ 'footage.revenue_sharers_field' | translate }}:</label>
+            </div>
+            <div class="col-md-9">
+              <div [hidden]="!currentFootage.sharers">
+                <div [hidden]="!currentFootage.sharers">
+                  <div
+                    class="row form-group"
+                    *ngFor="let item of currentFootage.sharers"
+                  >
+                    <div class="col-md-4">
+                      {{ item.fullName }}
+                      <span *ngIf="item.collabType == 'curator'"
+                        >(Curator)</span
+                      >
+                    </div>
+                    <div class="col-md-8">{{ item.collabShare }}%</div>
+                  </div>
+                </div>
+              </div>
+              <div *ngIf="currentFootage.sharers?.length == 0">
+                {{ 'footage.no_sharer_note' | translate }}
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-secondary active"
+          data-dismiss="modal"
+        >
+          {{ 'common.close' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  id="complete-project-modal"
+  class="modal modal-inverse fade"
+  role="dialog"
+  tabindex="-1"
+>
+  <div class="modal-dialog modal-lg">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4>
+          <strong>{{ 'footage.confirmation' | translate }}</strong>
+        </h4>
+        <button type="button" class="close" data-dismiss="modal">
+          &times;
+        </button>
+      </div>
+      <div class="modal-body">
+        {{ 'footage.confirmation_dec' | translate }}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">
+          {{ 'common.close' | translate }}
+        </button>
+        <button
+          type="button"
+          class="btn btn-success"
+          (click)="completeProject()"
+        >
+          {{ 'footage.btn.complete' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<app-rating #ratingModal (saveRating)="saveRating($event)"></app-rating>

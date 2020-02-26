@@ -1,0 +1,63 @@
+.m-aside-left--fixed .m-aside-left {
+  position: relative;
+  height: 100% !important;
+}
+#label_select {
+  width: 200px;
+  font-size: 1.2em;
+}
+.m-subheader {
+  padding-top: 0px;
+}
+#left-aside-menu {
+  background-color: #9e9ead;
+  width: 140px;
+}
+#content {
+  width: 100%;
+  /* padding-left: 30px; */
+  /* height: 500;: 700px */
+}
+.title {
+  font-weight: 400;
+  font-size: 1.3em;
+}
+.m-subheader {
+  padding-left: 0px;
+  padding-bottom: 10px;
+}
+.m-portlet .m-portlet__body {
+  padding: 1rem 2.2rem;
+}
+#left-aside-menu .active {
+  /* color: #9E9EAD !important; */
+  background-color: #6e7480 !important;
+}
+#left-aside-menu {
+  /* height: 100vh; */
+}
+#left-aside-menu li {
+  text-align: center;
+  padding: 15px;
+}
+#left-aside-menu li a {
+  /* padding: 20px 30px; */
+  color: #fff;
+}
+#left-aside-menu a i {
+  font-size: 40px;
+}
+
+.m-portlet {
+  margin-bottom: 0px !important;
+  min-height: 500px;
+}
+.m-portlet .m-portlet__body {
+  padding-bottom: 0px !important;
+}
+.m-portlet .m-portlet__body .m-section {
+  margin: 0 !important;
+}
+.m-portlet .m-portlet__body .m-section .m-section__content {
+  margin-bottom: 0px !important;
+}

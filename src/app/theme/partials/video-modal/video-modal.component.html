@@ -1,0 +1,22 @@
+<div
+  class="modal fade"
+  id="playerModal"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="playerModalTitleId"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <video
+        id="videoControl"
+        class="video video-js video-preview-control"
+        controls
+        preload="auto"
+        muted
+      >
+        <source [src]="srcUrl" type="video/mp4" />
+      </video>
+    </div>
+  </div>
+</div>

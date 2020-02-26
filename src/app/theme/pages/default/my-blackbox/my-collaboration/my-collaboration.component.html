@@ -1,0 +1,4152 @@
+<div class="page">
+  <div class="top">
+    <div class="row">
+      <div class="col-md-12 col-lg-5 col-xl-6 text">
+        <p>
+          {{ 'footage.manage_projects_title' | translate }}
+          <span class="help-in-app" (click)="showHelpModal()"
+            ><i class="fa fa-info"></i
+          ></span>
+        </p>
+      </div>
+      <div class="col form-group">
+        <div class="row">
+          <div class="col">
+            <div class="header">
+              <label class="form-control"
+                >{{ 'common.view' | translate }}:</label
+              >
+              <select
+                [(ngModel)]="projectFilterStatus"
+                name="projectFilterStatus"
+                class="form-control"
+                (change)="filterProjects()"
+                tooltip="{{
+                  'footage.project_status_filter_tooltip' | translate
+                }}"
+                style="width: 150px;"
+              >
+                <option
+                  *ngFor="let p of projectStatusFilters"
+                  [value]="p.value"
+                  >{{ p.name }}</option
+                >
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col form-group">
+        <select
+          [(ngModel)]="collaborateFilter"
+          name="collaborateFilter"
+          class="form-control"
+          (change)="loadProjects()"
+          tooltip="{{ 'footage.project_filter_tooltip' | translate }}"
+        >
+          <option *ngFor="let op of collaborateFilters" [value]="op.value">{{
+            op.name
+          }}</option>
+        </select>
+      </div>
+      <div class="col form-group">
+        <div class="form-group">
+          <div class="input-group m-input-icon m-input-icon--right search">
+            <input
+              #search
+              type="text"
+              class="form-control"
+              name="searchKeyWordsProject"
+              (keyup.enter)="filterProjects()"
+              [(ngModel)]="searchKeyWordsProject"
+              (keyup)="
+                searchKeyWordsProject === ''
+                  ? filterProjects()
+                  : searchKeyWordsProject
+              "
+              placeholder="{{ 'footage.filter_footages' | translate }}"
+            />
+            <span
+              *ngIf="searchKeyWordsProject != ''"
+              class="m-input-icon__icon m-input-icon__icon--right clear-icon-input"
+              (click)="clearSearch()"
+            >
+              <i class="fa fa-remove"></i>
+            </span>
+            <div class="input-group-append" (click)="filterProjects()">
+              <button class="btn btn-secondary active" type="button">
+                <i class="fa fa-search"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <hr class="hr" />
+  <div>
+    <a class="btn btn-secondary active m-btn" (click)="openCreateProject()">
+      <span>
+        <i class="fa fa-briefcase"></i>
+        <span>{{ 'footage.create_project_button' | translate }}</span>
+      </span>
+    </a>
+  </div>
+  <div class="paging-header" *ngIf="manageProjects.length > 0">
+    <div class="pull-left">
+      <p>
+        <strong
+          >{{ 'common.showing' | translate }}
+          {{ paging.currentPage * paging.pageSize + 1 - paging.pageSize }}
+          {{ 'common.to' | translate }}
+          {{
+            paging.currentPage * paging.pageSize > paging.total
+              ? paging.total
+              : paging.currentPage * paging.pageSize
+          }}
+          {{ 'common.entries' | translate }} {{ paging.total }}</strong
+        >
+      </p>
+    </div>
+    <div class="pull-right">
+      <pagination
+        [totalItems]="paging.total"
+        [maxSize]="10"
+        [rotate]="true"
+        [itemsPerPage]="paging.pageSize"
+        [(ngModel)]="paging.currentPage"
+        (pageChanged)="page($event)"
+        previousText="<"
+        nextText=">"
+        [boundaryLinks]="true"
+        firstText="{{ 'common.first' | translate }}"
+        lastText="{{ 'common.last' | translate }}"
+        [boundaryLinks]="showBoundaryLinks"
+      >
+      </pagination>
+    </div>
+  </div>
+  <div class="list-container projects">
+    <p class="text-center" *ngIf="allowShow">
+      {{ 'footage.no_project_label' | translate }}
+    </p>
+    <div class="table-responsive">
+      <table class="table table-hover" *ngIf="manageProjects.length > 0">
+        <tr *ngFor="let p of manageProjects">
+          <td *ngIf="p.projectType !== 'collaborative content project'">
+            <div class="row">
+              <div class="col-sm-7" style="word-wrap: break-word;">
+                <p class="text-left ">
+                  <i class="project-label pull-left"
+                    >{{ 'footage.name' | translate }}:</i
+                  ><span> {{ p.projectName }}</span>
+                </p>
+                <div class="row">
+                  <div class="col-sm-6">
+                    <p>
+                      <span class="project-label"
+                        >{{
+                          'footage.project_created_column' | translate
+                        }}:</span
+                      >{{ p.createdAt | date: 'dd MMM, yyyy' }}
+                    </p>
+                  </div>
+                  <div class="col-sm-6">
+                    <i class="project-label short"
+                      >{{ 'footage.type' | translate }}:</i
+                    ><span
+                      [hidden]="!notSubmit(p)"
+                      style="text-transform: capitalize"
+                      >{{ p.projectType }}</span
+                    ><br />
+                    <i class="project-label short"
+                      >{{ 'footage.status' | translate }}:</i
+                    ><span
+                      [hidden]="!notSubmit(p)"
+                      style="text-transform: capitalize"
+                      >{{ p.status }}</span
+                    >
+                  </div>
+                </div>
+
+                <p>
+                  <i class="project-label"
+                    >{{ 'footage.owner_column' | translate }}:</i
+                  >
+                  <span>{{ p.projectOwner }}</span>
+                  <img
+                    class="big-circle-img img-circle"
+                    [src]="avatarUrlB.replace('{memberId}', p.memberId)"
+                  />
+                </p>
+
+                <p>{{ p.projectDescription }}</p>
+              </div>
+              <div class="col-sm-5">
+                <p>
+                  <i class="project-label"
+                    >{{ 'footage.curator' | translate }}:</i
+                  >
+                  <span class="partner" *ngIf="p.curator">
+                    {{
+                      p.curator.name ? p.curator.name : p.curator.collabShare
+                    }}
+                    <span [hidden]="p.curator.name">%</span>
+                    <i class="light-small">
+                      ({{ p.curator.approvalStatusName }})</i
+                    >
+                  </span>
+                  &nbsp;
+                  <button
+                    [disabled]="p.curationCompleting"
+                    *ngIf="canCompleteCuration(p)"
+                    (click)="completeCuration(p)"
+                    type="button"
+                    class="btn btn-sm btn-outline-success"
+                    style="width: 180px; margin-bottom: -10px;"
+                  >
+                    <span>
+                      <i
+                        *ngIf="!p.curationCompleting"
+                        class="fa fa-check-circle-o"
+                      ></i>
+                      <i
+                        *ngIf="p.curationCompleting"
+                        class="fa fa-spinner fa-spin"
+                      ></i>
+                      <span> {{ 'footage.btn.complete' | translate }}</span>
+                    </span>
+                  </button>
+                </p>
+                <p>
+                  <i class="project-label"
+                    >{{ 'footage.sharer' | translate }}:</i
+                  >
+                  <span class="partner" [hidden]="!p.sharers">
+                    <span *ngFor="let item of p.sharers; let i = index">
+                      <span [hidden]="i > 0">&nbsp;</span>
+                      {{
+                        item.name ? item.name : ('unknown_label' | translate)
+                      }}
+                      <i class="light-small"> ({{ item.approvalStatus }})</i>
+                    </span>
+                  </span>
+                </p>
+              </div>
+            </div>
+          </td>
+          <td
+            class="text-right button"
+            *ngIf="p.projectType !== 'collaborative content project'"
+          >
+            <button
+              [disabled]="p.completing"
+              class="btn btn-outline-success btn-sm m-btn"
+              [hidden]="!canComplete(p)"
+              tooltip="{{ 'footage.complete_note' | translate }}"
+              #hideCompleteProjects="bs-popover"
+              placement="left"
+              [outsideClick]="true"
+              [popover]="completeProjectsPopover"
+              popoverTitle="{{ 'footage.complete_project' | translate }}"
+            >
+              <span>
+                <i *ngIf="p.completing" class="fa fa-check-circle-o"></i>
+                <i *ngIf="p.completing" class="fa fa-spinner fa-spin"></i>
+                <span>{{ 'footage.btn.mark_complete' | translate }}</span>
+              </span>
+            </button>
+            <ng-template #completeProjectsPopover>
+              <div>
+                <p>{{ 'footage.complete_dec' | translate }}</p>
+                <div style="height: 40px;color: #fff; text-align: right">
+                  <a
+                    class="btn btn-sm btn-danger"
+                    style="margin-left: 0"
+                    (click)="hideCompleteProjects.hide()"
+                    ><i class="glyphicon glyphicon-remove"></i>
+                    {{ 'common.no' | translate }}</a
+                  >
+                  <a
+                    class="btn btn-sm btn-success"
+                    (click)="hideCompleteProjects.hide(); completeProject(p)"
+                    ><i class="glyphicon glyphicon-ok"></i>
+                    {{ 'common.yes' | translate }}</a
+                  >
+                </div>
+              </div>
+            </ng-template>
+            <button
+              class="btn btn-outline-primary btn-sm m-btn"
+              *ngIf="canChat(p)"
+              (click)="ChatAction(p, p.curator)"
+              tooltip="{{ 'footage.chat_button_tooltip' | translate }}"
+            >
+              <span>
+                <i class="fa fa-wechat"></i>
+                <span>{{ 'footage.btn.chat' | translate }}</span>
+              </span>
+            </button>
+            <button
+              class="btn btn-outline-info btn-sm m-btn"
+              [hidden]="canEdit(p)"
+              (click)="viewProject(p)"
+              [disabled]="p.isLoadingView"
+              tooltip="{{ 'footage.view_project_buton_tooltip' | translate }}"
+            >
+              <span>
+                <i class="fa fa-eye" *ngIf="!p.isLoadingView"></i>
+                <i class="fa fa-spinner fa-spin" *ngIf="p.isLoadingView"></i>
+                <span>{{ 'footage.btn.view' | translate }}</span>
+              </span>
+            </button>
+            <button
+              class="btn btn-outline-primary btn-sm m-btn"
+              [hidden]="!canEdit(p)"
+              (click)="editProject(p)"
+              tooltip="{{ 'footage.edit_button_tooltip' | translate }}"
+            >
+              <span>
+                <i class="fa fa-edit"></i>
+                <span>{{ 'footage.btn.edit' | translate }}</span>
+              </span>
+            </button>
+            <button
+              class="btn btn-outline-primary btn-sm m-btn"
+              [hidden]="!canSubmit(p)"
+              #hideSubmitProjects="bs-popover"
+              placement="left"
+              [outsideClick]="true"
+              [popover]="submitProjectsPopover"
+              popoverTitle="{{ 'footage.submit_button_tooltip' | translate }}"
+            >
+              <span>
+                <i class="fa fa-arrow-circle-o-up"></i>
+                <span>{{ 'footage.btn.submit' | translate }}</span>
+              </span>
+            </button>
+            <ng-template #submitProjectsPopover>
+              <div>
+                <p>{{ 'footage.submit_dec' | translate }}</p>
+                <div style="height: 40px;color: #fff; text-align: right">
+                  <a
+                    class="btn btn-sm btn-danger"
+                    style="margin-left: 0"
+                    (click)="hideSubmitProjects.hide()"
+                    ><i class="glyphicon glyphicon-remove"></i>
+                    {{ 'common.no' | translate }}</a
+                  >
+                  <a
+                    class="btn btn-sm btn-success"
+                    (click)="hideSubmitProjects.hide(); submitProject(p)"
+                    ><i class="glyphicon glyphicon-ok"></i>
+                    {{ 'common.yes' | translate }}</a
+                  >
+                </div>
+              </div>
+            </ng-template>
+            <button
+              [disabled]="p.deleting"
+              class="btn btn-outline-danger btn-sm m-btn  m-btn"
+              [hidden]="!canDelete(p)"
+              #hideDeleteProjects="bs-popover"
+              placement="left"
+              [outsideClick]="true"
+              [popover]="deleteProjectsPopover"
+              popoverTitle="{{ 'footage.delete_project_title' | translate }}"
+            >
+              <span>
+                <i *ngIf="!p.deleting" class="fa fa-trash"></i>
+                <i *ngIf="p.deleting" class="fa fa-spinner fa-spin"></i>
+                <span>{{ 'footage.btn.delete' | translate }}</span>
+              </span>
+            </button>
+            <ng-template #deleteProjectsPopover>
+              <div>
+                <p *ngIf="p.status == 'committed'" style="color: red">
+                  {{ 'footage.delete_project_dec' | translate }}
+                </p>
+                <p>{{ 'common.are_you_sure' | translate }}</p>
+                <div style="height: 40px;color: #fff; text-align: right">
+                  <a
+                    class="btn btn-sm btn-danger"
+                    (click)="hideDeleteProjects.hide()"
+                    style="margin-left: 0"
+                    ><i class="glyphicon glyphicon-remove"></i>
+                    {{ 'common.no' | translate }}</a
+                  >
+                  <a
+                    class="btn btn-sm btn-success"
+                    (click)="hideDeleteProjects.hide(); deleteProject(p)"
+                    ><i class="glyphicon glyphicon-ok"></i>
+                    {{ 'common.yes' | translate }}</a
+                  >
+                </div>
+              </div>
+            </ng-template>
+            <button
+              [disabled]="p.clearing"
+              class="btn btn-outline-danger btn-sm m-btn  m-btn"
+              [hidden]="!canClearCurationProject(p)"
+              tooltip="{{ 'footage.clearer_dec' | translate }}"
+              #hideClearedProjects="bs-popover"
+              placement="left"
+              [outsideClick]="true"
+              [popover]="clearCurationProjectPopover"
+              popoverTitle="{{ 'footage.clear_project_title' | translate }}"
+            >
+              <span>
+                <i *ngIf="!p.clearing" class="fa fa-trash"></i>
+                <i *ngIf="p.clearing" class="fa fa-spin fa-spinner"></i>
+                <span>{{ 'footage.btn.clear' | translate }}</span>
+              </span>
+            </button>
+            <ng-template #clearCurationProjectPopover>
+              <div>
+                <p>{{ 'common.are_you_sure' | translate }}</p>
+                <div style="height: 40px;color: #fff; text-align: right">
+                  <a
+                    class="btn btn-sm btn-danger"
+                    (click)="hideClearedProjects.hide()"
+                    style="margin-left: 0"
+                    ><i class="glyphicon glyphicon-remove"></i>
+                    {{ 'common.no' | translate }}</a
+                  >
+                  <a
+                    class="btn btn-sm btn-success"
+                    (click)="
+                      clearCurationProject(p); hideClearedProjects.hide()
+                    "
+                    ><i class="glyphicon glyphicon-ok"></i>
+                    {{ 'common.yes' | translate }}</a
+                  >
+                </div>
+              </div>
+            </ng-template>
+            <br /><br />
+            <button
+              class="btn btn-dark"
+              (click)="uploadFootage(p)"
+              [hidden]="!canUpload(p)"
+              style="width: 175px"
+              tooltip="{{
+                'footage.upload_files_on_behalf_button_tooltip' | translate
+              }}"
+            >
+              {{ 'footage.btn.upload_project_files' | translate }}
+            </button>
+            <button
+              class="btn btn-dark"
+              (click)="downloadContent(p)"
+              style="width: 175px"
+              [hidden]="!canDownload(p)"
+            >
+              {{ 'footage.btn.download' | translate }}
+            </button>
+          </td>
+          <td *ngIf="p.projectType === 'collaborative content project'">
+            <div class="row">
+              <div class="col-sm-7" style="word-wrap: break-word;">
+                <p class="text-left ">
+                  <i class="project-label pull-left"
+                    >{{ 'footage.title' | translate }}:</i
+                  ><span> {{ p.projectName }}</span>
+                </p>
+                <div class="row">
+                  <div class="col-sm-6">
+                    <p>
+                      <span class="project-label"
+                        >{{ 'footage.start_date' | translate }}:</span
+                      >{{ p.projectStartDate | date: 'dd MMM, yyyy' }}<br />
+                      <span class="project-label"
+                        >{{ 'footage.end_date' | translate }}:</span
+                      >{{ p.projectEndDate | date: 'dd MMM, yyyy' }}
+                    </p>
+                  </div>
+                  <div class="col-sm-6">
+                    <i class="project-label short"
+                      >{{ 'footage.type' | translate }}:</i
+                    ><span style="text-transform: capitalize">{{
+                      p.projectType
+                    }}</span
+                    ><br />
+                    <i class="project-label short"
+                      >{{ 'footage.status' | translate }}:</i
+                    ><span style="text-transform: capitalize">{{
+                      p.status
+                    }}</span>
+                  </div>
+                </div>
+
+                <p>
+                  <i class="project-label"
+                    >{{ 'footage.owner_column' | translate }}:</i
+                  >
+                  <span>{{ p.projectOwner }}</span>
+                  <img
+                    class="big-circle-img img-circle"
+                    [src]="avatarUrlB.replace('{memberId}', p.memberId)"
+                  />
+                </p>
+
+                <p>
+                  <i class="project-label"
+                    >{{ 'footage.location' | translate }}:</i
+                  >{{ p.projectLocation }}
+                </p>
+              </div>
+              <div class="col-sm-5">
+                <p>
+                  <i class="project-label">Collaborators:</i>
+                  <span>
+                    <a
+                      class="outline-none link"
+                      (click)="getListInterest(p)"
+                      placement="bottom"
+                      tooltip="{{
+                        'marketplace.view_detail_collaborator_tooltip'
+                          | translate
+                      }}"
+                    >
+                      {{ p.collaborators.length }}
+                      <i class="fa fa-users" style="color:#6FA7D7"></i>
+                    </a>
+                  </span>
+                </p>
+              </div>
+            </div>
+          </td>
+          <td
+            class="text-right button"
+            *ngIf="p.projectType === 'collaborative content project'"
+          >
+            <button
+              class="btn btn-outline-primary btn-sm m-btn"
+              *ngIf="canChat(p)"
+              (click)="ChatAction(p, p.curator)"
+              tooltip="{{ 'footage.chat_button_tooltip' | translate }}"
+            >
+              <span>
+                <i class="fa fa-wechat"></i>
+                <span>{{ 'footage.btn.private_chat' | translate }}</span>
+              </span>
+            </button>
+
+            <button
+              tooltip="{{ 'collaboration.group_chat_tooltip' | translate }}"
+              class="btn btn-outline-success btn-sm m-btn m-btn"
+              *ngIf="canChatGroup(p)"
+              (click)="ChatGroupAction(p)"
+            >
+              <span>
+                <i class="fa fa-users"></i>
+                <span>{{ 'footage.btn.group_chat' | translate }}</span>
+              </span>
+            </button>
+
+            <button
+              [disabled]="p.completing"
+              class="btn btn-outline-success btn-sm m-btn"
+              [hidden]="!canComplete(p)"
+              tooltip="{{
+                'footage.mark_complete_collaborative_project_tooltip'
+                  | translate
+              }}"
+              #hideCompleteProjects="bs-popover"
+              placement="left"
+              [outsideClick]="true"
+              [popover]="completeProjectsPopover"
+              popoverTitle="{{ 'footage.complete_project' | translate }}"
+            >
+              <span>
+                <i *ngIf="p.completing" class="fa fa-check-circle-o"></i>
+                <i *ngIf="p.completing" class="fa fa-spinner fa-spin"></i>
+                <span>{{ 'footage.btn.mark_complete' | translate }}</span>
+              </span>
+            </button>
+            <ng-template #completeProjectsPopover>
+              <div>
+                <p>
+                  {{
+                    'mediaProducts.complete_collaborative_content_project_desc'
+                      | translate
+                  }}
+                </p>
+                <p>Are you sure you want to proceed?</p>
+                <div style="height: 40px;color: #fff; text-align: right">
+                  <a
+                    class="btn btn-sm btn-danger"
+                    style="margin-left: 0"
+                    (click)="hideCompleteProjects.hide()"
+                    ><i class="glyphicon glyphicon-remove"></i>
+                    {{ 'common.no' | translate }}</a
+                  >
+                  <a
+                    class="btn btn-sm btn-success"
+                    (click)="hideCompleteProjects.hide(); completeProject(p)"
+                    ><i class="glyphicon glyphicon-ok"></i>
+                    {{ 'common.yes' | translate }}</a
+                  >
+                </div>
+              </div>
+            </ng-template>
+            <button
+              class="btn btn-outline-info btn-sm m-btn"
+              [hidden]="canEdit(p)"
+              (click)="viewProject(p)"
+              [disabled]="p.isLoadingView"
+              tooltip="{{ 'footage.view_project_buton_tooltip' | translate }}"
+            >
+              <span>
+                <i class="fa fa-eye" *ngIf="!p.isLoadingView"></i>
+                <i class="fa fa-spinner fa-spin" *ngIf="p.isLoadingView"></i>
+                <span>{{ 'footage.btn.view' | translate }}</span>
+              </span>
+            </button>
+            <button
+              class="btn btn-outline-primary btn-sm m-btn"
+              [hidden]="!canEdit(p)"
+              (click)="editProject(p)"
+              tooltip="{{ 'footage.edit_button_tooltip' | translate }}"
+            >
+              <span>
+                <i class="fa fa-edit"></i>
+                <span>{{ 'footage.btn.edit' | translate }}</span>
+              </span>
+            </button>
+            <button
+              class="btn btn-outline-primary btn-sm m-btn"
+              [hidden]="!canSubmit(p)"
+              #hideSubmitProjects="bs-popover"
+              placement="left"
+              [outsideClick]="true"
+              [popover]="submitProjectsPopover"
+              popoverTitle="{{ 'footage.submit_button_tooltip' | translate }}"
+            >
+              <span>
+                <i class="fa fa-arrow-circle-o-up"></i>
+                <span>{{ 'footage.btn.submit' | translate }}</span>
+              </span>
+            </button>
+            <ng-template #submitProjectsPopover>
+              <div>
+                <p>{{ 'footage.submit_dec' | translate }}</p>
+                <div style="height: 40px;color: #fff; text-align: right">
+                  <a
+                    class="btn btn-sm btn-danger"
+                    style="margin-left: 0"
+                    (click)="hideSubmitProjects.hide()"
+                    ><i class="glyphicon glyphicon-remove"></i>
+                    {{ 'common.no' | translate }}</a
+                  >
+                  <a
+                    class="btn btn-sm btn-success"
+                    (click)="hideSubmitProjects.hide(); submitProject(p)"
+                    ><i class="glyphicon glyphicon-ok"></i>
+                    {{ 'common.yes' | translate }}</a
+                  >
+                </div>
+              </div>
+            </ng-template>
+            <button
+              [disabled]="p.deleting"
+              class="btn btn-outline-danger btn-sm m-btn  m-btn"
+              [hidden]="!canDelete(p)"
+              #hideDeleteProjects="bs-popover"
+              placement="left"
+              [outsideClick]="true"
+              [popover]="deleteProjectsPopover"
+              popoverTitle="{{ 'footage.delete_project_title' | translate }}"
+            >
+              <span>
+                <i *ngIf="!p.deleting" class="fa fa-trash"></i>
+                <i *ngIf="p.deleting" class="fa fa-spinner fa-spin"></i>
+                <span>{{ 'footage.btn.delete' | translate }}</span>
+              </span>
+            </button>
+            <ng-template #deleteProjectsPopover>
+              <div>
+                <p *ngIf="p.status == 'committed'" style="color: red">
+                  {{
+                    'footage.delete_collaborative_content_project_dec'
+                      | translate
+                  }}
+                </p>
+                <p>{{ 'common.are_you_sure' | translate }}</p>
+                <div style="height: 40px;color: #fff; text-align: right">
+                  <a
+                    class="btn btn-sm btn-danger"
+                    (click)="hideDeleteProjects.hide()"
+                    style="margin-left: 0"
+                    ><i class="glyphicon glyphicon-remove"></i>
+                    {{ 'common.no' | translate }}</a
+                  >
+                  <a
+                    class="btn btn-sm btn-success"
+                    (click)="hideDeleteProjects.hide(); deleteProject(p)"
+                    ><i class="glyphicon glyphicon-ok"></i>
+                    {{ 'common.yes' | translate }}</a
+                  >
+                </div>
+              </div>
+            </ng-template>
+            <button
+              [disabled]="p.clearing"
+              class="btn btn-outline-danger btn-sm m-btn  m-btn"
+              [hidden]="!canClearCurationProject(p)"
+              tooltip="{{ 'footage.clearer_dec' | translate }}"
+              #hideClearedProjects="bs-popover"
+              placement="left"
+              [outsideClick]="true"
+              [popover]="clearCurationProjectPopover"
+              popoverTitle="{{ 'footage.clear_project_title' | translate }}"
+            >
+              <span>
+                <i *ngIf="!p.clearing" class="fa fa-trash"></i>
+                <i *ngIf="p.clearing" class="fa fa-spin fa-spinner"></i>
+                <span>{{ 'footage.btn.clear' | translate }}</span>
+              </span>
+            </button>
+            <ng-template #clearCurationProjectPopover>
+              <div>
+                <p>{{ 'common.are_you_sure' | translate }}</p>
+                <div style="height: 40px;color: #fff; text-align: right">
+                  <a
+                    class="btn btn-sm btn-danger"
+                    (click)="hideClearedProjects.hide()"
+                    style="margin-left: 0"
+                    ><i class="glyphicon glyphicon-remove"></i>
+                    {{ 'common.no' | translate }}</a
+                  >
+                  <a
+                    class="btn btn-sm btn-success"
+                    (click)="
+                      clearCurationProject(p); hideClearedProjects.hide()
+                    "
+                    ><i class="glyphicon glyphicon-ok"></i>
+                    {{ 'common.yes' | translate }}</a
+                  >
+                </div>
+              </div>
+            </ng-template>
+            <br /><br />
+            <button
+              class="btn btn-dark"
+              (click)="reUploadProjectContent(p)"
+              *ngIf="canReUploadProjectContent(p)"
+              style="width: 175px"
+              tooltip="{{
+                'collaboration.re_upload_project_content_tooltip' | translate
+              }}"
+            >
+              {{ 'collaboration.btn.re_upload_project_content' | translate }}
+            </button>
+            <button
+              class="btn btn-dark"
+              (click)="uploadProjectContent(p)"
+              *ngIf="canUploadProjectContent(p)"
+              style="width: 175px"
+              tooltip="{{
+                'collaboration.upload_project_content_tooltip' | translate
+              }}"
+            >
+              {{ 'collaboration.btn.upload_project_content' | translate }}
+            </button>
+            <br /><br />
+            <button
+              class="btn btn-dark"
+              (click)="downloadContent(p)"
+              style="width: 175px"
+              [hidden]="!canDownload(p)"
+            >
+              {{ 'footage.btn.download' | translate }}
+            </button>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+  <div class="paging" *ngIf="manageProjects.length > 0">
+    <div class="pull-left">
+      <p>
+        <strong
+          >{{ 'common.showing' | translate }}
+          {{ paging.currentPage * paging.pageSize + 1 - paging.pageSize }}
+          {{ 'common.to' | translate }}
+          {{
+            paging.currentPage * paging.pageSize > paging.total
+              ? paging.total
+              : paging.currentPage * paging.pageSize
+          }}
+          {{ 'common.entries' | translate }} {{ paging.total }}</strong
+        >
+      </p>
+    </div>
+    <div class="pull-right">
+      <pagination
+        [totalItems]="paging.total"
+        [maxSize]="10"
+        [rotate]="true"
+        [itemsPerPage]="paging.pageSize"
+        [(ngModel)]="paging.currentPage"
+        (pageChanged)="page($event)"
+        previousText="<"
+        nextText=">"
+        [boundaryLinks]="true"
+        firstText="{{ 'common.first' | translate }}"
+        lastText="{{ 'common.last' | translate }}"
+        [boundaryLinks]="showBoundaryLinks"
+      >
+      </pagination>
+    </div>
+  </div>
+</div>
+
+<div
+  id="help-project-coll-modal"
+  class="modal fade"
+  role="dialog"
+  tabindex="-1"
+>
+  <div class="modal-dialog modal-lg">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4>
+          <strong>{{ 'footage.project_collaborate' | translate }}</strong>
+        </h4>
+        <button type="button" class="close" data-dismiss="modal">
+          &times;
+        </button>
+      </div>
+      <div class="modal-body label-13" style="text-align: justify">
+        <p><strong>1. To create a project</strong></p>
+
+        <p>
+          - Click the "Create Project" button to open the project creation
+          popup.
+        </p>
+
+        <p>- Fill in the project information.</p>
+
+        <p>
+          - In the Project "Instructions" field, you can ask for Partial
+          Curation or Full Curation.
+        </p>
+        <p style="margin-left:40px; text-align: justify;">
+          + <b>Partial Curation</b> – Editing and Uploading Only or Metadata
+          Only<br />
+          You can ask an Editor to edit and upload only, or you can ask a
+          Metadata Curator to do your metadata tagging only (description,
+          keywords, category, editorial information when applicable).
+        </p>
+        <p style="margin-left:40px">
+          For Editing and Uploading Only, you can choose to specify the type of
+          work needed (such as Export, Grading, Selects, and Other Processes),
+          and can also write a note to your Curator with additional information.
+        </p>
+        <p style="margin-left:40px">
+          For Metadata Only, you can specify whether you will transfer the
+          content to the Curator to work on<br />
+          - or - <br />
+          (Recommended) You can specify that you will upload the edited content
+          yourself and assign the clips to your agreed Curator from your
+          "WORKSPACE" tab.
+        </p>
+        <p style="margin-left:40px">
+          You can create a project to do partial curation for Editing and
+          Uploading with one curator, then open a second project do metadata
+          tagging with another curator separately.
+        </p>
+
+        <p style="margin-left:40px">
+          + <b>Full curation</b> – Editing, Uploading, and Metadata<br />
+          In this case, you will arrange to transfer your content to your
+          Curator outside of the BlackBox platform and they will finish the
+          entire curation process.
+        </p>
+
+        <p>- Choose a "Posting Option":</p>
+
+        <p style="margin-left:40px">
+          + "Private" – choosing this option will allow you to select a specific
+          Curator and only they will see your Project.
+        </p>
+
+        <p style="margin-left:40px">
+          + "Marketplace" – choosing this option means that the project will be
+          made available in the Marketplace for all members to see. Interested
+          Curators will be able to express their interest and you can accept the
+          Curator you prefer.
+        </p>
+
+        <p>- Choose a sharing percentage</p>
+        <p>
+          - OPTIONAL: Choose a "Sharer" only if you wish to share a percentage
+          with another member who contributed to the content creation in some
+          way.
+        </p>
+        <p>
+          - OPTIONAL: Add notes to the Curator so they have more context and
+          details to work with.
+        </p>
+        <p>
+          - Click the "Save" button to save the unpublished Project to the "MY
+          COLLABORATION" tab. It will not be visible in the "MARKETPLACE" tab
+          yet.
+        </p>
+
+        <p>
+          - Click the "Submit" button to publish the Project. If you selected
+          "Private", then the Curator you chose will now be able to view the
+          Project. If you selected "Marketplace" all interested members will be
+          able to view your Project in the "MARKETPLACE" tab.
+        </p>
+
+        <p><strong>2. Update project info</strong></p>
+
+        <p>- Click the "Edit" button on a saved an unpublished Project.</p>
+
+        <p>
+          - Change any of the previous information you filled out or add any
+          missing data.
+        </p>
+
+        <p>
+          - Add notes to the Curator so they have more context and details to
+          work with.
+        </p>
+
+        <p>
+          - Click the "Save" button to save the unpublished Project to the "MY
+          COLLABORATION" tab. It will not be visible in the "MARKETPLACE" tab
+          yet.
+        </p>
+        <p>
+          - Click the "Submit" button to publish the Project. If you selected
+          "Private", then the Curator you chose will now be able to view the
+          Project. If you selected "Marketplace" all interested members will be
+          able to view your Project in the "MARKETPLACE" tab.
+        </p>
+
+        <p><strong>3. Submit project</strong></p>
+
+        <p>
+          - Click "Submit" button. After the submission, you will not be able to
+          edit the project.
+        </p>
+
+        <p>
+          - The submitted project will visible privately to the selected Curator
+          or visible publicly in the "MARKETPLACE" tab, where you simply wait
+          for a Curator from the community to request to become a Curator of
+          your Project.
+        </p>
+
+        <p><strong>4. Upload Project Files</strong></p>
+
+        <p>
+          - As a Curator, once you finish your curation work, select the "Upload
+          Project Files" button to upload the edited clips.
+        </p>
+
+        <p>
+          - The Project Name will become the Batch Name of the uploaded
+          clips.<br />
+          All uploaded footage from the Project will appear in the "WORKSPACE"
+          tab for the final steps of metadata curation before finally submitting
+          the clips.
+        </p>
+
+        <p><strong>5. Complete project</strong></p>
+
+        <p>
+          - The "Mark Complete" button only appears when the curator of the
+          project has submitted the footage.
+        </p>
+
+        <p>
+          - Click the "Mark Complete" button to mark the project as completed.
+          All the footage belonging to that project will be automatically
+          approved.
+        </p>
+
+        <p><strong>6. Chat</strong></p>
+
+        <p>
+          - Click the "Chat" button to talk to your collaborators, share more
+          information, and ask questions. The button only appears when the
+          project is "Committed" and "Incomplete".
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-secondary active"
+          data-dismiss="modal"
+        >
+          {{ 'common.close' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  id="projects"
+  class="modal fade"
+  bsModal
+  #projects="bs-modal"
+  [config]="{ backdrop: 'static', keyboard: false }"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="projects"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 *ngIf="!isEditingProject" class="modal-title pull-left">
+          {{ 'footage.create_project_modal_title' | translate }}
+        </h4>
+        <h4 *ngIf="isEditingProject" class="modal-title pull-left">
+          {{ 'footage.edit_project_modal_title' | translate }}
+        </h4>
+        <span
+          class="help-in-app pull-right"
+          (click)="openProjectCreationModal()"
+          >?</span
+        >
+        <button
+          type="button"
+          class="close pull-right"
+          aria-label="Close"
+          [disabled]="isCuratorLoading || isSharerLoading"
+          (click)="projects.hide(); closeProjectModal()"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" style="padding: 10px 25px">
+        <form #formProjects="ngForm" class="m-form m-form--state">
+          <div class="form-group row">
+            <label
+              for="projectName"
+              class="col-3 col-form-label form-control-sm"
+            >
+              {{ 'footage.project_name_field' | translate }}
+              <span class="required">{{ 'required_symbol' | translate }}</span
+              >:
+            </label>
+            <div
+              class="col-9"
+              [ngClass]="{
+                'has-danger':
+                  (projectName.invalid && savedOrSubmitted) ||
+                  (projectName.invalid &&
+                    (projectName.dirty || projectName.touched))
+              }"
+            >
+              <input
+                id="projectName"
+                name="projectName"
+                class="form-control form-control-sm m-input"
+                type="text"
+                #projectName="ngModel"
+                [(ngModel)]="currentProject.projectName"
+                required
+                [pattern]="projectNameRegex"
+              />
+              <div
+                *ngIf="
+                  (projectName.invalid && savedOrSubmitted) ||
+                  (projectName.invalid &&
+                    (projectName.dirty || projectName.touched))
+                "
+              >
+                <span
+                  class="text-danger help-block"
+                  *ngIf="projectName.errors?.required"
+                  >{{ 'required_desc' | translate }}</span
+                >
+                <span
+                  class="text-danger help-block"
+                  *ngIf="projectName.errors?.pattern"
+                  >{{ 'footage.project_name_invalid' | translate }}</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group row">
+            <label
+              for="start-date"
+              class="col-3 col-form-label form-control-sm"
+            >
+              {{ 'footage.project_start_date_field' | translate }}:
+            </label>
+            <div class="col-3">
+              <input
+                name="start-date"
+                class="form-control m-input form-control-sm"
+                type="text"
+                id="start-date"
+                [maxDate]="maxDate"
+                bsDatepicker
+                [bsConfig]="bsConfig"
+                [(ngModel)]="currentProject.projectStartDate"
+              />
+            </div>
+
+            <label
+              for="location"
+              class="col-auto col-form-label form-control-sm"
+            >
+              {{ 'footage.project_location_field' | translate }}:
+            </label>
+            <div class="col-3" style="width: 138px">
+              <input
+                style="width: 137px;"
+                name="location"
+                class="form-control m-input form-control-sm"
+                type="text"
+                id="location"
+                [(ngModel)]="currentProject.projectLocation"
+                placeholder="City/State"
+              />
+            </div>
+          </div>
+
+          <div class="form-group row">
+            <label
+              for="description"
+              class="col-3 col-form-label form-control-sm"
+            >
+              {{ 'footage.description' | translate }}:
+            </label>
+            <div class="col-9">
+              <input
+                name="description"
+                class="form-control m-input form-control-sm"
+                type="text"
+                id="description"
+                [(ngModel)]="currentProject.projectDescription"
+              />
+            </div>
+          </div>
+          <div
+            class="form-group row custom-popover"
+            *ngIf="currentProject.ProjectCuration"
+          >
+            <label class="col-3 col-form-label form-control-sm">
+              {{ 'footage.instructions' | translate }}:
+              <span
+                class="glyphicon glyphicon-info-sign"
+                style="cursor: pointer; color: #008eff"
+                [popover]="popInstructionsTemplate"
+                triggers="mouseenter:mouseleave"
+              ></span>
+            </label>
+            <ng-template #popInstructionsTemplate>{{
+              'footage.works_dec' | translate
+            }}</ng-template>
+            <div class="col-9">
+              <div class="row" style="margin-left: -14px;">
+                <div class="col-12">
+                  <label class="m-checkbox m-checkbox--solid m-checkbox--dark">
+                    <input
+                      type="checkbox"
+                      [(ngModel)]="
+                        currentProject.ProjectCuration.edittingStatus
+                      "
+                      name="editing"
+                      (change)="suggestSharingPercenatge(currentProject)"
+                    />{{ 'footage.editing' | translate }}
+                    <span></span>
+                  </label>
+                </div>
+                <div
+                  class="offset-1 col-12"
+                  *ngIf="currentProject.ProjectCuration.edittingStatus"
+                >
+                  <div>
+                    <label
+                      style="padding-left: 0px; cursor: default;"
+                      class="m-checkbox m-checkbox--solid m-checkbox--dark"
+                    >
+                      Specify the details if desired (optional)
+                    </label>
+                  </div>
+                  <div>
+                    <label
+                      class="m-checkbox m-checkbox--solid m-checkbox--dark"
+                    >
+                      <input
+                        type="checkbox"
+                        [(ngModel)]="
+                          currentProject.ProjectCuration.exportClipsStatus
+                        "
+                        name="exportClips"
+                      />{{ 'footage.exportClips' | translate }}
+                      <span></span>
+                    </label>
+                  </div>
+                  <div>
+                    <label
+                      class="m-checkbox m-checkbox--solid m-checkbox--dark"
+                    >
+                      <input
+                        type="checkbox"
+                        [(ngModel)]="
+                          currentProject.ProjectCuration.gradingStatus
+                        "
+                        name="grading"
+                      />{{ 'footage.grading' | translate }}
+                      <span></span>
+                    </label>
+                  </div>
+                  <div>
+                    <label
+                      class="m-checkbox m-checkbox--solid m-checkbox--dark"
+                    >
+                      <input
+                        type="checkbox"
+                        [(ngModel)]="
+                          currentProject.ProjectCuration.otherProcessStatus
+                        "
+                        name="otherProcess"
+                      />{{ 'footage.otherProcess' | translate }}
+                      <span></span>
+                    </label>
+                  </div>
+                  <div>
+                    <label
+                      class="m-checkbox m-checkbox--solid m-checkbox--dark"
+                    >
+                      <input
+                        type="checkbox"
+                        [(ngModel)]="
+                          currentProject.ProjectCuration.selectsStatus
+                        "
+                        name="selects"
+                      />{{ 'footage.selects' | translate }}
+                      <span></span>
+                    </label>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <label class="m-checkbox m-checkbox--solid m-checkbox--dark">
+                    <input
+                      type="checkbox"
+                      [(ngModel)]="
+                        currentProject.ProjectCuration.metadataStatus
+                      "
+                      name="metaData"
+                      (change)="suggestSharingPercenatge(currentProject)"
+                    />{{ 'footage.meta_data' | translate }}
+                    <span></span>
+                  </label>
+
+                  <div
+                    *ngIf="
+                      !currentProject.ProjectCuration.edittingStatus &&
+                      currentProject.ProjectCuration.metadataStatus
+                    "
+                    class="m-radio-list offset-1 col-12"
+                  >
+                    <label class="m-radio">
+                      <input
+                        type="radio"
+                        name="example_1"
+                        value="none"
+                        [(ngModel)]="
+                          currentProject.ProjectCuration.metadataTaggingOption
+                        "
+                      />
+                      {{ 'footage.sub_metadataStatus' | translate }}
+                      <span></span>
+                    </label>
+                    <label class="m-radio">
+                      <input
+                        type="radio"
+                        name="example_1"
+                        value="only curation"
+                        [(ngModel)]="
+                          currentProject.ProjectCuration.metadataTaggingOption
+                        "
+                      />
+                      {{ 'footage.sub_metadataStatus2' | translate }}
+                      <span></span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group row custom-popover">
+            <label class="col-3 col-form-label form-control-sm">
+              {{ 'collaboration.posting_option' | translate }}
+              <span class="required">{{ 'required_symbol' | translate }}</span
+              >:
+              <span
+                class="glyphicon glyphicon-info-sign"
+                style="cursor: pointer; color: #008eff"
+                [popover]="popPostingOptionTemplate"
+                triggers="mouseenter:mouseleave"
+              ></span>
+            </label>
+            <ng-template #popPostingOptionTemplate>
+              <span
+                innerHtml="{{ 'collaboration.posting_option_pop' | translate }}"
+              ></span>
+            </ng-template>
+            <div
+              class="col-auto"
+              [ngClass]="{
+                'has-danger':
+                  (postingOption.invalid && savedOrSubmitted) ||
+                  (postingOption.invalid &&
+                    (postingOption.dirty || postingOption.touched))
+              }"
+            >
+              <select
+                class="form-control m-input form-control-sm"
+                name="postingOption"
+                #postingOption="ngModel"
+                [(ngModel)]="currentProject.submitOption"
+                (change)="suggestSharingPercenatge(currentProject)"
+                id="postingOption"
+              >
+                <option
+                  *ngFor="let item of listPostingOption"
+                  value="{{ item.value }}"
+                  >{{ item.name }}</option
+                >
+              </select>
+              <div
+                *ngIf="
+                  (postingOption.invalid && savedOrSubmitted) ||
+                  (postingOption.invalid &&
+                    (postingOption.dirty || postingOption.touched))
+                "
+              >
+                <span
+                  class="text-danger help-block"
+                  *ngIf="postingOption.errors?.required"
+                  >{{ 'required_desc' | translate }}</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="form-group row"
+            *ngIf="currentProject.submitOption == 'marketplace'"
+          >
+            <label class="col-3 col-form-label form-control-sm">
+              {{ 'collaboration.sharing' | translate }}
+              <span class="required">{{ 'required_symbol' | translate }}</span
+              >:
+            </label>
+            <div
+              class="col-auto"
+              [ngClass]="{
+                'has-danger':
+                  (sharingPercentage.invalid && savedOrSubmitted) ||
+                  (sharingPercentage.invalid &&
+                    (sharingPercentage.dirty || sharingPercentage.touched))
+              }"
+            >
+              <input
+                id="sharingPercentage"
+                name="sharingPercentage"
+                class="form-control m-input form-control-sm"
+                type="number"
+                min="1"
+                max="99"
+                #sharingPercentage="ngModel"
+                [(ngModel)]="currentProject.sharingPercentage"
+                required
+              />
+              <div
+                *ngIf="
+                  (sharingPercentage.invalid && savedOrSubmitted) ||
+                  (sharingPercentage.invalid &&
+                    (sharingPercentage.dirty || sharingPercentage.touched))
+                "
+              >
+                <span
+                  class="text-danger help-block"
+                  *ngIf="sharingPercentage.errors?.required"
+                  >{{ 'required_desc' | translate }}</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="form-group row"
+            *ngIf="currentProject.submitOption == 'private'"
+          >
+            <label class="col-3 col-form-label form-control-sm">
+              {{ 'footage.curation_request_field' | translate }}
+              <span class="required">{{ 'required_symbol' | translate }}</span
+              >:
+            </label>
+            <div class="col-9">
+              <div
+                *ngIf="currentProject.curator"
+                class="form-group row"
+                style="margin-bottom: 0px; margin-left: -10px;"
+              >
+                <label class="col-6 col-form-label form-control-sm">
+                  <a
+                    (click)="requestCurator(currentProject)"
+                    class="btn-link"
+                    style="padding-right:10px;"
+                    >{{ 'footage.btn.change' | translate }}</a
+                  >
+                  <a (click)="removeCurator()" class="btn-link text-danger">{{
+                    'footage.btn.remove' | translate
+                  }}</a>
+                </label>
+                <label class="col-6 col-form-label form-control-sm">
+                  {{ 'footage.sharing_percent_field' | translate }}
+                  <span class="required">{{
+                    'required_symbol' | translate
+                  }}</span>
+                </label>
+              </div>
+
+              <div
+                *ngIf="currentProject.curator && currentProject.curator.name"
+                class="form-group row"
+                style="margin-bottom: 0px; margin-left: -10px;"
+              >
+                <label class="col-6 col-form-label form-control-sm">{{
+                  currentProject.curator.name
+                }}</label>
+                <div class="col-3">
+                  <input
+                    name="curator"
+                    class="form-control m-input form-control-sm"
+                    type="number"
+                    id="curator"
+                    [(ngModel)]="currentProject.curator.collabShare"
+                    #curatorCollabShare
+                    #curator="ngModel"
+                    min="1"
+                    max="99"
+                    (change)="updateCuratorPercent()"
+                    required
+                  />
+                  <div
+                    *ngIf="
+                      (curator.invalid && savedOrSubmitted) ||
+                      (curator.invalid && (curator.dirty || curator.touched))
+                    "
+                  >
+                    <span
+                      class="text-danger help-block"
+                      *ngIf="curator.errors?.required"
+                      >{{ 'required_desc' | translate }}</span
+                    >
+                  </div>
+                </div>
+              </div>
+
+              <div
+                [hidden]="currentProject.curator && currentProject.curator.name"
+              >
+                <button
+                  type="button"
+                  class="btn btn-sm btn-dark"
+                  (click)="requestCurator(currentProject)"
+                  [disabled]="isCuratorLoading || isSharerLoading"
+                >
+                  <i class="fa fa-spinner fa-spin" *ngIf="isCuratorLoading"></i>
+                  {{ 'footage.btn.project_curation_button' | translate }}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group row">
+            <label
+              for="notes-to-curator"
+              class="col-3 col-form-label form-control-sm"
+            >
+              {{ 'footage.notes_curator_field' | translate }}:
+            </label>
+            <div class="col-9">
+              <textarea
+                rows="3"
+                name="notes-to-curator"
+                class="form-control m-input form-control-sm"
+                type="text"
+                id="notes-to-curator"
+                placeholder="{{ 'footage.project_notes_note' | translate }}"
+                [(ngModel)]="currentProject.notes"
+              ></textarea>
+            </div>
+          </div>
+
+          <div
+            class="form-group row custom-popover"
+            *ngIf="currentProject.sharers"
+          >
+            <label class="col-3 col-form-label form-control-sm">
+              {{ 'footage.sharing_with_field' | translate }}:
+              <span
+                class="glyphicon glyphicon-info-sign"
+                style="cursor: pointer; color: #008eff"
+                [popover]="popAddSharersTemplate"
+                triggers="mouseenter:mouseleave"
+              ></span>
+            </label>
+            <ng-template #popAddSharersTemplate>
+              <span
+                innerHtml="{{ 'collaboration.add_sharers_pop' | translate }}"
+              ></span>
+            </ng-template>
+            <div class="col-9">
+              <div
+                *ngIf="currentProject.sharers.length"
+                class="form-group row"
+                style="margin-bottom: 0px; margin-left: -10px;"
+              >
+                <label class="col-6 col-form-label form-control-sm">
+                  <a
+                    (click)="requestSharer()"
+                    class="btn-link"
+                    style="padding-right:10px;"
+                    >{{ 'footage.btn.change' | translate }}</a
+                  >
+                  <a (click)="removeSharer()" class="btn-link text-danger">{{
+                    'footage.btn.remove' | translate
+                  }}</a>
+                </label>
+                <label class="col-6 col-form-label form-control-sm">
+                  {{ 'footage.sharing_percent_field' | translate }}
+                  <span class="required">{{
+                    'required_symbol' | translate
+                  }}</span>
+                </label>
+              </div>
+
+              <div
+                *ngFor="let s of currentProject.sharers; let i = index"
+                class="form-group row"
+                style="margin-bottom: 5px; margin-left: -10px;"
+              >
+                <label class="col-6 col-form-label form-control-sm">{{
+                  s.name
+                }}</label>
+                <div class="col-3">
+                  <input
+                    name="sharer{{ i }}"
+                    class="form-control m-input form-control-sm"
+                    type="number"
+                    [(ngModel)]="s.collabShare"
+                    #collabSharer
+                    #curatorCollabShare
+                    min="1"
+                    #sharer="ngModel"
+                    max="99"
+                    (change)="updateCuratorPercent()"
+                    required
+                  />
+                  <div
+                    *ngIf="
+                      (sharer.invalid && savedOrSubmitted) ||
+                      (sharer.invalid && (sharer.dirty || sharer.touched))
+                    "
+                  >
+                    <span
+                      class="text-danger help-block"
+                      *ngIf="sharer.errors?.required"
+                      >{{ 'required_desc' | translate }}</span
+                    >
+                  </div>
+                </div>
+              </div>
+
+              <div [hidden]="currentProject.sharers.length">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-dark"
+                  tooltip="{{ 'footage.select_sharers_dec' | translate }}"
+                  (click)="requestSharer()"
+                  [disabled]="isCuratorLoading || isSharerLoading"
+                >
+                  <i class="fa fa-spinner fa-spin" *ngIf="isSharerLoading"></i>
+                  {{ 'footage.btn.project_sharing_button' | translate }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer text-right">
+        <div class="actions">
+          <button
+            type="button"
+            *ngIf="!isEditingProject"
+            class="btn btn-primary btn-sm m-btn btn-sm"
+            [disabled]="isCuratorLoading || isSharerLoading"
+            (click)="backProjectType()"
+          >
+            <span>
+              <i class="fa fa-arrow-left"></i>
+              <span>{{ 'common.back' | translate }}</span>
+            </span>
+          </button>
+          <button
+            type="button"
+            *ngIf="isEditingProject"
+            class="btn btn-danger btn-sm m-btn btn-sm"
+            [disabled]="isCuratorLoading || isSharerLoading"
+            (click)="projects.hide()"
+          >
+            <span>
+              <i class="fa fa-close"></i>
+              <span>{{ 'common.cancel' | translate }}</span>
+            </span>
+          </button>
+          <button
+            type="button"
+            class="btn btn-success btn-sm m-btn"
+            [disabled]="isCuratorLoading || isSharerLoading"
+            (click)="
+              formProjects.form.valid && createProject(currentProject, false);
+              savedOrSubmitted = true
+            "
+            tooltip="{{ 'footage.save_project_button_tooltip' | translate }}"
+          >
+            <span>
+              <i class="fa fa-check"></i>
+              <span>{{ 'footage.btn.save' | translate }}</span>
+            </span>
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary btn-sm m-btn"
+            [disabled]="isCuratorLoading || isSharerLoading"
+            (click)="
+              formProjects.form.valid && createProject(currentProject, true);
+              savedOrSubmitted = true
+            "
+            tooltip="{{ 'footage.submit_project_button_tooltip' | translate }}"
+          >
+            <span>
+              <i class="fa fa-arrow-circle-o-up"></i>
+              <span>{{ 'footage.btn.submit' | translate }}</span>
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade"
+  bsModal
+  #collaborationProject="bs-modal"
+  [config]="{ backdrop: 'static', keyboard: false }"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="collaborationProject"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4
+          id="collaborationProject"
+          *ngIf="!isEditingProject"
+          class="modal-title pull-left"
+        >
+          {{ 'footage.title_modal_collaborative' | translate }}
+        </h4>
+        <h4
+          id="projects"
+          *ngIf="isEditingProject"
+          class="modal-title pull-left"
+        >
+          {{ 'footage.edit_project_modal_title' | translate }}
+        </h4>
+        <span
+          class="help-in-app pull-right"
+          (click)="openProjectCreationModal()"
+          >?</span
+        >
+        <button
+          type="button"
+          class="close pull-right"
+          aria-label="Close"
+          (click)="collaborationProject.hide(); closeProjectModal()"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" style="padding: 10px 25px">
+        <form #formCollaborativeProject="ngForm" class="m-form m-form--state">
+          <div class="form-group row">
+            <label
+              for="projectNameContent"
+              class="col-3 col-form-label form-control-sm"
+            >
+              {{ 'footage.project_name_field' | translate }}
+              <span class="required">{{ 'required_symbol' | translate }}</span
+              >:
+            </label>
+            <div
+              class="col-9"
+              [ngClass]="{
+                'has-danger':
+                  (projectNameContent.invalid && savedOrSubmittedContent) ||
+                  (projectNameContent.invalid &&
+                    (projectNameContent.dirty || projectNameContent.touched)) ||
+                  (projectNameContent.invalid && savedOrSubmittedContentSave)
+              }"
+            >
+              <input
+                id="projectNameContent"
+                name="projectNameContent"
+                class="form-control form-control-sm m-input"
+                type="text"
+                #projectNameContent="ngModel"
+                [(ngModel)]="currentProjectContent.projectName"
+                required
+                [pattern]="projectNameRegex"
+              />
+              <div
+                *ngIf="
+                  (projectNameContent.invalid && savedOrSubmittedContent) ||
+                  (projectNameContent.invalid &&
+                    (projectNameContent.dirty || projectNameContent.touched)) ||
+                  (projectNameContent.invalid && savedOrSubmittedContentSave)
+                "
+              >
+                <span
+                  class="text-danger help-block"
+                  *ngIf="projectNameContent.errors?.required"
+                  >{{ 'required_desc' | translate }}</span
+                >
+                <span
+                  class="text-danger help-block"
+                  *ngIf="projectNameContent.errors?.pattern"
+                  >{{ 'footage.project_name_invalid' | translate }}</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group row">
+            <label class="col-3 col-form-label form-control-sm">
+              {{ 'footage.project_deadline_field' | translate }}
+              <span class="required">{{ 'required_symbol' | translate }}</span
+              >:
+            </label>
+
+            <div
+              class="col-3"
+              [ngClass]="{
+                'has-danger': projectDeadline.invalid && savedOrSubmittedContent
+              }"
+            >
+              <input
+                name="projectDeadline"
+                #projectDeadline="ngModel"
+                class="form-control m-input form-control-sm"
+                type="text"
+                [minDate]="maxDate"
+                [maxDate]="maxDeadline"
+                bsDatepicker
+                [bsConfig]="bsConfig"
+                [(ngModel)]="currentProjectContent.projectDeadline"
+                required
+              />
+              <div *ngIf="projectDeadline.invalid && savedOrSubmittedContent">
+                <span
+                  class="text-danger help-block"
+                  *ngIf="projectDeadline.errors?.required"
+                  >{{ 'required_desc' | translate }}</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group row">
+            <label
+              for="start-date-content"
+              class="col-3 col-form-label form-control-sm"
+            >
+              {{ 'footage.start_date' | translate
+              }}<span class="required">{{ 'required_symbol' | translate }}</span
+              >:
+            </label>
+            <div
+              class="col-3"
+              [ngClass]="{
+                'has-danger':
+                  projectStartDate.invalid && savedOrSubmittedContent
+              }"
+            >
+              <input
+                name="start-date-content"
+                #projectStartDate="ngModel"
+                class="form-control m-input form-control-sm"
+                type="text"
+                [minDate]="maxDate"
+                [maxDate]="currentProjectContent.projectEndDate"
+                bsDatepicker
+                [bsConfig]="bsConfig"
+                [(ngModel)]="currentProjectContent.projectStartDate"
+                required
+              />
+              <div *ngIf="projectStartDate.invalid && savedOrSubmittedContent">
+                <span
+                  class="text-danger help-block"
+                  *ngIf="projectStartDate.errors?.required"
+                  >{{ 'required_desc' | translate }}</span
+                >
+              </div>
+            </div>
+
+            <label
+              for="end-date-content"
+              class="col-3 col-form-label form-control-sm"
+            >
+              {{ 'footage.end_date' | translate }}
+              <!-- <span class="required">{{'required_symbol'| translate}}</span> -->
+              :
+            </label>
+            <div
+              class="col-3"
+              [ngClass]="{
+                'has-danger': projectEndDate.invalid && savedOrSubmittedContent
+              }"
+            >
+              <input
+                name="end-date-content"
+                #projectEndDate="ngModel"
+                class="form-control m-input form-control-sm"
+                type="text"
+                [minDate]="currentProjectContent.projectStartDate"
+                bsDatepicker
+                [bsConfig]="bsConfig"
+                [(ngModel)]="currentProjectContent.projectEndDate"
+              />
+              <div *ngIf="projectEndDate.invalid && savedOrSubmittedContent">
+                <span
+                  class="text-danger help-block"
+                  *ngIf="projectEndDate.errors?.required"
+                  >{{ 'required_desc' | translate }}</span
+                >
+              </div>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-3 col-form-label form-control-sm"
+              >{{ 'footage.topic' | translate
+              }}<span class="required">{{ 'required_symbol' | translate }}</span
+              >:</label
+            >
+            <div
+              class="col-9"
+              [ngClass]="{
+                'has-danger': topic.invalid && savedOrSubmittedContent
+              }"
+            >
+              <textarea
+                class="form-control form-control-sm"
+                name="topic"
+                #topic="ngModel"
+                placeholder="{{ 'footage.topic_dec' | translate }}"
+                [(ngModel)]="currentProjectContent.topic"
+                required
+              ></textarea>
+              <div *ngIf="topic.invalid && savedOrSubmittedContent">
+                <span
+                  class="text-danger help-block"
+                  *ngIf="topic.errors?.required"
+                  >{{ 'required_desc' | translate }}</span
+                >
+              </div>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-3 col-form-label form-control-sm"
+              >{{ 'footage.location' | translate
+              }}<span class="required">{{ 'required_symbol' | translate }}</span
+              >:</label
+            >
+            <div
+              class="col-9"
+              [ngClass]="{
+                'has-danger': projectLocation.invalid && savedOrSubmittedContent
+              }"
+            >
+              <input
+                class="form-control form-control-sm"
+                placeholder="{{ 'footage.location_dec' | translate }}"
+                [(ngModel)]="currentProjectContent.projectLocation"
+                #projectLocation="ngModel"
+                name="projectLocation"
+                required
+              />
+              <div *ngIf="projectLocation.invalid && savedOrSubmittedContent">
+                <span
+                  class="text-danger help-block"
+                  *ngIf="projectLocation.errors?.required"
+                  >{{ 'required_desc' | translate }}</span
+                >
+              </div>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-3 col-form-label form-control-sm"
+              >{{ 'footage.summary' | translate
+              }}<span class="required">{{ 'required_symbol' | translate }}</span
+              >:</label
+            >
+            <div
+              class="col-9"
+              [ngClass]="{
+                'has-danger': detailSummary.invalid && savedOrSubmittedContent
+              }"
+            >
+              <textarea
+                rows="4"
+                class="form-control form-control-sm"
+                #detailSummary="ngModel"
+                name="detailSummary"
+                [(ngModel)]="currentProjectContent.detailSummary"
+                placeholder="{{ 'footage.summary_dec' | translate }}"
+                required
+              ></textarea>
+              <div *ngIf="detailSummary.invalid && savedOrSubmittedContent">
+                <span
+                  class="text-danger help-block"
+                  *ngIf="detailSummary.errors?.required"
+                  >{{ 'required_desc' | translate }}</span
+                >
+              </div>
+            </div>
+          </div>
+          <div class="form-group" *ngIf="currentProjectContent.sharers">
+            <div class="row">
+              <label class="col-3 col-form-label form-control-sm">
+                {{ 'marketplace.sharing_with_field' | translate }}:
+                <span
+                  class="glyphicon glyphicon-info-sign"
+                  style="cursor: pointer; color: #008eff"
+                  [popover]="popInstructions"
+                  triggers="mouseenter:mouseleave"
+                  placement="top"
+                ></span>
+              </label>
+              <ng-template #popInstructions>
+                <div style="width: 150px">
+                  {{ 'marketplace.sharing_with_field_dec' | translate }}
+                </div>
+              </ng-template>
+              <div class="col-9">
+                <div class="row">
+                  <div class="col-12 form-group">
+                    <select
+                      class="form-control form-control-sm"
+                      name="selectCollaboratorsType"
+                      [(ngModel)]="
+                        currentProjectContent.selectCollaboratorsType
+                      "
+                    >
+                      <option
+                        *ngFor="let item of listSelectCollaboratiorType"
+                        [value]="item.value"
+                        >{{ item.name }}
+                      </option>
+                    </select>
+                  </div>
+                  <div
+                    class="col-4 form-group"
+                    *ngIf="
+                      currentProjectContent.selectCollaboratorsType ==
+                      'indicate number'
+                    "
+                  >
+                    <input
+                      class="form-control form-control-sm"
+                      type="number"
+                      name="numberCollaborators"
+                      min="1"
+                      [max]="maxIndicateNumber"
+                      [(ngModel)]="currentProjectContent.numberCollaborators"
+                      tooltip="{{
+                        'marketplace.number_collaborators_tooltip' | translate
+                      }}"
+                    />
+                  </div>
+                  <div
+                    class="col-12 form-group"
+                    *ngIf="
+                      currentProjectContent.selectCollaboratorsType !=
+                      'indicate number'
+                    "
+                  >
+                    <div
+                      *ngIf="currentProjectContent.sharers.length"
+                      class="form-group row"
+                      style="margin-bottom: 0px; margin-left: -10px;"
+                    >
+                      <label class="col-6 col-form-label form-control-sm">
+                        <a
+                          (click)="requestSharer()"
+                          class="btn-link"
+                          style="padding-right:10px;"
+                          >{{ 'footage.btn.change' | translate }}</a
+                        >
+                        <a
+                          (click)="removeSharerContent()"
+                          class="btn-link text-danger"
+                          >{{ 'footage.btn.remove' | translate }}</a
+                        >
+                      </label>
+                      <label class="col-6 col-form-label form-control-sm">
+                        {{ 'footage.sharing_percent_field' | translate }}
+                        <span class="required">{{
+                          'required_symbol' | translate
+                        }}</span>
+                      </label>
+                    </div>
+
+                    <div
+                      *ngFor="
+                        let s of currentProjectContent.sharers;
+                        let i = index
+                      "
+                      class="form-group row"
+                      style="margin-bottom: 5px; margin-left: -10px;"
+                    >
+                      <label class="col-6 col-form-label form-control-sm">{{
+                        s.name
+                      }}</label>
+                      <div
+                        class="col-3"
+                        *ngIf="s.collabShare != null || s.isChangeDiscussed"
+                      >
+                        <input
+                          name="sharer{{ i }}"
+                          class="form-control m-input form-control-sm"
+                          type="number"
+                          [(ngModel)]="s.collabShare"
+                          #collabSharer
+                          #curatorCollabShare
+                          min="1"
+                          #sharer="ngModel"
+                          max="99"
+                          required
+                        />
+                        <div
+                          *ngIf="
+                            (sharer.invalid && savedOrSubmittedContent) ||
+                            (sharer.invalid && (sharer.dirty || sharer.touched))
+                          "
+                        >
+                          <span
+                            class="text-danger help-block"
+                            *ngIf="sharer.errors?.required"
+                            >{{ 'required_desc' | translate }}</span
+                          >
+                        </div>
+                      </div>
+                      <div
+                        class="col-6"
+                        *ngIf="s.collabShare == null && !s.isChangeDiscussed"
+                      >
+                        <p
+                          class="form-control-sm"
+                          style="padding: 0;margin-top: 5px;margin-bottom: 0"
+                        >
+                          {{ 'marketplace.to_discussed' | translate }}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div [hidden]="currentProjectContent.sharers.length">
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-dark"
+                        tooltip="{{
+                          'marketplace.select_sharers_dec' | translate
+                        }}"
+                        (click)="requestSharer()"
+                        [disabled]="isSharerLoading"
+                      >
+                        <i
+                          class="fa fa-spinner fa-spin"
+                          *ngIf="isSharerLoading"
+                        ></i>
+                        {{ 'footage.btn.project_sharing_button' | translate }}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer text-right">
+        <div class="actions">
+          <button
+            type="button"
+            *ngIf="!isEditingProject"
+            class="btn btn-primary btn-sm m-btn btn-sm"
+            [disabled]="isCuratorLoading || isSharerLoading"
+            (click)="backProjectType()"
+          >
+            <span>
+              <i class="fa fa-arrow-left"></i>
+              <span>{{ 'common.back' | translate }}</span>
+            </span>
+          </button>
+          <button
+            type="button"
+            *ngIf="isEditingProject"
+            class="btn btn-danger btn-sm m-btn btn-sm"
+            [disabled]="isCuratorLoading || isSharerLoading"
+            (click)="collaborationProject.hide()"
+          >
+            <span>
+              <i class="fa fa-close"></i>
+              <span>{{ 'common.cancel' | translate }}</span>
+            </span>
+          </button>
+          <button
+            type="button"
+            class="btn btn-success btn-sm m-btn"
+            [disabled]="isCuratorLoading || isSharerLoading"
+            (click)="
+              currentProjectContent.projectName != '' &&
+                createProject(currentProjectContent, false);
+              savedOrSubmittedContentSave = true
+            "
+            tooltip="{{ 'footage.save_project_button_tooltip' | translate }}"
+          >
+            <span>
+              <i class="fa fa-check"></i>
+              <span>{{ 'footage.btn.save' | translate }}</span>
+            </span>
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary btn-sm m-btn"
+            [disabled]="isCuratorLoading || isSharerLoading"
+            (click)="
+              formCollaborativeProject.form.valid &&
+                createProject(currentProjectContent, true);
+              savedOrSubmittedContent = true
+            "
+            tooltip="{{ 'footage.submit_project_button_tooltip' | translate }}"
+          >
+            <span>
+              <i class="fa fa-arrow-circle-o-up"></i>
+              <span>{{ 'footage.btn.submit' | translate }}</span>
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade"
+  bsModal
+  #projectsType="bs-modal"
+  [config]="{ backdrop: 'static' }"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="projectType"
+>
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 id="projectType" class="modal-title pull-left">
+          {{ 'footage.select_project_type' | translate }}
+        </h4>
+        <button
+          type="button"
+          class="close pull-right"
+          aria-label="Close"
+          (click)="projectsType.hide()"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-control form-control-sm"
+            >{{ 'footage.project_type' | translate
+            }}<span class="required">{{ 'required_symbol' | translate }}</span
+            >:</label
+          >
+          <select
+            class="form-control form-control-sm"
+            name="projectType"
+            [(ngModel)]="projectType"
+            [tooltip]="checkTooltip()"
+          >
+            <option *ngFor="let item of listProjectType" [value]="item.value">{{
+              item.name
+            }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button
+          class="btn btn-danger btn-sm m-btn btn-sm"
+          (click)="projectsType.hide()"
+        >
+          <span>
+            <i class="fa fa-close"></i>
+            <span>{{ 'common.cancel' | translate }}</span>
+          </span>
+        </button>
+        <button
+          class="btn btn-primary m-btn btn-sm"
+          (click)="checkProjectType()"
+        >
+          <span>
+            <i class="fa fa-arrow-right"></i>
+            <span>{{ 'footage.btn.next' | translate }}</span>
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  bsModal
+  #projectCreation="bs-modal"
+  id="projectCreation"
+  class="modal fade"
+  role="dialog"
+  tabindex="-1"
+>
+  <div class="modal-dialog modal-lg">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4>{{ 'footage.project_creation' | translate }}</h4>
+        <a class="close" (click)="projectCreation.hide()">&times;</a>
+      </div>
+      <div class="modal-body" style="text-align: justify">
+        <div>
+          <p>
+            Before creating a project, please be aware of your intention and
+            purpose of the collaborative project.
+          </p>
+        </div>
+        <div>
+          <p>
+            Metadata Only Curation:<br />
+            - If you need a Metadata Curator for your clips which are already
+            uploaded to your account and visible in the "WORKSPACE" tab, you may
+            not need to create a Project. If you have already reached an
+            agreement with a Metadata Curator, you can simply assign them to
+            your clips from the "WORKSPACE" tab using the "Assign Curator"
+            button.
+          </p>
+          <p>
+            - It's a good idea to create a Project when you don't already have a
+            designated Curator. You can post a Project to the Marketplace where
+            you describe your clips, suggest a percentage share, and include any
+            important details. Available Curators can browse through the
+            Projects. Curators who are interested can start a chat with you to
+            discuss details.
+          </p>
+          <p>
+            - When you assign a Curator to your clips, they will receive a
+            notification email, do the work, and then you will be able to review
+            and submit the finished clips.
+          </p>
+        </div>
+        <div>
+          <p>
+            Editing or Full Curation:<br />
+            - If you have raw footage and wish to have someone edit your footage
+            or edit and add metadata, then you can create a Project.
+          </p>
+          <p>
+            - If you have already reached an agreement with a Curator, then you
+            can select them for the Project and set the "Posting Option" to
+            "Private" so only that Curator sees the Project.
+          </p>
+          <p>
+            - If you are looking to collaborate with a new Curator, you can set
+            the "Posting Option" to "Marketplace" and interested Curators will
+            contact you.
+          </p>
+          <p>
+            - You will need to arrange a transfer of the raw footage outside of
+            the BlackBox platform. Please read the User Guide (<a
+              class="btn-link"
+              href="https://bit.ly/2JKAL0s"
+              target="_blank"
+              >https://bit.ly/2JKAL0s</a
+            >) for more information on Collaborative Projects before you attempt
+            to create one.
+          </p>
+        </div>
+        <div>
+          <p>
+            If you want to work with other Collaborators to jointly produce new
+            media content, then set the project type to “Collaborative content
+            creation request”.
+          </p>
+        </div>
+        <br />
+        <div class="icheck-default icheck-inline">
+          <label class="m-checkbox m-checkbox--solid m-checkbox--dark">
+            <input
+              type="checkbox"
+              [(ngModel)]="notShowMessage"
+              name="notShowMessage"
+            />
+            {{ 'footage.dont_show_message' | translate }}
+            <span></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="modal-footer text-center-i">
+        <button (click)="saveLocalProjectCreation()" class="btn btn-success">
+          OK
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  bsModal
+  #curatorUpload="bs-modal"
+  [config]="{ backdrop: 'static' }"
+  class="modal fade"
+  role="dialog"
+  tabindex="-1"
+>
+  <div class="modal-dialog modal-lg">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">
+          <b>{{ 'footage.curator' | translate }}</b>
+        </h4>
+        <button
+          type="button"
+          class="close"
+          (click)="subModalCloseSubmit()"
+        ></button>
+      </div>
+      <div class="modal-body" id="m_blockui_curators_content">
+        <div class="input-group m-input-icon m-input-icon--right">
+          <div class="controls">
+            <select
+              (change)="filterCurators(keywordSearch.text)"
+              [(ngModel)]="memberAttribute"
+              class="form-control"
+              id="searchMemberAttribute"
+            >
+              <option
+                *ngFor="let item of memberAttributeList"
+                [value]="item.value"
+                >{{ item.name }}</option
+              >
+            </select>
+          </div>
+          &nbsp;
+          <input
+            #searchCurator
+            [(ngModel)]="keywordSearch.text"
+            (keyup.enter)="filterCurators(keywordSearch.text)"
+            type="text"
+            class="form-control"
+            (keyup)="
+              !keywordSearch.text
+                ? filterCurators(keywordSearch.text)
+                : keywordSearch.text
+            "
+            placeholder="{{ 'footage.filter_sharers' | translate }}"
+          />
+          <span
+            *ngIf="keywordSearch.text != ''"
+            class="m-input-icon__icon m-input-icon__icon--right clear-icon-input"
+            (click)="clearSearchCurator()"
+          >
+            <i class="fa fa-remove"></i>
+          </span>
+          <div
+            class="input-group-append"
+            (click)="filterCurators(keywordSearch.text)"
+          >
+            <button class="btn btn-secondary active">
+              <i class="fa fa-search"></i>
+            </button>
+          </div>
+        </div>
+        <div class="text-center" *ngIf="!keywordSearch.text">
+          <strong style="font-size: 12px;">{{
+            'footage.sample_list_curator' | translate
+          }}</strong>
+        </div>
+        <!-- <div class="text-center" [hidden]="!allowShow">{{'footage.no_curator_note'| translate}}</div> -->
+        <div class="table-scrollable table-scroll">
+          <table
+            class="table table-striped table-hover"
+            style="margin: 10px 0 0 0"
+          >
+            <tr>
+              <th width="329px">{{ 'footage.name_field' | translate }}</th>
+              <th width="80px">
+                {{ 'footage.sharing_percent_field' | translate }}
+              </th>
+              <th width="130px" style="text-align: center;">
+                <span>{{ 'footage.select_button' | translate }}</span>
+              </th>
+            </tr>
+          </table>
+
+          <div class="text-center" *ngIf="curators.length == 0">
+            <p>{{ 'footage.no_available_curator' | translate }}</p>
+          </div>
+          <div
+            class="overflow"
+            style="max-height:300px"
+            *ngIf="curators.length > 0"
+          >
+            <table class="table table-hover">
+              <tr *ngFor="let item of curators; index as i">
+                <td width="329px">
+                  <a data-toggle="collapse" href="#collapseCurators{{ i }}">
+                    <img
+                      class="img-avatar m--img-rounded m--marginless m--img-centered"
+                      [src]="avatarUrlB.replace('{memberId}', item.id)"
+                    />
+                    <span>{{ item.fullName }}</span>
+                  </a>
+                  <div
+                    id="collapseCurators{{ i }}"
+                    class="panel-collapse collapse"
+                    style="clear: both;"
+                  >
+                    <div class="panel-body">
+                      <div class="row">
+                        <div class="col-md-3">
+                          {{ 'footage.location_column' | translate }}
+                        </div>
+                        <div class="col-md-9">
+                          {{ item.address }}
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-md-3">
+                          {{ 'footage.role_field' | translate }}
+                        </div>
+                        <div class="col-md-9">
+                          {{ item.roles }}
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-md-3">
+                          {{ 'footage.about_field' | translate }}
+                        </div>
+                        <div class="col-md-9">
+                          {{ item.about }}
+                          <p
+                            style="margin: 0;"
+                            *ngFor="let item of item.bioData"
+                          >
+                            {{ item.answerTitle }}: {{ item.answerContent }}
+                          </p>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-md-3">
+                          {{ 'fields.portfolio_link' | translate }}
+                        </div>
+                        <div class="col-md-9 break-word-button">
+                          <button
+                            class="btn btn-link"
+                            (click)="openLink(item.portfolioLink)"
+                          >
+                            {{ item.portfolioLink }}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <td width="80px">
+                  <input
+                    type="number"
+                    class="form-control"
+                    [(ngModel)]="item.collabShare"
+                    min="1"
+                    max="99"
+                    style="width:70px;"
+                    (change)="changePercentCurator(item)"
+                  />
+                </td>
+                <td width="130px" style="text-align: center;">
+                  <label class="m-radio" style="margin-left: 25px">
+                    <input
+                      type="radio"
+                      class="option-input radio"
+                      name="projectCuratorSelect"
+                      [value]="item.id"
+                      [(ngModel)]="selectedCuratorProject.id"
+                      (change)="selectCurator(item)"
+                    />
+                    <span></span>
+                  </label>
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div class="paging" *ngIf="curators.length">
+            <div class="pull-left">
+              <p>
+                <strong
+                  >{{ 'common.showing' | translate }}
+                  {{
+                    pagingCurator.currentPage * pagingCurator.pageSize +
+                      1 -
+                      pagingCurator.pageSize
+                  }}
+                  {{ 'common.to' | translate }}
+                  {{
+                    pagingCurator.currentPage * pagingCurator.pageSize >
+                    pagingCurator.total
+                      ? pagingCurator.total
+                      : pagingCurator.currentPage * pagingCurator.pageSize
+                  }}
+                  {{ 'common.entries' | translate }}
+                  {{ pagingCurator.total }}</strong
+                >
+              </p>
+            </div>
+            <div class="pull-right">
+              <pagination
+                [totalItems]="pagingCurator.total"
+                [maxSize]="5"
+                [rotate]="true"
+                [itemsPerPage]="pagingCurator.pageSize"
+                [(ngModel)]="pagingCurator.currentPage"
+                (pageChanged)="pageCuratorChanged($event)"
+                previousText="<"
+                nextText=">"
+                [boundaryLinks]="true"
+                firstText="{{ 'common.first' | translate }}"
+                lastText="{{ 'common.last' | translate }}"
+                [boundaryLinks]="showBoundaryLinks"
+              >
+              </pagination>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-danger m-btn"
+          (click)="subModalCloseSubmit()"
+        >
+          <span>
+            <i class="fa fa-close"></i>
+            <span>{{ 'common.cancel' | translate }}</span>
+          </span>
+        </button>
+        <button
+          type="submit"
+          class="btn btn-success m-btn"
+          (click)="saveCurator()"
+        >
+          <span>
+            <i class="fa fa-check"></i>
+            <span>{{ 'common.save' | translate }}</span>
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  bsModal
+  #sharersUpload="bs-modal"
+  [config]="{ backdrop: 'static' }"
+  class="modal fade"
+  role="dialog"
+  tabindex="-1"
+>
+  <div class="modal-dialog modal-lg" id="sharersUploadModal">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">
+          <b>{{ 'footage.sharer' | translate }}</b>
+        </h4>
+        <button
+          type="button"
+          class="close"
+          (click)="subModalCloseSubmit()"
+        ></button>
+      </div>
+      <div class="modal-body" id="m_blockui_sharers_content">
+        <div class="input-group m-input-icon m-input-icon--right">
+          <div class="controls">
+            <select
+              (change)="filterSharers(keywordSearch.text)"
+              [(ngModel)]="memberAttribute"
+              class="form-control"
+              id="searchMemberAttribute"
+            >
+              <option
+                *ngFor="let item of memberAttributeList"
+                [value]="item.value"
+                >{{ item.name }}</option
+              >
+            </select>
+          </div>
+          &nbsp;
+          <input
+            #searchSharers
+            [(ngModel)]="keywordSearch.text"
+            (keyup.enter)="filterSharers(keywordSearch.text)"
+            type="text"
+            class="form-control"
+            (keyup)="
+              !keywordSearch.text
+                ? filterSharers(keywordSearch.text)
+                : keywordSearch.text
+            "
+            placeholder="{{ 'footage.filter_sharers' | translate }}"
+          />
+          <span
+            *ngIf="keywordSearch.text != ''"
+            class="m-input-icon__icon m-input-icon__icon--right clear-icon-input"
+            (click)="clearSearchSharers()"
+          >
+            <i class="fa fa-remove"></i>
+          </span>
+          <div
+            class="input-group-append"
+            (click)="filterSharers(keywordSearch.text)"
+          >
+            <button class="btn btn-secondary active">
+              <i class="fa fa-search"></i>
+            </button>
+          </div>
+        </div>
+        <div class="text-center" *ngIf="!keywordSearch.text">
+          <strong style="font-size: 12px;">{{
+            'footage.sample_list_sharer' | translate
+          }}</strong>
+        </div>
+        <!-- <div class="text-center" [hidden]="!allowShow">{{'footage.no_sharer_note'| translate}}</div> -->
+        <div class="table-scrollable table-scroll" *ngIf="sharers.length > 0">
+          <table
+            class="table table-striped table-hover"
+            style="margin: 10px 0 0 0"
+          >
+            <tr>
+              <th width="300px">{{ 'footage.name_field' | translate }}</th>
+              <th width="80px">
+                {{ 'footage.sharing_percent_field' | translate }}
+              </th>
+              <th width="60px">
+                <span [hidden]="disabledSharingPercentage">Sharing % TBD</span>
+              </th>
+              <th width="130px" style="text-align: center;">
+                <span>{{ 'footage.select_button' | translate }}</span>
+              </th>
+            </tr>
+          </table>
+
+          <div class="text-center" *ngIf="sharers.length == 0">
+            <p>{{ 'footage.no_available_sharers' | translate }}</p>
+          </div>
+          <div
+            class="overflow"
+            style="max-height:300px"
+            *ngIf="sharers.length > 0"
+          >
+            <table class="table table-hover">
+              <tr *ngFor="let item of sharers; index as i">
+                <td width="329px">
+                  <a data-toggle="collapse" href="#collapseSharers{{ i }}">
+                    <img
+                      class="img-avatar m--img-rounded m--marginless m--img-centered"
+                      [src]="avatarUrlB.replace('{memberId}', item.id)"
+                    />
+                    <span>{{ item.fullName }}</span>
+                  </a>
+                  <div
+                    id="collapseSharers{{ i }}"
+                    class="panel-collapse collapse"
+                    style="clear: both;"
+                  >
+                    <div class="panel-body">
+                      <div class="row">
+                        <div class="col-md-3">
+                          {{ 'footage.location_column' | translate }}
+                        </div>
+                        <div class="col-md-9">
+                          {{ item.address }}
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-md-3">
+                          {{ 'footage.role_field' | translate }}
+                        </div>
+                        <div class="col-md-9">
+                          {{ item.roles }}
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-md-3">
+                          {{ 'footage.about_field' | translate }}
+                        </div>
+                        <div class="col-md-9">
+                          {{ item.about }}
+                          <p
+                            style="margin: 0;"
+                            *ngFor="let item of item.bioData"
+                          >
+                            {{ item.answerTitle }}: {{ item.answerContent }}
+                          </p>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-md-3">
+                          {{ 'fields.portfolio_link' | translate }}
+                        </div>
+                        <div class="col-md-9 break-word-button">
+                          <button
+                            class="btn btn-link"
+                            (click)="openLink(item.portfolioLink)"
+                          >
+                            {{ item.portfolioLink }}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <td width="80px">
+                  <input
+                    type="number"
+                    class="form-control"
+                    [(ngModel)]="item.collabShare"
+                    min="1"
+                    max="99"
+                    style="width:70px;"
+                    [hidden]="item.disabledSharingPercentage"
+                  />
+                </td>
+                <td width="60px">
+                  <span
+                    [hidden]="disabledSharingPercentage"
+                    class="m-switch m-switch--outline m-switch--icon m-switch--info"
+                    [popover]="popCurationTemplate"
+                    triggers="mouseenter:mouseleave"
+                  >
+                    <label style="margin-bottom: -10px;">
+                      <input
+                        type="checkbox"
+                        checked="checked"
+                        [(ngModel)]="item.disabledSharingPercentage"
+                        name="disabledSharingPercentage{{ i }}"
+                        (change)="changeDisabledSharingPercentage(item)"
+                      />
+                      <span></span>
+                    </label>
+                  </span>
+                  <ng-template #popCurationTemplate>{{
+                    'marketplace.shares_pop_desc' | translate
+                  }}</ng-template>
+                </td>
+                <td width="130px" style="text-align: center;">
+                  <label
+                    class="m-checkbox m-checkbox--solid m-checkbox--dark"
+                    style="margin-left: 25px"
+                  >
+                    <input
+                      type="checkbox"
+                      class="option-input checkbox"
+                      name="selectSharer"
+                      [(ngModel)]="item.isSelected"
+                      (change)="selectSharer(item)"
+                    />
+                    <span></span>
+                  </label>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+
+        <div class="paging" *ngIf="sharers.length">
+          <div class="pull-left">
+            <p>
+              <strong
+                >{{ 'common.showing' | translate }}
+                {{
+                  pagingSharer.currentPage * pagingSharer.pageSize +
+                    1 -
+                    pagingSharer.pageSize
+                }}
+                {{ 'common.to' | translate }}
+                {{
+                  pagingSharer.currentPage * pagingSharer.pageSize >
+                  pagingSharer.total
+                    ? pagingSharer.total
+                    : pagingSharer.currentPage * pagingSharer.pageSize
+                }}
+                {{ 'common.entries' | translate }}
+                {{ pagingSharer.total }}</strong
+              >
+            </p>
+          </div>
+          <div class="pull-right">
+            <pagination
+              [totalItems]="pagingSharer.total"
+              [maxSize]="5"
+              [rotate]="true"
+              [itemsPerPage]="pagingSharer.pageSize"
+              [(ngModel)]="pagingSharer.currentPage"
+              (pageChanged)="pageSharerChanged($event)"
+              previousText="<"
+              nextText=">"
+              [boundaryLinks]="true"
+              firstText="{{ 'common.first' | translate }}"
+              lastText="{{ 'common.last' | translate }}"
+              [boundaryLinks]="showBoundaryLinks"
+            >
+            </pagination>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-danger m-btn"
+          (click)="subModalCloseSubmit()"
+        >
+          <span>
+            <i class="fa fa-close"></i>
+            <span>{{ 'common.cancel' | translate }}</span>
+          </span>
+        </button>
+        <button
+          type="submit"
+          class="btn btn-success m-btn"
+          (click)="saveSharer()"
+        >
+          <span>
+            <i class="fa fa-check"></i>
+            <span>{{ 'common.save' | translate }}</span>
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  bsModal
+  #messageModal="bs-modal"
+  class="modal fade"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="messageModal"
+  [config]="{ backdrop: 'static' }"
+>
+  <div class="modal-dialog">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5>
+          <b>{{ 'common.error' | translate }}</b>
+        </h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+          (click)="messageModal.hide()"
+        >
+          <span aria-hidden="true">
+            &times;
+          </span>
+        </button>
+      </div>
+      <div
+        class="modal-body"
+        [innerHTML]="messagesModal"
+        style="max-height: 350px;overflow-x: auto"
+      ></div>
+      <div class="modal-footer">
+        <button
+          class="btn btn-success"
+          type="button"
+          (click)="yesConfirmModal()"
+        >
+          {{ 'common.yes' | translate }}
+        </button>
+        <button
+          class="btn btn-danger"
+          type="button"
+          (click)="messageModal.hide()"
+        >
+          {{ 'common.no' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  bsModal
+  #messageSubmitModal="bs-modal"
+  class="modal fade"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="messageSubmitModal"
+  [config]="{ backdrop: 'static' }"
+>
+  <div class="modal-dialog">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5>
+          <b>{{ 'common.confirm' | translate }}</b>
+        </h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+          (click)="messageSubmitModal.hide()"
+        >
+          <span aria-hidden="true">
+            &times;
+          </span>
+        </button>
+      </div>
+      <div class="modal-body" style="max-height: 350px;overflow-x: auto">
+        <p>
+          {{ 'footage.submit_confirm_modal_dec' | translate }}
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button
+          class="btn btn-danger m-btn"
+          (click)="messageSubmitModal.hide()"
+        >
+          <span>
+            <i class="fa fa-close"></i>
+            <span>{{ 'common.no' | translate }}</span>
+          </span>
+        </button>
+        <button
+          class="btn btn-success m-btn"
+          type="button"
+          (click)="yesSubmitConfirmModal()"
+        >
+          <span>
+            <i class="fa fa-check"></i>
+            <span>{{ 'common.yes' | translate }}</span>
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  bsModal
+  #showProjectModal="bs-modal"
+  class="modal fade"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="showProjectModal"
+>
+  <div class="modal-dialog modal-lg">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5>
+          <b>{{ 'footage.project_information' | translate }}</b>
+        </h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+          (click)="showProjectModal.hide()"
+        >
+          <span aria-hidden="true">
+            &times;
+          </span>
+        </button>
+      </div>
+      <div class="modal-body label" style="word-wrap: break-word;">
+        <div class="form-group row">
+          <div class="col-md-3">
+            <label>{{ 'footage.project_name_field' | translate }}:</label>
+          </div>
+          <div class="col-md-9">
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="previewingProject.projectName"
+              name="projectName"
+              disabled
+            />
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="row form-group">
+            <div class="col-md-3">
+              <label
+                >{{ 'footage.project_start_date_field' | translate }}:</label
+              >
+            </div>
+            <div class="col-md-3">
+              <input
+                type="text"
+                name="projectStartDate"
+                class="form-control"
+                ngModel="{{
+                  previewingProject.projectStartDate | date: 'dd MMM, yyyy'
+                }}"
+                disabled
+              />
+            </div>
+            <div class="col-md-2" style="display: flex; align-items: center">
+              <label>{{ 'footage.project_location_field' | translate }}:</label>
+            </div>
+            <div class="col-md-4">
+              <input
+                type="text"
+                class="form-control"
+                name="projectLocation"
+                [(ngModel)]="previewingProject.projectLocation"
+                disabled
+              />
+            </div>
+          </div>
+        </div>
+        <div class="form-group row">
+          <div class="col-md-3">
+            <label>{{ 'footage.description' | translate }}:</label>
+          </div>
+          <div class="col-md-9">
+            <textarea
+              type="text"
+              class="form-control"
+              [(ngModel)]="previewingProject.projectDescription"
+              name="projectDescription"
+              disabled
+            ></textarea>
+          </div>
+        </div>
+        <div class="form-group row">
+          <div class="col-md-3">
+            <label>{{ 'footage.instructions' | translate }}:</label>
+          </div>
+          <div class="col-md-9">
+            <div class="row" *ngIf="previewingProject.ProjectCuration">
+              <div class="col-md-12">
+                <label class="m-checkbox m-checkbox--solid m-checkbox--dark">
+                  <input
+                    type="checkbox"
+                    [(ngModel)]="
+                      previewingProject.ProjectCuration.edittingStatus
+                    "
+                    name="editing"
+                    disabled
+                  />{{ 'footage.editing' | translate }}
+                  <span></span>
+                </label>
+              </div>
+              <div
+                class="offset-md-1 col-md-11"
+                *ngIf="previewingProject.ProjectCuration.edittingStatus"
+              >
+                <div>
+                  <label class="m-checkbox m-checkbox--solid m-checkbox--dark">
+                    <input
+                      type="checkbox"
+                      [(ngModel)]="
+                        previewingProject.ProjectCuration.exportClipsStatus
+                      "
+                      name="exportClips"
+                      disabled
+                    />{{ 'footage.exportClips' | translate }}
+                    <span></span>
+                  </label>
+                </div>
+                <div>
+                  <label class="m-checkbox m-checkbox--solid m-checkbox--dark">
+                    <input
+                      type="checkbox"
+                      [(ngModel)]="
+                        previewingProject.ProjectCuration.gradingStatus
+                      "
+                      name="grading"
+                      disabled
+                    />{{ 'footage.grading' | translate }}
+                    <span></span>
+                  </label>
+                </div>
+                <div>
+                  <label class="m-checkbox m-checkbox--solid m-checkbox--dark">
+                    <input
+                      type="checkbox"
+                      [(ngModel)]="
+                        previewingProject.ProjectCuration.otherProcessStatus
+                      "
+                      name="otherProcess"
+                      disabled
+                    />{{ 'footage.otherProcess' | translate }}
+                    <span></span>
+                  </label>
+                </div>
+                <div>
+                  <label class="m-checkbox m-checkbox--solid m-checkbox--dark">
+                    <input
+                      type="checkbox"
+                      [(ngModel)]="
+                        previewingProject.ProjectCuration.selectsStatus
+                      "
+                      name="selects"
+                      disabled
+                    />{{ 'footage.selects' | translate }}
+                    <span></span>
+                  </label>
+                </div>
+              </div>
+              <div class="col-md-12">
+                <label class="m-checkbox m-checkbox--solid m-checkbox--dark">
+                  <input
+                    type="checkbox"
+                    [(ngModel)]="
+                      previewingProject.ProjectCuration.metadataStatus
+                    "
+                    name="metaData"
+                    disabled
+                  />{{ 'footage.meta_data' | translate }}
+                  <span></span>
+                </label>
+              </div>
+              <div
+                *ngIf="
+                  !previewingProject.ProjectCuration.edittingStatus &&
+                  previewingProject.ProjectCuration.metadataStatus
+                "
+                class="offset-md-1 col-md-11"
+              >
+                <label class="m-radio">
+                  <input
+                    type="radio"
+                    name="example_1"
+                    value="none"
+                    [(ngModel)]="
+                      previewingProject.ProjectCuration.metadataTaggingOption
+                    "
+                    disabled
+                  />
+                  {{ 'footage.sub_metadataStatus' | translate }}
+                  <span></span>
+                </label>
+                <label class="m-radio">
+                  <input
+                    type="radio"
+                    name="example_1"
+                    value="only curation"
+                    [(ngModel)]="
+                      previewingProject.ProjectCuration.metadataTaggingOption
+                    "
+                    disabled
+                  />
+                  {{ 'footage.sub_metadataStatus2' | translate }}
+                  <span></span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="form-group row">
+          <div class="col-md-3">
+            <label>{{ 'footage.project_owner_column' | translate }}:</label>
+          </div>
+          <div class="col-md-9">
+            <input
+              type="text"
+              class="form-control"
+              ngModel="{{ previewingProject.OnBehalfOf?.fullName }}"
+              disabled
+            />
+          </div>
+        </div>
+        <div class="form-group row">
+          <div class="col-md-3">
+            <label>{{ 'footage.curator' | translate }}:</label>
+          </div>
+
+          <div class="col-md-9" *ngIf="previewingProject.curator">
+            <div class="row">
+              <div class="col-md-8">
+                <input
+                  type="text"
+                  class="form-control"
+                  name="collaboratorName"
+                  ngModel="{{ previewingProject.curator.collaboratorName }}"
+                  disabled
+                />
+              </div>
+              <div class="col-md-4">
+                <input
+                  type="text"
+                  class="form-control"
+                  name="collabShare"
+                  ngModel="{{ previewingProject.curator.collabShare }}%"
+                  disabled
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="form-group row">
+          <div class="col-md-3">
+            <label>{{ 'footage.sharer' | translate }}:</label>
+          </div>
+          <div class="col-md-9" *ngIf="previewingProject.sharers">
+            <div
+              class="row"
+              style="margin-bottom: 2px"
+              *ngFor="let s of previewingProject.sharers"
+            >
+              <div class="col-md-8">
+                <input
+                  type="text"
+                  class="form-control"
+                  name="collaboratorName"
+                  ngModel="{{ s.collaboratorName }}"
+                  disabled
+                />
+              </div>
+              <div class="col-md-4">
+                <input
+                  type="text"
+                  class="form-control"
+                  name="collabShare"
+                  ngModel="{{ s.collabShare }}%"
+                  disabled
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- <div class="form-group row">
+                    <div class="col-md-3">
+                        <label>{{'footage.interest_counts_column' | translate}}:</label>
+                    </div>
+                    <div class="col-md-9">
+                        <input type="text" class="form-control" name="interestCount" ngModel="{{previewingProject.interestCount}}" disabled>
+                    </div>
+                </div> -->
+        <div class="form-group row">
+          <div class="col-md-3">
+            <label>{{ 'footage.notes_field' | translate }}:</label>
+          </div>
+          <div class="col-md-9">
+            <textarea
+              type="text"
+              class="form-control"
+              name="notes"
+              ngModel="{{ previewingProject.notes }}"
+              disabled
+            ></textarea>
+          </div>
+        </div>
+        <div class="form-group row">
+          <div class="col-md-3">
+            <label
+              >{{ 'footage.curation_completion_field' | translate }}:</label
+            >
+          </div>
+          <div class="col-md-9">
+            <input
+              type="text"
+              class="form-control"
+              name="curation_completion_field"
+              ngModel="{{ previewingProject.curationCompletion }}"
+              disabled
+            />
+          </div>
+        </div>
+        <div class="form-group row">
+          <div class="col-md-3">
+            <label>{{ 'footage.status' | translate }}:</label>
+          </div>
+          <div class="col-md-9">
+            <input
+              type="text"
+              class="form-control"
+              name="status"
+              ngModel="{{ previewingProject.status }}"
+              disabled
+            />
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button
+          class="btn btn-secondary active"
+          type="button"
+          (click)="showProjectModal.hide()"
+        >
+          {{ 'common.close' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  bsModal
+  #fileUploadFootageModal="bs-modal"
+  class="modal fade"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="fileUploadFootageModal"
+  [config]="{ backdrop: 'static' }"
+>
+  <div class="modal-dialog modal-lg" style="max-width: 600px">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5>
+          <b>{{ 'footage.file_upload_title' | translate }}</b>
+        </h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+          (click)="closeFileUploadFootageModal()"
+        >
+          <span aria-hidden="true">
+            &times;
+          </span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="text-center">
+          <p>
+            <strong>{{ 'footage.upload_tab_description' | translate }}</strong>
+          </p>
+        </div>
+        <div class="row form-group">
+          <div class="col-md-3">
+            {{ 'footage.batch_name' | translate }}
+          </div>
+          <div class="col-md-9">
+            <input
+              type="text"
+              id="txtBatchName"
+              [(ngModel)]="batchName"
+              class="form-control"
+              placeholder="{{ 'footage.batch_note' | translate }}"
+            />
+            <div class="light-small text-left" [hidden]="batchName == ''">
+              {{ 'footage.batch_note' | translate }}
+            </div>
+          </div>
+        </div>
+        <div>
+          <form enctype="multipart/form-data" class="multi">
+            <input id="fFiles" name="footage" type="file" multiple />
+          </form>
+          <div class="text-left light-small">
+            {{ 'footage.file_upload_note' | translate }}
+          </div>
+          <div class="text-left light-small">
+            {{ 'footage.other_file_upload_note' | translate }}
+          </div>
+        </div>
+        <hr />
+        <div>
+          <div class="or">
+            {{ 'common.or' | translate }}
+          </div>
+          <div class="text-left" style="color: #fff">
+            <a
+              class="btn btn-dark m-btn"
+              (click)="showUploadAdvancedModal(currentProject, false)"
+            >
+              <span>
+                <i class="fa fa-upload"></i>
+                <span>{{ 'common.ftp_in' | translate }}</span>
+              </span>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button
+          class="btn btn-secondary active"
+          type="button"
+          (click)="closeFileUploadFootageModal()"
+        >
+          {{ 'common.close' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  bsModal
+  #uploadProjectContentModal="bs-modal"
+  class="modal fade"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="uploadProjectContentModal"
+  [config]="{ backdrop: 'static', keyboard: false }"
+>
+  <div class="modal-dialog modal-lg" style="max-width: 600px">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5>
+          <b>{{ 'collaboration.upload_project_content' | translate }}</b>
+        </h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+          (click)="closeUploadProjectContentModal()"
+        >
+          <span aria-hidden="true">
+            &times;
+          </span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-inline">
+          <label style="margin-right: 5px;" class="form-control"
+            >Here is a token:
+          </label>
+          <div class="form-group">
+            <div class="input-group m-input-icon m-input-icon--right search">
+              <input
+                style="width: 300px;"
+                type="text"
+                class="form-control form-control-sm"
+                disabled
+                value="{{ currentProject.projectId }}"
+              />
+              <div
+                class="input-group-append"
+                (click)="copyToken(currentProject.projectId)"
+              >
+                <button
+                  class="btn btn-sm btn-secondary active"
+                  type="button"
+                  tooltip="{{ 'collaboration.copy_token_tooltip' | translate }}"
+                >
+                  <i class="fa fa-copy"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p style="margin-bottom: 0px;">
+          {{ 'collaboration.upload_project_content_dec' | translate }}
+        </p>
+
+        <p style="margin-bottom: 0px;">
+          <small
+            >Example: {{ currentProject.projectId }}.mov
+            <span style="font-weight: 500;">OR</span>
+            {{ currentProject.projectId }}.mp4</small
+          ><br />
+        </p>
+        <p>
+          <span>{{
+            'collaboration.upload_project_content_dec1' | translate
+          }}</span>
+        </p>
+        <br />
+        <div>
+          <form enctype="multipart/form-data">
+            <input id="projectContentFile" name="mediaProduct" type="file" />
+          </form>
+        </div>
+        <hr />
+        <div>
+          <div class="or">
+            {{ 'common.or' | translate }}
+          </div>
+          <div class="text-left" style="color: #fff">
+            <a
+              class="btn btn-dark m-btn"
+              (click)="showUploadAdvancedModal(currentProject, true)"
+            >
+              <span>
+                <i class="fa fa-upload"></i>
+                <span>{{ 'common.ftp_in' | translate }}</span>
+              </span>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button
+          class="btn btn-secondary active"
+          type="button"
+          (click)="closeUploadProjectContentModal()"
+        >
+          {{ 'common.close' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  bsModal
+  #showFTPModal="bs-modal"
+  class="modal fade"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="fileUploadFootageModal"
+  [config]="{ backdrop: 'static' }"
+>
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5>
+          <b>{{ 'footage.advanced_upload_title' | translate }}</b>
+        </h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+          (click)="closeUploadAdvancedModal(); showFTPModal.hide()"
+        >
+          <span aria-hidden="true">
+            &times;
+          </span>
+        </button>
+      </div>
+      <div class="modal-body ftp">
+        <div class="form-group">
+          <label>{{ 'footage.ftp_link_field' | translate }}:</label>
+          <span>
+            {{ ftpLink }}&nbsp;
+            <em>({{ 'footage.ftp_link_description' | translate }})</em></span
+          >
+        </div>
+        <div class="form-group">
+          <label>{{ 'footage.ftp_project_field' | translate }}:</label>
+          <span
+            >/stock_footage/For_collaborative_projects_content_only/[{{
+              currentProject.Member?.email
+            }}]{{ currentProject.projectName }}</span
+          >
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button
+          class="btn btn-secondary active"
+          type="button"
+          (click)="closeUploadAdvancedModal(); showFTPModal.hide()"
+        >
+          {{ 'common.close' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  bsModal
+  #collaboratorsModal="bs-modal"
+  [config]="{ backdrop: 'static' }"
+  class="modal fade"
+  role="dialog"
+  tabindex="-1"
+>
+  <div class="modal-dialog" id="collaboratorsModal">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">
+          <b>{{ 'marketplace.collaborators' | translate }}</b>
+        </h4>
+        <button
+          type="button"
+          class="close"
+          (click)="collaboratorsModal.hide()"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <div class="table-scrollable table-scroll">
+          <div class="text-center" *ngIf="collaborators.length == 0">
+            <p>{{ 'marketplace.no_available_collaborators' | translate }}</p>
+          </div>
+
+          <div
+            class="m-scrollable"
+            data-scrollbar-shown="true"
+            data-scrollable="true"
+            data-max-height="300"
+          >
+            <ul class="list-group list-group-flush">
+              <li *ngFor="let item of collaborators" class="list-group-item">
+                <div class="row">
+                  <div class="col-7">
+                    <img
+                      class="img-avatar m--img-rounded m--marginless m--img-centered"
+                      [src]="avatarUrlB.replace('{memberId}', item.memberId)"
+                    />
+                    <span
+                      >{{ item.fullName }}
+                      {{ item.isOwner ? '(Owner)' : '' }}</span
+                    >
+                  </div>
+                  <div
+                    style="align-self: center; text-align: right;"
+                    class="col-5"
+                  >
+                    <button
+                      *ngIf="
+                        item.memberId !== getUserId() &&
+                        currentProject.reviewState === 'approved' &&
+                        currentProject.status == 'completed' &&
+                        !item.rated
+                      "
+                      style="margin-right: 1px;"
+                      (click)="openRatingModal(currentProject, item)"
+                      type="button"
+                      class="btn btn-warning btn-sm m-btn"
+                    >
+                      <span>
+                        <i class="fa fa-star-half-o"></i>
+                        <span>{{ 'Rating' | translate }}</span>
+                      </span>
+                    </button>
+                    <button
+                      *ngIf="
+                        item.memberId !== getUserId() &&
+                        currentProject.reviewState === 'approved' &&
+                        currentProject.status == 'completed' &&
+                        item.rated
+                      "
+                      style="margin-right: 1px;"
+                      type="button"
+                      class="btn btn-warning btn-sm m-btn"
+                      (click)="openRatingModal(currentProject, item)"
+                    >
+                      <span>
+                        <i class="fa fa-star-half-o"></i>
+                        <span>{{ 'Rated' | translate }}</span>
+                      </span>
+                    </button>
+                    <button
+                      *ngIf="
+                        item.memberId !== getUserId() &&
+                        currentProject.reviewState === 'approved'
+                      "
+                      (click)="ChatAction(currentProject, item)"
+                      type="button"
+                      class="btn btn-primary btn-sm m-btn"
+                    >
+                      <span>
+                        <i class="fa fa-comment-o"></i>
+                        <span>{{ 'footage.btn.chat' | translate }}</span>
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer actions">
+        <button
+          class="btn btn-secondary active m-btn"
+          (click)="collaboratorsModal.hide()"
+        >
+          <span>
+            <span>{{ 'common.close' | translate }}</span>
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<div
+  class="modal fade"
+  bsModal
+  #showProjectModalContent="bs-modal"
+  [config]="{ backdrop: 'static' }"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="collaborationProject"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 id="collaborationProject" class="modal-title pull-left">
+          {{ 'footage.project_information' | translate }}
+        </h4>
+        <button
+          type="button"
+          class="close pull-right"
+          aria-label="Close"
+          (click)="showProjectModalContent.hide()"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" style="padding: 10px 25px">
+        <form #formProjectsContent="ngForm" class="m-form m-form--state">
+          <div class="form-group row">
+            <label class="col-3 col-form-label form-control-sm">
+              {{ 'footage.project_owner_field' | translate }}:
+            </label>
+
+            <div class="col-9" style="padding: .35rem .75rem; font-size: 12px;">
+              <div
+                class="m-dropdown m-dropdown--inline m-dropdown--arrow m-dropdown--customize"
+                m-dropdown-toggle="click"
+              >
+                <a href="#" class="m-dropdown__toggle">
+                  {{ previewingProject.OnBehalfOf?.fullName }}
+                </a>
+                <div class="m-dropdown__wrapper">
+                  <span
+                    class="m-dropdown__arrow m-dropdown__arrow--left"
+                  ></span>
+                  <div class="m-dropdown__inner">
+                    <div class="m-dropdown__body">
+                      <div
+                        class="m-dropdown__content"
+                        *ngIf="ownerInfo && ownerInfo.id"
+                      >
+                        <div class="text-center">
+                          <img
+                            class="img-avatar m--img-rounded m--marginless m--img-centered"
+                            [src]="
+                              avatarUrlB.replace('{memberId}', ownerInfo.id)
+                            "
+                          />
+                        </div>
+                        <div class="text-center" style="margin: .75rem 0;">
+                          <h5>{{ ownerInfo?.fullName }}</h5>
+                        </div>
+                        <p style="margin-bottom: .5rem;">
+                          <span class="m--font-bold">{{
+                            'footage.location_column' | translate
+                          }}</span>
+                          {{ ownerInfo.address }}
+                        </p>
+                        <p style="margin-bottom: .5rem;">
+                          <span class="m--font-bold">{{
+                            'footage.role_field' | translate
+                          }}</span>
+                          {{ ownerInfo.roles }}
+                        </p>
+                        <div>
+                          <span class="m--font-bold">{{
+                            'footage.about_field' | translate
+                          }}</span>
+                          {{ ownerInfo.about }}
+                          <p
+                            style="margin-bottom: 0; margin-left: .5rem;"
+                            *ngFor="let item of ownerInfo.bioData"
+                          >
+                            <span class="m--font-bold"
+                              >{{ item.answerTitle }}:</span
+                            >
+                            {{ item.answerContent }}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group row">
+            <label
+              for="projectNameContent"
+              class="col-3 col-form-label form-control-sm"
+            >
+              {{ 'footage.project_name_field' | translate }}
+              <span class="required">{{ 'required_symbol' | translate }}</span
+              >:
+            </label>
+            <div class="col-9">
+              <input
+                name="projectNameContent"
+                class="form-control form-control-sm m-input"
+                type="text"
+                [ngModel]="previewingProject.projectName"
+                disabled
+              />
+            </div>
+          </div>
+          <div class="form-group row">
+            <label
+              for="start-date-content"
+              class="col-3 col-form-label form-control-sm"
+            >
+              {{ 'footage.start_date' | translate
+              }}<span class="required">{{ 'required_symbol' | translate }}</span
+              >:
+            </label>
+            <div class="col-3">
+              <input
+                name="start-date-content"
+                class="form-control m-input form-control-sm"
+                type="text"
+                ngModel="{{
+                  previewingProject.projectStartDate | date: 'MM/dd/yyyy'
+                }}"
+                disabled
+              />
+            </div>
+
+            <label
+              for="end-date-content"
+              class="col-3 col-form-label form-control-sm"
+            >
+              {{ 'footage.end_date' | translate }}
+              <!-- <span class="required">{{'required_symbol'| translate}}</span> -->
+              :
+            </label>
+            <div class="col-3">
+              <input
+                name="end-date-content"
+                #projectEndDate="ngModel"
+                class="form-control m-input form-control-sm"
+                type="text"
+                ngModel="{{
+                  previewingProject.projectEndDate | date: 'MM/dd/yyyy'
+                }}"
+                disabled
+              />
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-3 col-form-label form-control-sm"
+              >{{ 'footage.topic' | translate
+              }}<span class="required">{{ 'required_symbol' | translate }}</span
+              >:</label
+            >
+            <div class="col-9">
+              <textarea
+                class="form-control form-control-sm"
+                name="topic"
+                placeholder="{{ 'footage.topic_dec' | translate }}"
+                [ngModel]="previewingProject.topic"
+                disabled
+              ></textarea>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-3 col-form-label form-control-sm"
+              >{{ 'footage.location' | translate
+              }}<span class="required">{{ 'required_symbol' | translate }}</span
+              >:</label
+            >
+            <div class="col-9">
+              <input
+                class="form-control form-control-sm"
+                placeholder="{{ 'footage.location_dec' | translate }}"
+                [ngModel]="previewingProject.projectLocation"
+                name="projectLocation"
+                disabled
+              />
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-3 col-form-label form-control-sm"
+              >{{ 'footage.summary' | translate
+              }}<span class="required">{{ 'required_symbol' | translate }}</span
+              >:</label
+            >
+            <div class="col-9">
+              <textarea
+                rows="4"
+                class="form-control form-control-sm"
+                name="detailSummary"
+                [ngModel]="previewingProject.detailSummary"
+                placeholder="{{ 'footage.summary_dec' | translate }}"
+                disabled
+              ></textarea>
+            </div>
+          </div>
+          <div class="form-group" *ngIf="previewingProject.sharers">
+            <div class="row">
+              <label class="col-3 col-form-label form-control-sm">
+                {{ 'marketplace.sharing_with_field_view' | translate }}:
+              </label>
+              <div class="col-9">
+                <div class="row">
+                  <div
+                    class="col-3 form-group"
+                    *ngIf="
+                      previewingProject.selectCollaboratorsType ==
+                      'indicate number'
+                    "
+                  >
+                    <input
+                      class="form-control form-control-sm"
+                      type="number"
+                      name="numberCollaborators"
+                      [(ngModel)]="previewingProject.numberCollaborators"
+                      disabled
+                    />
+                  </div>
+                  <div
+                    style="padding: 0;"
+                    class="col-9 form-group"
+                    *ngIf="
+                      previewingProject.selectCollaboratorsType ==
+                      'indicate number'
+                    "
+                  >
+                    <span style="font-size: 12px"
+                      >(Sharing percentage to be discussed and agreed)</span
+                    >
+                  </div>
+                  <div
+                    class="col-12 form-group"
+                    *ngIf="
+                      previewingProject.selectCollaboratorsType !=
+                      'indicate number'
+                    "
+                  >
+                    <div
+                      *ngFor="let s of previewingProject.sharers; let i = index"
+                      class="form-group row"
+                      style="margin-bottom: 5px; margin-left: -10px;"
+                    >
+                      <label class="col-6 col-form-label form-control-sm">{{
+                        s.collaboratorName
+                      }}</label>
+                      <div class="col-3" *ngIf="s.collabShare != null">
+                        <input
+                          name="sharer{{ i }}"
+                          class="form-control m-input form-control-sm"
+                          type="number"
+                          [(ngModel)]="s.collabShare"
+                          #collabSharer
+                          #curatorCollabShare
+                          min="1"
+                          #sharer="ngModel"
+                          max="99"
+                          required
+                          disabled
+                        />
+                      </div>
+                      <div class="col-6" *ngIf="s.collabShare == null">
+                        <p
+                          class="form-control-sm"
+                          style="padding: 0;margin-top: 5px;margin-bottom: 0"
+                        >
+                          {{ 'marketplace.to_discussed' | translate }}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer text-right">
+        <div class="actions">
+          <button
+            type="button"
+            class="btn btn-secondary btn-sm"
+            (click)="showProjectModalContent.hide()"
+          >
+            <span>
+              <!-- <i class="fa fa-arrow-circle-o-up"></i> -->
+              <span>{{ 'footage.btn.close' | translate }}</span>
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade"
+  bsModal
+  #notice="bs-modal"
+  [config]="{ backdrop: 'static' }"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="notice"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title pull-left">
+          {{ 'footage.notice' | translate }}
+        </h4>
+        <button
+          type="button"
+          class="close pull-right"
+          aria-label="Close"
+          (click)="notice.hide()"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p [innerHTML]="'footage.notify_dec' | translate"></p>
+        <br />
+        <div class="icheck-default icheck-inline">
+          <label class="m-checkbox m-checkbox--solid m-checkbox--dark">
+            <input
+              type="checkbox"
+              [(ngModel)]="notShowNotice"
+              name="notShowNotice"
+            />
+            {{ 'footage.dont_show_message' | translate }}
+            <span></span>
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-success" (click)="closeNoticeModal()">
+          {{ 'footage.btn.ok' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade"
+  id="confirmModal"
+  bsModal
+  #confirm="bs-modal"
+  [config]="{ backdrop: 'static', keyboard: false }"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="dialog-static-name"
+>
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title pull-left">
+          {{ 'common.confirm' | translate }}
+        </h4>
+        <!-- <button type="button" class="close pull-right" aria-label="Close" (click)="staticModal.hide()">
+          <span aria-hidden="true">&times;</span>
+        </button> -->
+      </div>
+      <div class="modal-body">
+        <p>{{ 'footage.confirm_dec' | translate }}</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-danger" type="button" (click)="confirm.hide()">
+          <span>
+            <i class="fa fa-close"></i>
+            <span> {{ 'common.no' | translate }}</span>
+          </span>
+        </button>
+        <button class="btn btn-success btn-ok">
+          <span>
+            <i class="fa fa-check"></i>
+            <span> {{ 'common.yes' | translate }}</span>
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade"
+  bsModal
+  #noticeMetadataOption="bs-modal"
+  [config]="{ backdrop: 'static' }"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="noticeMetadataOption"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title pull-left">
+          {{ 'footage.notice' | translate }}
+        </h4>
+        <button
+          type="button"
+          class="close pull-right"
+          aria-label="Close"
+          (click)="noticeMetadataOption.hide()"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p [innerHTML]="'footage.notify_metadata_tagging_dec' | translate"></p>
+        <br />
+
+        <div class="icheck-default icheck-inline">
+          <label class="m-checkbox m-checkbox--solid m-checkbox--dark">
+            <input
+              type="checkbox"
+              [(ngModel)]="notShowNoticeMetadataOption"
+              name="notShowNoticeMetadataOption"
+            />
+            {{ 'footage.dont_show_message' | translate }}
+            <span></span>
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-success" (click)="closeNoticeModal()">
+          {{ 'footage.btn.ok' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-rating #ratingModal (saveRating)="saveRating($event)"></app-rating>

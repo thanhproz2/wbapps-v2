@@ -1,0 +1,118 @@
+<style>
+  .menu {
+    margin: -2.2em -2.2em 2.2em -2.2em;
+    border-bottom: 2px solid #ebedf2;
+  }
+  .active {
+    color: #68a1ed !important;
+    border-bottom: 3px solid #68a1ed !important;
+  }
+  ul.nav li:hover .nav-link {
+    color: #68a1ed !important;
+    border-bottom: 3px solid #68a1ed !important;
+  }
+</style>
+
+<div class="m-content" id="m-content">
+  <div class="m-portlet m-portlet--ngviewer ng-star-inserted" style="margin: 0">
+    <div class="m-portlet__body m-portlet__body--no-padding">
+      <div class="m-portlet__preview">
+        <div class="m-section__content">
+          <div class="m-portlet__body">
+            <div class="menu">
+              <ul
+                class="nav nav-tabs m-tabs-line m-tabs-line--primary nav-justified"
+                style=" margin: 0; border-bottom: none"
+              >
+                <li class="nav-item m-tabs__item">
+                  <a
+                    [routerLink]="['./workspace']"
+                    routerLinkActive="active"
+                    class="nav-link m-tabs__link"
+                  >
+                    {{ 'tabs.contribute_tab' | translate }}
+                    <span class="m-badge m-badge--info m-badge--wide">{{
+                      total.workspace
+                    }}</span>
+                  </a>
+                </li>
+                <li
+                  *ngIf="
+                    total.mediaProducts ||
+                    total.countCollaborativeContentProjets
+                  "
+                  class="nav-item m-tabs__item"
+                >
+                  <a
+                    [routerLink]="['./media-products']"
+                    class="nav-link m-tabs__link"
+                    routerLinkActive="active"
+                  >
+                    {{ 'tabs.media_products' | translate }}
+                    <span class="m-badge m-badge--info m-badge--wide">{{
+                      total.mediaProducts
+                    }}</span>
+                  </a>
+                </li>
+                <li
+                  class="nav-item m-tabs__item"
+                  *ngIf="curator"
+                >
+                  <a
+                    [routerLink]="['./curation']"
+                    class="nav-link m-tabs__link"
+                    routerLinkActive="active"
+                  >
+                    {{ 'tabs.curation' | translate }}
+                    <span class="m-badge m-badge--info m-badge--wide">{{
+                      total.curation
+                    }}</span>
+                  </a>
+                </li>
+                <li class="nav-item m-tabs__item">
+                  <a
+                    [routerLink]="['./submitted-content']"
+                    class="nav-link m-tabs__link"
+                    routerLinkActive="active"
+                  >
+                    {{ 'tabs.content_tab' | translate }}
+                    <span class="m-badge m-badge--info m-badge--wide">{{
+                      total.submittedContent
+                    }}</span>
+                  </a>
+                </li>
+                <li class="nav-item m-tabs__item">
+                  <a
+                    [routerLink]="['./my-collaboration']"
+                    class="nav-link m-tabs__link"
+                    routerLinkActive="active"
+                  >
+                    {{ 'tabs.collaborate_tab' | translate }}
+                    <span class="m-badge m-badge--info m-badge--wide">{{
+                      total.collaboration
+                    }}</span>
+                  </a>
+                </li>
+                <li class="nav-item m-tabs__item">
+                  <a
+                    [routerLink]="['./marketplace']"
+                    class="nav-link m-tabs__link"
+                    routerLinkActive="active"
+                  >
+                    {{ 'tabs.marketplace_tab' | translate }}
+                    <span class="m-badge m-badge--info m-badge--wide">{{
+                      total.marketplace
+                    }}</span></a
+                  >
+                </li>
+              </ul>
+            </div>
+            <div class="tab-content">
+              <router-outlet></router-outlet>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

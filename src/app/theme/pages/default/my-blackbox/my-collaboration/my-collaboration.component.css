@@ -1,0 +1,145 @@
+.header span {
+  padding-top: 5px;
+}
+.header select {
+  border-radius: 5px !important;
+  width: 65px;
+  margin: 0 5px;
+}
+.header {
+  display: flex;
+}
+.table div {
+  word-wrap: break-word;
+}
+.action {
+  width: 120px;
+  /* text-align: right; */
+}
+.action a {
+  width: 90px;
+  margin-bottom: 5px;
+}
+.action a.btn-outline-success {
+  margin-right: 5px;
+}
+.table tr td {
+  vertical-align: middle;
+}
+.big-circle-img {
+  width: 25px;
+  height: 25px;
+}
+.img-circle {
+  border-radius: 50%;
+}
+.project-label {
+  min-width: 90px;
+  padding-right: 5px;
+  display: inline-block;
+  font-weight: 600;
+}
+.project-label.short {
+  min-width: 60px;
+}
+.light-small {
+  font-size: 10px;
+  color: #999;
+}
+.small-circle-img {
+  width: 20px;
+  height: 20px;
+}
+.button a {
+  margin: 5px;
+  min-width: 80px;
+}
+.button button {
+  margin: 5px;
+  min-width: 80px;
+}
+.light-small {
+  font-size: 10px;
+  color: #999;
+}
+.full-width {
+  width: 100%;
+}
+.overflow {
+  height: auto;
+  max-height: 300px;
+  overflow-y: auto;
+}
+a.btn-link {
+  color: #4e94f3;
+  cursor: pointer;
+}
+a.btn-link:hover {
+  text-decoration: underline;
+  color: #4e94f3;
+}
+.actions button {
+  width: 85px;
+  margin: 0 2px;
+}
+.actions {
+  width: 100%;
+}
+.label label {
+  font-weight: 600;
+}
+.or {
+  font-size: 21px;
+  padding-right: 10px;
+  float: left;
+  margin-top: 5px;
+  font-weight: 600;
+}
+.ftp label {
+  font-weight: 600;
+}
+.m-checkbox label {
+  font-weight: 500;
+}
+.list-container.projects {
+  width: 100%;
+}
+.search {
+  float: right;
+  max-width: 400px;
+}
+@media (max-width: 768px) {
+  .header {
+    margin: -0.6em 0 5px 10px;
+  }
+  .search {
+    float: none;
+    max-width: 100%;
+  }
+}
+
+.col-form-label {
+  font-weight: 450;
+}
+
+.m-checkbox,
+.m-radio {
+  font-size: 0.9rem;
+  font-weight: 400;
+}
+
+.help-block {
+  font-size: 11px;
+}
+.text:hover {
+  text-decoration: none !important;
+  cursor: default;
+}
+
+.img-circle {
+  margin-left: 5px !important;
+}
+
+.m-dropdown--customize .m-dropdown__wrapper {
+  width: 335px;
+}

@@ -1,0 +1,2964 @@
+<app-camera-change
+  #changeCameraModal
+  [cameras]="cameras"
+  [currentCamera]="footage.Camera"
+  [footage]="footage"
+  (currentCameraEvent)="recieveCurrentCamera($event)"
+>
+</app-camera-change>
+<div class="edit-footage">
+  <div class="row">
+    <div class="col-md-8" *ngIf="footage != ''" [id]="footage.footageId">
+      <div
+        class="m-portlet m-portlet--bordered m-portlet--rounded  m-portlet--last"
+      >
+        <div class="m-portlet__body">
+          <!-- <h5 class="m-section__sub">{{ 'footage.edit_footage' | translate }}</h5> -->
+          <form #editFootage="ngForm" class="m-form m-form--state">
+            <div class="form-body">
+              <div class="row">
+                <div class="col-md-11">
+                  <div class="row">
+                    <div class="title-width">
+                      <label class="form-control form-control-sm"
+                        >{{ 'footage.batch_name' | translate }}:</label
+                      >
+                    </div>
+                    <div class="col">
+                      <input
+                        type="text"
+                        name="batchName"
+                        disabled
+                        class="form-control form-control-sm"
+                        [(ngModel)]="footage.batchName"
+                      />
+                    </div>
+                  </div>
+                  <div class="row" style="margin-top: 5px">
+                    <div class="title-width">
+                      <label class="form-control form-control-sm"
+                        >{{ 'footage.footage_name' | translate }}:</label
+                      >
+                    </div>
+                    <div class="col">
+                      <input
+                        type="text"
+                        name="originalFileName"
+                        disabled
+                        class="form-control form-control-sm input-sm"
+                        [(ngModel)]="footage.originalFileName"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="col-md-1 text-left order-first"
+                  style="color: #539DFF; font-size: 12px"
+                >
+                  <label>{{ 'footage.apply_to_files' | translate }}</label>
+                </div>
+              </div>
+              <div
+                class="row"
+                style="padding: 5px 0"
+                [ngStyle]="{ background: is_editorial ? '#eff3f8' : 'none' }"
+              >
+                <div class="col-md-11">
+                  <div class="row">
+                    <div class="title-width">
+                      <label class="form-control form-control-sm"
+                        >{{ 'footage.editorial_field' | translate }}:</label
+                      >
+                    </div>
+                    <div class="col">
+                      <div style="margin-top: -5px;">
+                        <label
+                          class="m-checkbox m-checkbox--solid m-checkbox--dark"
+                        >
+                          <input
+                            type="checkbox"
+                            name="editorial"
+                            [(ngModel)]="footage.editorial"
+                            (change)="checkValidEditorial()"
+                          />
+                          <span></span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="col offset-md-1"
+                  *ngIf="footage.editorial"
+                  [ngClass]="{
+                    'has-danger': caption.invalid,
+                    'has-success': caption.valid
+                  }"
+                >
+                  <div class="row">
+                    <div class="title-width"></div>
+                    <div style="margin-left: 15px; width: 110px">
+                      <label class="form-control form-control-sm"
+                        >{{ 'footage.editorial_caption' | translate
+                        }}<span class="required">{{
+                          'required_symbol' | translate
+                        }}</span
+                        >:</label
+                      >
+                    </div>
+                    <div class="col" style="margin-bottom: 5px">
+                      <input
+                        type="text"
+                        #caption="ngModel"
+                        name="caption"
+                        class="form-control form-control-sm"
+                        [(ngModel)]="footage.editorialText"
+                        placeholder="{{
+                          'footage.editorial_text_field' | translate
+                        }}"
+                        required
+                      />
+                      <div *ngIf="footage.editorial" [hidden]="caption.valid">
+                        <span class="text-danger">{{
+                          'required_desc' | translate
+                        }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="col-md-1 text-left order-first"
+                  style="padding-right: 0; margin-top: -5px;"
+                >
+                  <label
+                    class="m-checkbox m-checkbox--solid m-checkbox--dark"
+                    (mouseover)="is_editorial = true"
+                    (mouseout)="is_editorial = false"
+                  >
+                    <input
+                      type="checkbox"
+                      name="checkEditorial"
+                      class="checkbox option-input"
+                      [(ngModel)]="footageCheck.editorial"
+                    />
+                    <span></span>
+                  </label>
+                </div>
+                <div class="offset-md-1 col-md-11">
+                  <div class="row">
+                    <div class="title-width"></div>
+                    <div style="margin-left: 15px; width: 110px"></div>
+                    <div class="col">
+                      <div
+                        *ngIf="footage.editorial"
+                        class="editorial row"
+                        style="margin-left: 0;"
+                      >
+                        <div
+                          class="col-md-6"
+                          [ngClass]="{
+                            'has-danger': editorialCity.invalid,
+                            'has-success': editorialCity.valid
+                          }"
+                        >
+                          <div class="row">
+                            <div class="title-width">
+                              <label class="form-control form-control-sm"
+                                >{{ 'footage.city_field' | translate
+                                }}<span class="required">{{
+                                  'required_symbol' | translate
+                                }}</span
+                                >:</label
+                              >
+                            </div>
+                            <div class="col" style="margin-bottom: 5px">
+                              <input
+                                name="editorialCity"
+                                #editorialCity="ngModel"
+                                type="text"
+                                class="form-control form-control-sm input-sm"
+                                [(ngModel)]="footage.editorialCity"
+                                placeholder="{{
+                                  'footage.city_field' | translate
+                                }}"
+                                required
+                              />
+                              <div *ngIf="editorialCity.invalid">
+                                <span class="text-danger">
+                                  {{ 'required_desc' | translate }}</span
+                                >
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-md-6">
+                          <div class="row">
+                            <div class="title-width">
+                              <label class="form-control form-control-sm"
+                                >{{ 'footage.state_field' | translate }}:</label
+                              >
+                            </div>
+                            <div class="col" style="margin-bottom: 5px">
+                              <input
+                                type="text"
+                                class="form-control form-control-sm input-sm"
+                                name="state"
+                                [(ngModel)]="footage.editorialState"
+                                placeholder="{{
+                                  'footage.state_field' | translate
+                                }}"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                        <div
+                          class="col-md-6"
+                          [ngClass]="{
+                            'has-danger': editorialCountry.invalid,
+                            'has-success': editorialCountry.valid
+                          }"
+                        >
+                          <div class="row">
+                            <div class="title-width">
+                              <label class="form-control form-control-sm"
+                                >{{ 'footage.country_field' | translate
+                                }}<span class="required">{{
+                                  'required_symbol' | translate
+                                }}</span
+                                >:</label
+                              >
+                            </div>
+                            <div class="col">
+                              <select
+                                name="editorialCountry"
+                                #editorialCountry="ngModel"
+                                [(ngModel)]="footage.editorialCountry"
+                                class="form-control form-control-sm input-sm"
+                                required
+                              >
+                                <option
+                                  *ngFor="let item of masterData.countries"
+                                  [value]="item.value"
+                                >
+                                  {{ item.name }}</option
+                                >
+                              </select>
+                              <div *ngIf="editorialCountry.invalid">
+                                <span class="text-danger">
+                                  {{ 'required_desc' | translate }}</span
+                                >
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div
+                          class="col-md-6"
+                          [class.has-danger]="editorialDate.invalid"
+                          [class.has-success]="editorialDate.valid"
+                        >
+                          <div class="row">
+                            <div class="title-width">
+                              <label class="form-control form-control-sm"
+                                >{{ 'footage.date_field' | translate
+                                }}<span class="required">{{
+                                  'required_symbol' | translate
+                                }}</span
+                                >:</label
+                              >
+                            </div>
+                            <div class="col">
+                              <input
+                                class="form-control form-control-sm input-sm"
+                                #editorialDate="ngModel"
+                                placeholder="{{
+                                  'footage.date_field' | translate
+                                }}"
+                                bsDatepicker
+                                [(ngModel)]="footage.editorialDate"
+                                [maxDate]="maxDate"
+                                required
+                                [ngModelOptions]="{ standalone: true }"
+                                [bsConfig]="{
+                                  dateInputFormat: 'MM-DD-YYYY',
+                                  containerClass: 'theme-default'
+                                }"
+                              />
+                              <div *ngIf="editorialDate.invalid">
+                                <span class="text-danger">
+                                  {{ 'required_desc' | translate }}</span
+                                >
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div
+                class="row"
+                style="padding: 5px 0"
+                [ngStyle]="{ background: is_description ? '#eff3f8' : 'none' }"
+              >
+                <div
+                  class="col-md-11"
+                  [ngClass]="{
+                    'has-danger':
+                      description.invalid || footage.invalidDesc == true,
+                    'has-success':
+                      description.valid && footage.invalidDesc != true
+                  }"
+                >
+                  <div class="row">
+                    <div class="title-width">
+                      <label class="form-control form-control-sm"
+                        >{{ 'footage.description' | translate
+                        }}<span class="required">{{
+                          'required_symbol' | translate
+                        }}</span
+                        >:</label
+                      >
+                    </div>
+                    <div class="col">
+                      <textarea
+                        rows="2"
+                        style="font-size: 12px;"
+                        #description="ngModel"
+                        name="description"
+                        class="form-control form-control-sm"
+                        [(ngModel)]="footage.description"
+                        required
+                        placeholder="{{
+                          'footage.description_note' | translate
+                        }}"
+                        (ngModelChange)="checkValidDesc(footage)"
+                      ></textarea>
+                      <div *ngIf="description.invalid" style="font-size: 12px;">
+                        <span class="text-danger">{{
+                          'required_desc' | translate
+                        }}</span>
+                      </div>
+                      <div *ngIf="footage.maxTimes" style="font-size: 12px;">
+                        <span class="help-block text-danger"
+                          >Sorry, "{{ footage.maxTimes.word }}" is used too many
+                          times.</span
+                        >
+                      </div>
+                      <div
+                        [hidden]="description.invalid"
+                        style="font-size: 12px;"
+                      >
+                        <span class="font-size12"
+                          ><b *ngIf="footage.description?.length > 0"
+                            >{{
+                              footage.descriptionCharacters.length
+                            }}
+                            characters (exclude spaces) -
+                          </b></span
+                        >
+                        <span
+                          class="help-block"
+                          [class.text-danger]="footage.invalidDesc == true"
+                          >{{ 'footage.description_note' | translate }}</span
+                        >
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="col-md-1 text-left order-first"
+                  style="padding-right: 0; margin-top: -5px;"
+                >
+                  <label
+                    class="m-checkbox m-checkbox--solid m-checkbox--dark"
+                    (mouseover)="is_description = true"
+                    (mouseout)="is_description = false"
+                  >
+                    <input
+                      type="checkbox"
+                      name="footageCheckDescription"
+                      class="checkbox option-input"
+                      [(ngModel)]="footageCheck.description"
+                    />
+                    <span></span>
+                  </label>
+                </div>
+              </div>
+              <div
+                class="row"
+                style="padding: 5px 0"
+                [ngStyle]="{ background: is_keywords ? '#eff3f8' : 'none' }"
+              >
+                <div class="col-md-11">
+                  <div class="row">
+                    <div class="title-width">
+                      <label class="form-control form-control-sm"
+                        >{{ 'footage.keywords_field' | translate }}
+                        <span class="required">{{
+                          'required_symbol' | translate
+                        }}</span
+                        >:</label
+                      >
+                    </div>
+                    <div class="col">
+                      <div
+                        style="border: 1px solid #c2cad8"
+                        class="edit-keywords"
+                        [ngStyle]="{
+                          border:
+                            footage.invalidKeywords == true ||
+                            footage.keywordsArray == 0
+                              ? '1px solid red'
+                              : '1px solid #ebedf2'
+                        }"
+                      >
+                        <tag-input
+                          style="font-size: 12px; margin: 0 5px 5px 5px"
+                          name="keywordsArray"
+                          [theme]="'minimal'"
+                          [(ngModel)]="footage.keywordsArray"
+                          placeholder="{{ 'footage.new_keywords' | translate }}"
+                          secondaryPlaceholder="{{
+                            'footage.add_keywords' | translate
+                          }}"
+                          [separatorKeyCodes]="[44, 188]"
+                          [inputClass]="'myinput'"
+                          [addOnPaste]="true"
+                          [maxItems]="maxItem"
+                          (ngModelChange)="checkKeywordsNumber(footage)"
+                          [dragZone]="'zone1'"
+                          [editable]="false"
+                          [onlyFromAutocomplete]="false"
+                          (onTextChange)="getListKeywords($event)"
+                        >
+                          <tag-input-dropdown
+                            [showDropdownIfEmpty]="false"
+                            [autocompleteItems]="listKeywords"
+                            limitItemsTo="100"
+                          >
+                            <ng-template let-item="item" let-index="item">
+                              {{ item.display }}
+                            </ng-template>
+                          </tag-input-dropdown>
+                        </tag-input>
+                      </div>
+                      <div class="row" style="margin: 0">
+                        <div class="col-sm-12" style="padding: 0">
+                          <span
+                            class="font-size12"
+                            [class.text-danger]="
+                              footage.invalidKeywords == true ||
+                              footage.keywordsArray == 0
+                            "
+                            >{{ footage.keywordsArray | count }}</span
+                          >
+                          <span class="font-size12"> / 49 - </span>
+                          <span
+                            class="help-block"
+                            style="font-size: 12px"
+                            [class.text-danger]="
+                              footage.invalidKeywords == true ||
+                              footage.keywordsArray == 0
+                            "
+                          >
+                            {{
+                              'footage.footage_keywords_validate' | translate
+                            }}
+                          </span>
+                          <div class="pull-right">
+                            <a
+                              class="btn-link btnCopy"
+                              (click)="copyKeywords()"
+                            >
+                              {{ 'footage.copy' | translate }}
+                            </a>
+                            &nbsp;|&nbsp;
+                            <a
+                              class="btn-link"
+                              (click)="clearKeywords(footage)"
+                              >{{ 'footage.clear_all' | translate }}</a
+                            >
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="col-md-1 text-left order-first"
+                  style="padding-right: 0; margin-top: -5px;"
+                >
+                  <label
+                    class="m-checkbox m-checkbox--solid m-checkbox--dark"
+                    (mouseover)="is_keywords = true"
+                    (mouseout)="is_keywords = false"
+                  >
+                    <input
+                      type="checkbox"
+                      name="footageCheckKeywords"
+                      class="checkbox option-input"
+                      [(ngModel)]="footageCheck.keywords"
+                    />
+                    <span></span>
+                  </label>
+                </div>
+              </div>
+              <div
+                class="row"
+                style="padding: 5px 0"
+                [ngStyle]="{ background: is_categories ? '#eff3f8' : 'none' }"
+              >
+                <div
+                  class="col-md-11"
+                  [ngClass]="{
+                    'has-danger': category.invalid,
+                    'has-success': category.valid
+                  }"
+                >
+                  <div class="row">
+                    <div class="title-width">
+                      <label class="form-control form-control-sm"
+                        >{{ 'footage.categories_field' | translate }}
+                        <span class="required">{{
+                          'required_symbol' | translate
+                        }}</span
+                        >:</label
+                      >
+                    </div>
+                    <div class="col">
+                      <select
+                        name="category"
+                        [(ngModel)]="footage.category"
+                        #category="ngModel"
+                        style="width:100%;"
+                        class="form-control form-control-sm input-sm"
+                        required
+                      >
+                        <option
+                          *ngFor="let cat of masterData.footageCategories"
+                          [value]="cat.value"
+                          >{{ cat.text }}
+                        </option>
+                      </select>
+                      <div *ngIf="category.invalid">
+                        <span class="text-danger">{{
+                          'required_desc' | translate
+                        }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="col-md-1 text-left order-first"
+                  style="padding-right: 0; margin-top: -5px;"
+                >
+                  <label
+                    class="m-checkbox m-checkbox--solid m-checkbox--dark"
+                    (mouseover)="is_categories = true"
+                    (mouseout)="is_categories = false"
+                  >
+                    <input
+                      type="checkbox"
+                      class="checkbox option-input"
+                      name="checkCategory"
+                      [(ngModel)]="footageCheck.category"
+                    />
+                    <span></span>
+                  </label>
+                </div>
+              </div>
+
+              <div
+                class="row"
+                style="padding: 5px 0"
+                [ngStyle]="{ background: is_camera_info ? '#eff3f8' : 'none' }"
+              >
+                <div class="col-md-11">
+                  <div class="row">
+                    <div class="title-width">
+                      <label class="form-control form-control-sm">
+                        {{ 'fields.camera_type_field' | translate }}:
+                      </label>
+                    </div>
+
+                    <div class="col">
+                      <p *ngIf="footage.Camera?.cameraType">
+                        <span>"{{ footage.Camera?.cameraType }}"</span>
+                        <span *ngIf="footage.Camera?.cameraBrand">
+                          - {{ footage.Camera?.cameraBrand }}</span
+                        >
+                        <span *ngIf="footage.Camera?.cameraBrandOther">
+                          - {{ footage.Camera?.cameraBrandOther }}</span
+                        >
+                      </p>
+                      <button
+                        type="button"
+                        class="btn btn-info btn-sm m-btn m-btn--icon"
+                        (click)="openChangeCameraModal()"
+                      >
+                        <span>
+                          <i class="la la-exchange"></i>
+                          <span>Change</span>
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="col-md-1 text-left order-first"
+                  style="padding-right: 0; margin-top: -5px;"
+                >
+                  <label
+                    class="m-checkbox m-checkbox--solid m-checkbox--dark"
+                    (mouseover)="is_camera_info = true"
+                    (mouseout)="is_camera_info = false"
+                  >
+                    <input
+                      type="checkbox"
+                      class="checkbox option-input"
+                      name="checkCategory"
+                      [(ngModel)]="footageCheck.cameraInfo"
+                    />
+                    <span></span>
+                  </label>
+                </div>
+              </div>
+
+              <div
+                class="row"
+                style="padding: 5px 0"
+                *ngIf="footage.documents != undefined"
+                [ngStyle]="{ background: is_documents ? '#eff3f8' : 'none' }"
+              >
+                <div class="col-md-11">
+                  <div class="row">
+                    <div class="title-width">
+                      <label class="form-control form-control-sm"
+                        >{{
+                          'footage.attach_documents_field' | translate
+                        }}:</label
+                      >
+                    </div>
+                    <div style="margin: 0 10px">
+                      <div
+                        *ngIf="
+                          !(footage.documents.modelDocuments.length > 0) &&
+                          !(footage.documents.propertyDocuments.length > 0)
+                        "
+                      >
+                        <button
+                          style="margin: 0 5px; width: 110px;"
+                          type="button"
+                          (click)="
+                            getDataModel(footage.documents.modelDocuments)
+                          "
+                          class="btn btn-dark btn-sm"
+                          title="{{
+                            'footage.upload_model_button_tooltip' | translate
+                          }}"
+                          onmouseenter="$(this).tooltip('show')"
+                        >
+                          {{ 'footage.btn.upload_model' | translate }}
+                        </button>
+                        <button
+                          style="margin: 0 5px"
+                          type="button"
+                          (click)="
+                            showNotifyNewReleaseModal(
+                              footage.documents.propertyDocuments
+                            )
+                          "
+                          class="btn btn-dark btn-sm"
+                          title="{{
+                            'footage.upload_model_button_tooltip' | translate
+                          }}"
+                          onmouseenter="$(this).tooltip('show')"
+                        >
+                          {{ 'footage.btn.upload_property' | translate }}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="row">
+                      <div class="title-width"></div>
+                      <div class="col">
+                        <div class="row" style="margin-left: 0">
+                          <div
+                            class="col-md-6 release"
+                            [hidden]="
+                              footage.documents.modelDocuments.length == 0 &&
+                              footage.documents.propertyDocuments.length == 0
+                            "
+                          >
+                            <div class="row">
+                              <div class="title-width">
+                                <label class="form-control form-control-sm"
+                                  >{{
+                                    'footage.upload_model_label' | translate
+                                  }}:</label
+                                >
+                              </div>
+                              <div class="col" style="margin-top: -2px;">
+                                <a
+                                  [hidden]="
+                                    !(
+                                      footage.documents.modelDocuments.length >
+                                      0
+                                    )
+                                  "
+                                  (click)="
+                                    getDataModel(
+                                      footage.documents.modelDocuments
+                                    )
+                                  "
+                                  class="btn-link"
+                                  >{{ 'footage.btn.change' | translate }}</a
+                                >
+                                <a
+                                  (click)="
+                                    getDataModel(
+                                      footage.documents.modelDocuments
+                                    )
+                                  "
+                                  [hidden]="
+                                    footage.documents.modelDocuments.length > 0
+                                  "
+                                  class="btn-link"
+                                  >{{ 'footage.btn.add' | translate }}</a
+                                >
+                              </div>
+                            </div>
+                            <div class="text-release">
+                              <div
+                                *ngIf="
+                                  footage.documents.modelDocuments.length == 0
+                                "
+                              >
+                                <span style="color: #92969b;">{{
+                                  'footage.no_property_release' | translate
+                                }}</span>
+                              </div>
+                              <div
+                                *ngIf="
+                                  footage.documents.modelDocuments.length > 0
+                                "
+                              >
+                                <div
+                                  *ngFor="
+                                    let item of footage.documents.modelDocuments
+                                  "
+                                >
+                                  <div class="break-word">
+                                    <div
+                                      [ngClass]="{
+                                        'text-danger':
+                                          item.reviewStatus == 'rejected'
+                                      }"
+                                    >
+                                      <span class="pull-left">-&nbsp;</span
+                                      ><span>{{
+                                        item.modelAgreementName
+                                      }}</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div
+                            class="col-md-6 release"
+                            [hidden]="
+                              footage.documents.modelDocuments.length == 0 &&
+                              footage.documents.propertyDocuments.length == 0
+                            "
+                          >
+                            <div class="row">
+                              <div class="title-width">
+                                <label class="form-control form-control-sm"
+                                  >{{
+                                    'footage.upload_property_label' | translate
+                                  }}:</label
+                                >
+                              </div>
+                              <div class="col" style="margin-top: -2px;">
+                                <a
+                                  [hidden]="
+                                    !(
+                                      footage.documents.propertyDocuments
+                                        .length > 0
+                                    )
+                                  "
+                                  (click)="
+                                    showNotifyNewReleaseModal(
+                                      footage.documents.propertyDocuments
+                                    )
+                                  "
+                                  class="btn-link"
+                                  >{{ 'footage.btn.change' | translate }}</a
+                                >
+                                <a
+                                  [hidden]="
+                                    footage.documents.propertyDocuments.length >
+                                    0
+                                  "
+                                  (click)="
+                                    showNotifyNewReleaseModal(
+                                      footage.documents.propertyDocuments
+                                    )
+                                  "
+                                  class="btn-link"
+                                  >{{ 'footage.btn.add' | translate }}</a
+                                >
+                              </div>
+                            </div>
+                            <div class="text-release">
+                              <div
+                                *ngIf="
+                                  footage.documents.propertyDocuments.length ==
+                                  0
+                                "
+                              >
+                                <span style="color: #92969b;">{{
+                                  'footage.no_property_release' | translate
+                                }}</span>
+                              </div>
+                              <div
+                                *ngIf="
+                                  footage.documents.propertyDocuments.length > 0
+                                "
+                              >
+                                <div
+                                  *ngFor="
+                                    let item of footage.documents
+                                      .propertyDocuments
+                                  "
+                                >
+                                  <div class="break-word">
+                                    <div
+                                      [ngClass]="{
+                                        'text-danger':
+                                          item.reviewStatus == 'rejected'
+                                      }"
+                                    >
+                                      <span class="pull-left">-&nbsp;</span
+                                      ><span>{{
+                                        item.propertyAgreementName
+                                      }}</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="col-md-1 text-left order-first"
+                  style="padding-right: 0; margin-top: -5px;"
+                >
+                  <label
+                    class="m-checkbox m-checkbox--solid m-checkbox--dark"
+                    (mouseover)="is_documents = true"
+                    (mouseout)="is_documents = false"
+                  >
+                    <input
+                      type="checkbox"
+                      name="footageCheckDocuments"
+                      class="checkbox option-input"
+                      [(ngModel)]="footageCheck.documents"
+                    />
+                    <span></span>
+                  </label>
+                </div>
+              </div>
+              <div
+                class="row"
+                style="padding: 5px 0"
+                [ngStyle]="{ background: is_sharers ? '#eff3f8' : 'none' }"
+              >
+                <div class="col-md-11">
+                  <div class="row">
+                    <div class="col">
+                      <div class="row">
+                        <div class="title-width">
+                          <label class="form-control form-control-sm">{{
+                            'footage.revenue_sharers_field' | translate
+                          }}</label>
+                        </div>
+                        <div class="col">
+                          <div class="row">
+                            <div class="col-md-6">
+                              <button
+                                *ngIf="canAssignSharer(footage)"
+                                type="button"
+                                (click)="getDataSharing(footage.sharers)"
+                                class="btn btn-dark btn-sm"
+                                tooltip="{{
+                                  'footage.select_sharer_footage_button_tooltip'
+                                    | translate
+                                }}"
+                              >
+                                {{
+                                  'footage.select_sharers_button' | translate
+                                }}
+                              </button>
+                            </div>
+                            <div class="col">
+                              <div *ngIf="footage.sharers.length">
+                                <span>{{
+                                  'footage.sharing_percent_field' | translate
+                                }}</span>
+                                <a
+                                  style="margin-left: 10px"
+                                  [hidden]="!canChangeSharer()"
+                                  (click)="getDataSharing(footage.sharers)"
+                                  class="btn-link"
+                                  >{{
+                                    'footage.btn.change_sharer_button'
+                                      | translate
+                                  }}</a
+                                >
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div *ngIf="footage.sharers.length">
+                    <div
+                      class="row"
+                      *ngFor="let item of footage.sharers; let i = index"
+                      [hidden]="item.collabType == 'curator'"
+                    >
+                      <div class="title-width"></div>
+                      <div class="col">
+                        <div class="row">
+                          <div class="col-md-6">
+                            <span style="padding-left: 15px;">{{
+                              item.fullName
+                            }}</span>
+                          </div>
+                          <div class="col" style="padding-right: 15px;">
+                            <div style="margin-bottom: 5px">
+                              <input
+                                type="number"
+                                [disabled]="item.locked"
+                                name="sharer{{ i }}"
+                                style="max-width: 70px;"
+                                class="form-control form-control-sm input-sm"
+                                [(ngModel)]="item.collabShare"
+                                min="1"
+                                max="99"
+                                [disabled]="!canChangeSharer()"
+                                (change)="checkNegativeValue(item)"
+                                required
+                              />
+                            </div>
+                          </div>
+                          <div class="col" *ngIf="item.change">
+                            <button
+                              class="btn btn-outline-danger btn-sm m-btn m-btn--icon m-btn--icon-only m-btn--pill"
+                              tooltip="{{ 'common.cancel' | translate }}"
+                              (click)="cancelCollabShare(item)"
+                              [disabled]="item.loading"
+                            >
+                              <i class="fa fa-close"></i>
+                            </button>
+                            <button
+                              style="margin-left: 5px"
+                              class="btn btn-outline-success btn-sm m-btn m-btn--icon m-btn--icon-only m-btn--pill"
+                              tooltip="{{ 'common.save' | translate }}"
+                              (click)="saveCollabShare(item)"
+                              [disabled]="item.loading"
+                            >
+                              <i
+                                style="margin-left: -6px"
+                                class="fa fa-spinner fa-spin"
+                                *ngIf="item.loading"
+                              ></i>
+                              <i class="fa fa-check" *ngIf="!item.loading"></i>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="col-md-1 text-left order-first"
+                  style="padding-right: 0; margin-top: -5px;"
+                >
+                  <label
+                    class="m-checkbox m-checkbox--solid m-checkbox--dark"
+                    (mouseover)="is_sharers = true"
+                    (mouseout)="is_sharers = false"
+                    *ngIf="!footage.projectId"
+                  >
+                    <input
+                      type="checkbox"
+                      name="shares"
+                      class="checkbox option-input"
+                      [(ngModel)]="footageCheck.sharers"
+                      *ngIf="canChangeSharer() || canAssignSharer(footage)"
+                    />
+                    <span></span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="row" *ngIf="footage.curators.length">
+                <div class="col-md-11">
+                  <div class="row">
+                    <div class="col">
+                      <div class="row">
+                        <div class="title-width">
+                          <label class="form-control form-control-sm"
+                            >Curator(s):</label
+                          >
+                        </div>
+                        <div class="col">
+                          <div class="row">
+                            <div class="col-md-6"></div>
+                            <div class="col">
+                              <div>
+                                <span>{{
+                                  'footage.sharing_percent_field' | translate
+                                }}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <div
+                      class="row"
+                      *ngFor="let item of footage.curators; let i = index"
+                    >
+                      <div class="title-width"></div>
+                      <div class="col">
+                        <div class="row">
+                          <div class="col-md-6">
+                            <span style="padding-left: 15px;">{{
+                              item.fullName
+                            }}</span>
+                          </div>
+                          <div class="col" style="padding-right: 15px;">
+                            <div style="margin-bottom: 5px">
+                              <input
+                                type="number"
+                                name="curators{{ i }}"
+                                style="max-width: 70px;"
+                                class="form-control form-control-sm input-sm"
+                                [(ngModel)]="item.collabShare"
+                                min="1"
+                                max="99"
+                                disabled
+                                required
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="col-md-1 text-left order-first"
+                  style="padding-right: 0; margin-top: -5px;"
+                ></div>
+              </div>
+
+              <div
+                class="row"
+                style="padding: 5px 0"
+                *ngIf="footage.noteToOwner"
+              >
+                <div class="offset-md-1 col-md-11">
+                  <div class="row">
+                    <div class="title-width">
+                      <label class="form-control form-control-sm"
+                        >{{ 'footage.note_from_curator' | translate }}:</label
+                      >
+                    </div>
+                    <div class="col">
+                      <textarea
+                        rows="2"
+                        name="noteToOwner"
+                        class="form-control form-control-sm input-sm"
+                        [(ngModel)]="footage.noteToOwner"
+                        required
+                        placeholder="{{
+                          'footage.note_to_owner_note' | translate
+                        }}"
+                        disabled
+                      ></textarea>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- <div [hidden]="statusValid" style="text-align: center; font-size: 12px">
+                            <p>{{'footage.document_info_dec' | translate}}</p>
+                        </div> -->
+            <div class="form-actions text-right">
+              <div class="actions">
+                <button
+                  type="button"
+                  class="btn btn-danger btn-sm m-btn"
+                  (click)="cancelEditFootage()"
+                >
+                  <span>
+                    <i class="fa fa-close"></i>
+                    <span>{{ 'footage.btn.return' | translate }}</span>
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  [disabled]="loading"
+                  class="btn btn-success btn-sm m-btn"
+                  type="button"
+                  (click)="editFootageSubmit('save')"
+                >
+                  <span>
+                    <i class="fa fa-check" *ngIf="!loading"></i>
+                    <i class="fa fa-spinner fa-spin" *ngIf="loading"></i>
+                    <span>{{ 'footage.btn.save' | translate }}</span>
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  [disabled]="loading"
+                  class="btn btn-success btn-sm m-btn"
+                  type="button"
+                  (click)="editFootageSubmit('save', true)"
+                >
+                  <span>
+                    <i class="fa fa-check" *ngIf="!loading"></i>
+                    <i class="fa fa-spinner fa-spin" *ngIf="loading"></i>
+                    <span>{{ 'Save & Next' | translate }}</span>
+                  </span>
+                </button>
+                <button
+                  [disabled]="loading"
+                  class="btn btn-primary btn-sm m-btn"
+                  type="button"
+                  (click)="
+                    editFootage.form.valid && editFootageSubmit('submit');
+                    isSubmit = true
+                  "
+                >
+                  <span>
+                    <i class="fa fa-arrow-circle-o-up" *ngIf="!loading"></i>
+                    <i class="fa fa-spinner fa-spin" *ngIf="loading"></i>
+                    <span>{{ 'footage.btn.submit' | translate }}</span>
+                  </span>
+                </button>
+                <button
+                  [disabled]="loading"
+                  class="btn btn-primary btn-sm m-btn"
+                  type="button"
+                  (click)="
+                    editFootage.form.valid && editFootageSubmit('submit', true);
+                    isSubmit = true
+                  "
+                >
+                  <span>
+                    <i class="fa fa-arrow-circle-o-up" *ngIf="!loading"></i>
+                    <i class="fa fa-spinner fa-spin" *ngIf="loading"></i>
+                    <span>{{ 'Submit & Next' | translate }}</span>
+                  </span>
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div
+      class="col-md-4"
+      [ngClass]="{ 'order-first': setWidth }"
+      [ngStyle]="{ 'margin-bottom': setWidth ? '5px' : '0' }"
+    >
+      <div class="my-center">
+        <div class="m-portlet m-portlet--rounded">
+          <div class="m-portlet__body" style="padding: 0px;">
+            <div [hidden]="!hidePlayFootage">
+              <img
+                class="customize_image"
+                (click)="previewFootage(footage)"
+                style="cursor: pointer;"
+                [src]="thumbnailUrl + footage.footageId"
+              />
+            </div>
+
+            <div class="customize_image" [hidden]="hidePlayFootage">
+              <video
+                id="videoControlEdit"
+                class="video-js video-preview-control"
+                controls
+                loop
+                preload="auto"
+              >
+                <source [src]="srcUrl" type="video/mp4" />
+              </video>
+            </div>
+          </div>
+
+          <div class="m-portlet__foot">
+            <div class="row">
+              <div
+                class="col-lg-12"
+                style="text-align: center; font-weight: 400;"
+              >
+                {{ footage.originalFileName }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- <div class="m-portlet m-portlet--bordered m-portlet--rounded  m-portlet--last" [ngClass]="{'sticky' :  !setWidth}">
+                <div class="play-footage" [hidden]="!hidePlayFootage">
+                    <img (click)="previewFootage(footage)" style="cursor: pointer;" [src]="thumbnailUrl + footage.footageId">
+                    <a (click)="previewFootage(footage)"></a>
+                </div>
+                <div class="video_edit" [hidden]="hidePlayFootage">
+                    <video id="videoControl" class="video-js video-preview-control" controls loop preload="auto"></video>
+                </div>
+                <div style="word-break: break-all; padding: 10px 15px 5px;">
+                    <h5>{{footage.originalFileName}}</h5>
+                </div>
+            </div> -->
+    </div>
+  </div>
+</div>
+
+<!-- modal Document Model -->
+<div
+  id="model-document"
+  bsModal
+  #modelDocument="bs-modal"
+  [config]="{ backdrop: 'static' }"
+  class="modal fade modal-scroll"
+  tabindex="-1"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">
+          <b>{{ 'footage.upload_model_label' | translate }}</b>
+        </h4>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-hidden="true"
+          (click)="closeReleaseModal()"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <div style="height:auto" data-always-visible="1" data-rail-visible1="1">
+          <div class="row">
+            <div class="col-md-12 table-wrapper">
+              <label
+                style="font-size: 14px; margin-right: 5px; font-weight: 400"
+                >{{ 'footage.release_download_form_dec' | translate }}
+              </label>
+              <button
+                class="btn-link"
+                (click)="routerLegalForms('modelDocument')"
+              >
+                <span
+                  ><i style="margin-right: 5px;" class="fa fa-download"></i
+                  ><span>{{
+                    'footage.btn.download_form' | translate
+                  }}</span></span
+                >
+              </button>
+              <!-- <button data-dismiss="modal" routerLink="/legal-forms" class="btn btn-dark" style="width:100%">{{'footage.download_a_release_form'| translate}}</button><br> -->
+              <h5 style="margin-top: 10px">
+                <b>{{ 'footage.upload_a_new_model_release' | translate }}:</b>
+              </h5>
+              <form enctype="multipart/form-data">
+                <input id="fModel" name="document" type="file" />
+              </form>
+              <br />
+              <h5>
+                <b>{{ 'footage.current_release_list' | translate }}</b>
+              </h5>
+              <div *ngIf="selectedModelReleases.length == 0">
+                <p style="color: #c2cad8">
+                  <i>{{ 'footage.no_current_release' | translate }}</i>
+                </p>
+              </div>
+              <div
+                class="table-scrollable table-scroll"
+                *ngIf="selectedModelReleases.length > 0"
+              >
+                <div class="overflow">
+                  <table class="table table-hover">
+                    <tbody>
+                      <tr
+                        *ngFor="let model of selectedModelReleases; index as i"
+                      >
+                        <td>
+                          <div style="word-break: break-all;">
+                            <a class="colorText" (click)="viewRelease(model)">{{
+                              model.modelAgreementName
+                            }}</a>
+                          </div>
+                        </td>
+                        <td width="115px">
+                          <p style="margin: 0">
+                            <span
+                              tooltip="{{ 'footage.review_state' | translate }}"
+                              class="m-badge m-badge--wide"
+                              [ngClass]="{
+                                'm-badge--info': model.status === 'pending',
+                                'm-badge--danger': model.status === 'rejected',
+                                'm-badge--success': model.status === 'approved'
+                              }"
+                            >
+                              {{ model.status }}
+                            </span>
+                            <span
+                              *ngIf="model.status == 'rejected'"
+                              class="glyphicon glyphicon-info-sign ng-scope"
+                              style="cursor: pointer; color: #008eff"
+                              (click)="showRejectedReasonOfRelease(model)"
+                            ></span>
+                          </p>
+                        </td>
+                        <td
+                          width="120px"
+                          style="text-align: right; padding-right: 5px"
+                          class="item"
+                        >
+                          <a
+                            (click)="removeModelRelease(model)"
+                            tooltip="{{
+                              'footage.detach_release_button_tooltip'
+                                | translate
+                            }}"
+                            ><i
+                              class="fa fa-minus-circle"
+                              style="color:#ed6b75;font-size: 20px;cursor: pointer;"
+                            ></i
+                          ></a>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-12">
+              <h5>
+                <b>{{ 'footage.available_releases' | translate }}</b>
+                <span style="font-size: 1.1rem; font-style: italic">
+                  ({{ countModelReleases }})</span
+                >
+              </h5>
+              <div
+                class="input-group m-input-icon m-input-icon--right"
+                style="margin-bottom: 5px"
+              >
+                <input
+                  #searchModelDocuments
+                  type="text"
+                  class="form-control form-control-sm"
+                  [(ngModel)]="keywordsDocument"
+                  (keyup.enter)="filterModelDocuments()"
+                  placeholder="{{ 'footage.placeholder_search' | translate }}"
+                  (keyup)="
+                    !keywordsDocument
+                      ? filterModelDocuments()
+                      : keywordsDocument
+                  "
+                />
+                <span
+                  *ngIf="keywordsDocument != ''"
+                  class="m-input-icon__icon m-input-icon__icon--right clear-icon-input"
+                  (click)="clearSearchModelDocuments()"
+                >
+                  <i class="fa fa-remove"></i>
+                </span>
+                <div class="input-group-append">
+                  <button
+                    class="btn btn-secondary active"
+                    type="button"
+                    (click)="filterModelDocuments()"
+                  >
+                    <i class="fa fa-search"></i>
+                  </button>
+                </div>
+              </div>
+              <div *ngIf="modelReleases.length == 0 || isAttachedAll">
+                <p style="color: #c2cad8">
+                  <i>{{ 'footage.no_available_releases' | translate }}</i>
+                </p>
+              </div>
+              <div
+                class="table-scrollable table-scroll"
+                *ngIf="modelReleases.length > 0"
+              >
+                <div class="overflow">
+                  <table
+                    class="table table-hover table-hover"
+                    style="width: 100%"
+                  >
+                    <tr
+                      *ngFor="let model of modelReleases; index as i"
+                      [hidden]="model.selectedCheck"
+                    >
+                      <td>
+                        <div style="word-break: break-all;">
+                          <a class="colorText" (click)="viewRelease(model)">{{
+                            model.modelAgreementName
+                          }}</a>
+                        </div>
+                      </td>
+                      <td width="115px">
+                        <p style="margin: 0">
+                          <span
+                            tooltip="{{ 'footage.review_state' | translate }}"
+                            class="m-badge m-badge--wide"
+                            [ngClass]="{
+                              'm-badge--info': model.status === 'pending',
+                              'm-badge--danger': model.status === 'rejected',
+                              'm-badge--success': model.status === 'approved'
+                            }"
+                          >
+                            {{ model.status }}
+                          </span>
+                          <span
+                            *ngIf="model.status == 'rejected'"
+                            class="glyphicon glyphicon-info-sign ng-scope"
+                            style="cursor: pointer; color: #008eff"
+                            (click)="showRejectedReasonOfRelease(model)"
+                          ></span>
+                        </p>
+                      </td>
+                      <td
+                        width="100px"
+                        style="text-align: right; padding-right: 5px"
+                      >
+                        <div class="item">
+                          <a
+                            class=""
+                            [hidden]="!model.canDelete"
+                            #popoverDeleteModel="bs-popover"
+                            placement="left"
+                            [popover]="deleteModel"
+                            popoverTitle="{{
+                              'footage.delete_release_title' | translate
+                            }}"
+                            [outsideClick]="true"
+                            tooltip="{{
+                              'footage.delete_release_button_tooltip'
+                                | translate
+                            }}"
+                            ><i
+                              class="fa fa-trash-o"
+                              style="color:#f4516c;font-size: 20px;cursor: pointer;"
+                            ></i
+                          ></a>
+                          <ng-template #deleteModel>
+                            <div class="action">
+                              <p>{{ 'common.are_you_sure' | translate }}</p>
+                              <div style="height: 40px;color: #fff">
+                                <a
+                                  class="btn btn-sm btn-danger"
+                                  style="margin-left: 0"
+                                  (click)="popoverDeleteModel.hide()"
+                                  ><i class="glyphicon glyphicon-remove"></i>
+                                  {{ 'common.no' | translate }}</a
+                                >
+                                <a
+                                  class="btn btn-sm btn-success"
+                                  (click)="
+                                    deleteRelease(model, true, false);
+                                    popoverDeleteModel.hide()
+                                  "
+                                  ><i class="glyphicon glyphicon-ok"></i>
+                                  {{ 'common.yes' | translate }}</a
+                                >
+                              </div>
+                            </div>
+                          </ng-template>
+                          <a
+                            (click)="updateDocumentInfo(model)"
+                            tooltip="{{
+                              'footage.edit_release_button_tooltip' | translate
+                            }}"
+                            ><span
+                              class="fa fa-edit"
+                              style="color:#34bfa3;font-size: 20px;cursor: pointer;"
+                            ></span
+                          ></a>
+                          <a
+                            (click)="addModelRelease(model)"
+                            *ngIf="model.status != 'rejected'"
+                            tooltip="{{
+                              'footage.attach_release_button_tooltip'
+                                | translate
+                            }}"
+                            ><i
+                              class="fa fa-plus-circle"
+                              style="color:#004988;font-size: 20px;cursor: pointer;"
+                            ></i
+                          ></a>
+                        </div>
+                      </td>
+                    </tr>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer actions">
+        <button
+          type="button"
+          class="btn btn-danger m-btn"
+          (click)="closeReleaseModal()"
+        >
+          <span>
+            <i class="fa fa-close"></i>
+            <span>{{ 'footage.btn.cancel' | translate }}</span>
+          </span>
+        </button>
+        <button
+          [disabled]="saving"
+          type="button"
+          class="btn btn-success m-btn"
+          (click)="saveDocumentFootage(true, false)"
+        >
+          <span>
+            <i *ngIf="!saving" class="fa fa-check"></i>
+            <i *ngIf="saving" class="fa fa-spin fa-spinner"></i>
+            <span>{{ 'footage.btn.save_changes' | translate }}</span>
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- modal Property Document -->
+<div
+  id="property-document"
+  bsModal
+  #propertyDocument="bs-modal"
+  [config]="{ backdrop: 'static' }"
+  class="modal fade modal-scroll"
+  tabindex="-1"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">
+          <b>{{ 'footage.upload_property_label' | translate }}</b>
+        </h4>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-hidden="true"
+          (click)="propertyDocument.hide()"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <div style="height:auto" data-always-visible="1" data-rail-visible1="1">
+          <div class="row">
+            <div class="col-md-12 table-wrapper">
+              <label
+                style="font-size: 14px; margin-right: 5px; font-weight: 400"
+                >{{ 'footage.release_download_form_dec' | translate }}
+              </label>
+              <button
+                class="btn-link"
+                (click)="routerLegalForms('propertyDocument')"
+              >
+                <span
+                  ><i style="margin-right: 5px;" class="fa fa-download"></i
+                  ><span>{{
+                    'footage.btn.download_form' | translate
+                  }}</span></span
+                >
+              </button>
+              <!-- <button data-dismiss="modal" routerLink="/legal-forms" class="btn btn-dark" style="width:100%">{{'footage.download_a_release_form'| translate}}</button> -->
+              <h5 style="margin-top: 10px">
+                <b
+                  >{{ 'footage.upload_a_new_property_release' | translate }}:</b
+                >
+              </h5>
+              <form enctype="multipart/form-data">
+                <input id="fProperty" name="document" type="file" />
+              </form>
+              <br />
+              <h5>
+                <b>{{ 'footage.current_release_list' | translate }}</b>
+              </h5>
+              <div *ngIf="selectedPropertyReleases.length == 0">
+                <p style="color: #c2cad8">
+                  <i>{{ 'footage.no_current_release' | translate }}</i>
+                </p>
+              </div>
+              <div
+                class="table-scrollable table-scroll"
+                *ngIf="selectedPropertyReleases.length > 0"
+              >
+                <div
+                  class="overflow"
+                  *ngIf="selectedPropertyReleases.length > 0"
+                >
+                  <table class="table table-hover">
+                    <tbody>
+                      <tr
+                        *ngFor="
+                          let property of selectedPropertyReleases;
+                          index as i
+                        "
+                      >
+                        <td>
+                          <div style="word-break: break-all;">
+                            <a
+                              class="colorText"
+                              (click)="viewRelease(property)"
+                              >{{ property.propertyAgreementName }}</a
+                            >
+                          </div>
+                        </td>
+                        <td width="115px">
+                          <p style="margin: 0">
+                            <span
+                              tooltip="{{ 'footage.review_state' | translate }}"
+                              class="m-badge m-badge--wide"
+                              [ngClass]="{
+                                'm-badge--info': property.status === 'pending',
+                                'm-badge--danger':
+                                  property.status === 'rejected',
+                                'm-badge--success':
+                                  property.status === 'approved'
+                              }"
+                            >
+                              {{ property.status }}
+                            </span>
+                            <span
+                              *ngIf="property.status == 'rejected'"
+                              class="glyphicon glyphicon-info-sign ng-scope"
+                              style="cursor: pointer; color: #008eff"
+                              (click)="showRejectedReasonOfRelease(property)"
+                            ></span>
+                          </p>
+                        </td>
+                        <td
+                          style="text-align: right; padding-right: 5px"
+                          width="100px"
+                        >
+                          <div class="item">
+                            <a
+                              (click)="removePropertyRelease(property)"
+                              tooltip="{{
+                                'footage.detach_release_button_tooltip'
+                                  | translate
+                              }}"
+                            >
+                              <i
+                                class="fa fa-minus-circle"
+                                style="color:#ed6b75;font-size: 20px;cursor: pointer;"
+                              ></i>
+                            </a>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          <br />
+          <div class="row">
+            <div class="col-md-12">
+              <h5>
+                <b>{{ 'footage.available_releases' | translate }}</b>
+                <span style="font-size: 1.1rem; font-style: italic">
+                  ({{ countPropertyReleases }})</span
+                >
+              </h5>
+              <div
+                class="input-group m-input-icon m-input-icon--right"
+                style="margin-bottom: 5px"
+              >
+                <input
+                  #searchPropertyDocuments
+                  type="text"
+                  class="form-control form-control-sm"
+                  [(ngModel)]="keywordsDocument"
+                  (keyup.enter)="filterPropertyDocuments()"
+                  placeholder="{{ 'footage.placeholder_search' | translate }}"
+                  (keyup)="
+                    !keywordsDocument
+                      ? filterPropertyDocuments()
+                      : keywordsDocument
+                  "
+                />
+                <span
+                  *ngIf="keywordsDocument != ''"
+                  class="m-input-icon__icon m-input-icon__icon--right clear-icon-input"
+                  (click)="clearSearchPropertyDocuments()"
+                >
+                  <i class="fa fa-remove"></i>
+                </span>
+                <div class="input-group-append">
+                  <button
+                    class="btn btn-secondary active"
+                    type="button"
+                    (click)="filterPropertyDocuments()"
+                  >
+                    <i class="fa fa-search"></i>
+                  </button>
+                </div>
+              </div>
+              <div *ngIf="propertyReleases.length == 0 || isAttachedAll">
+                <p style="color: #c2cad8">
+                  <i>{{ 'footage.no_available_releases' | translate }}</i>
+                </p>
+              </div>
+              <div
+                class="table-scrollable table-scroll"
+                *ngIf="propertyReleases.length > 0"
+              >
+                <div *ngIf="propertyReleases.length == 0" class="text-center">
+                  <p>{{ 'footage.no_available_releases' | translate }}</p>
+                </div>
+                <div class="overflow" *ngIf="propertyReleases.length > 0">
+                  <table class="table table-hover item">
+                    <tr
+                      *ngFor="let property of propertyReleases; index as i"
+                      [hidden]="property.selectedCheck"
+                    >
+                      <td>
+                        <div style="word-break: break-all;">
+                          <a
+                            class="colorText"
+                            (click)="viewRelease(property)"
+                            >{{ property.propertyAgreementName }}</a
+                          >
+                        </div>
+                      </td>
+                      <td width="115px">
+                        <p style="margin: 0">
+                          <span
+                            tooltip="{{ 'footage.review_state' | translate }}"
+                            class="m-badge m-badge--wide"
+                            [ngClass]="{
+                              'm-badge--info': property.status === 'pending',
+                              'm-badge--danger': property.status === 'rejected',
+                              'm-badge--success': property.status === 'approved'
+                            }"
+                          >
+                            {{ property.status }}
+                          </span>
+                          <span
+                            *ngIf="property.status == 'rejected'"
+                            class="glyphicon glyphicon-info-sign ng-scope"
+                            style="cursor: pointer; color: #008eff"
+                            (click)="showRejectedReasonOfRelease(property)"
+                          ></span>
+                        </p>
+                      </td>
+                      <td
+                        width="100px"
+                        style="text-align: right; padding-right: 5px"
+                      >
+                        <a
+                          class=""
+                          [hidden]="!property.canDelete"
+                          #popoverDeleteProperty="bs-popover"
+                          placement="left"
+                          [popover]="deleteProperty"
+                          popoverTitle="{{
+                            'footage.delete_release_title' | translate
+                          }}"
+                          [outsideClick]="true"
+                          tooltip="{{
+                            'footage.delete_release_button_tooltip' | translate
+                          }}"
+                          ><i
+                            class="fa fa-trash-o"
+                            style="color:#f4516c;font-size: 20px;cursor: pointer;"
+                          ></i
+                        ></a>
+                        <ng-template #deleteProperty>
+                          <div class="action">
+                            <p>{{ 'common.are_you_sure' | translate }}</p>
+                            <div style="height: 40px;color: #fff">
+                              <a
+                                class="btn btn-sm btn-danger"
+                                style="margin-left: 0"
+                                (click)="popoverDeleteProperty.hide()"
+                                ><i class="glyphicon glyphicon-remove"></i>
+                                {{ 'common.no' | translate }}</a
+                              >
+                              <a
+                                class="btn btn-sm btn-success"
+                                (click)="
+                                  deleteRelease(property, false, true);
+                                  popoverDeleteProperty.hide()
+                                "
+                                ><i class="glyphicon glyphicon-ok"></i>
+                                {{ 'common.yes' | translate }}</a
+                              >
+                            </div>
+                          </div>
+                        </ng-template>
+                        <a
+                          (click)="addPropertyRelease(property)"
+                          *ngIf="property.status != 'rejected'"
+                          tooltip="{{
+                            'footage.attach_release_button_tooltip' | translate
+                          }}"
+                        >
+                          <i
+                            class="fa fa-plus-circle"
+                            style="color:#004988; cursor: pointer;;font-size: 20px;"
+                          ></i>
+                        </a>
+                      </td>
+                    </tr>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer actions">
+        <button
+          type="button"
+          class="btn btn-danger m-btn"
+          (click)="closeReleaseModal()"
+        >
+          <span>
+            <i class="fa fa-close"></i>
+            <span>{{ 'footage.btn.cancel' | translate }}</span>
+          </span>
+        </button>
+        <button
+          [disabled]="saving"
+          type="button"
+          class="btn btn-success m-btn"
+          (click)="saveDocumentFootage(false, true)"
+        >
+          <span>
+            <i *ngIf="!saving" class="fa fa-check"></i>
+            <i *ngIf="saving" class="fa fa-spin fa-spinner"></i>
+            <span>{{ 'footage.btn.save_changes' | translate }}</span>
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- modal change model release -->
+<div
+  bsModal
+  #changeModelDocument="bs-modal"
+  class="modal fade"
+  id="change-model-document"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="dialog-static-name"
+  [config]="{ backdrop: 'static' }"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">
+          <b>{{ 'footage.edit_release' | translate }}</b>
+        </h4>
+        <button type="button" class="close" (click)="hideChildModal()"></button>
+      </div>
+      <form
+        class="formDocument m-form m-form--state"
+        #modelRelease="ngForm"
+        (ngSubmit)="
+          statusErrorDocumentsInfo = true;
+          modelRelease.form.valid && saveDocumentInfo(currentDocument)
+        "
+      >
+        <div class="modal-body" style="word-wrap: break-word;">
+          <h4 style="text-align: center">
+            {{ currentDocument.modelAgreementName }}
+          </h4>
+          <br />
+          <div class="row form-group">
+            <div class="col-md-4 offset-md-1">
+              <label
+                >{{ 'footage.model_ethnicity' | translate }}
+                <span class="required">{{
+                  'required_symbol' | translate
+                }}</span></label
+              >
+            </div>
+            <div
+              class="col-md-6"
+              [ngClass]="{
+                'has-danger':
+                  statusErrorDocumentsInfo && modelEthnicities.invalid,
+                'has-success': modelEthnicities.valid
+              }"
+            >
+              <select
+                [(ngModel)]="currentDocument.ethnicity"
+                #modelEthnicities="ngModel"
+                class="form-control form-control-sm"
+                name="ethnicity"
+                required
+              >
+                <option
+                  *ngFor="let c of masterData.modelEthnicities"
+                  value="{{ c.value }}"
+                  >{{ c.name }}</option
+                >
+              </select>
+              <div *ngIf="statusErrorDocumentsInfo && modelEthnicities.invalid">
+                <span
+                  *ngIf="modelEthnicities.errors?.required"
+                  class="text-danger"
+                  >{{ 'required_desc' | translate }}</span
+                >
+              </div>
+            </div>
+          </div>
+          <div class="row form-group">
+            <div class="col-md-4 offset-md-1">
+              <label
+                >{{ 'footage.model_age' | translate }}
+                <span class="required">{{
+                  'required_symbol' | translate
+                }}</span></label
+              >
+            </div>
+            <div
+              class="col-md-6"
+              [ngClass]="{
+                'has-danger': statusErrorDocumentsInfo && age.invalid,
+                'has-success': age.valid
+              }"
+            >
+              <select
+                [(ngModel)]="currentDocument.age"
+                #age="ngModel"
+                class="form-control form-control-sm"
+                name="age"
+                required
+              >
+                <option
+                  *ngFor="let c of masterData.modelAges"
+                  value="{{ c.value }}"
+                  >{{ c.name }}</option
+                >
+              </select>
+              <div *ngIf="statusErrorDocumentsInfo && age.invalid">
+                <span *ngIf="age.errors?.required" class="text-danger">{{
+                  'required_desc' | translate
+                }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="row form-group">
+            <div class="col-md-4 offset-md-1">
+              <label
+                >{{ 'footage.model_gender' | translate }}
+                <span class="required">{{
+                  'required_symbol' | translate
+                }}</span></label
+              >
+            </div>
+            <div
+              class="col-md-6"
+              [ngClass]="{
+                'has-danger': statusErrorDocumentsInfo && gender.invalid,
+                'has-success': gender.valid
+              }"
+            >
+              <select
+                [(ngModel)]="currentDocument.gender"
+                #gender="ngModel"
+                class="form-control form-control-sm"
+                name="gender"
+                required
+              >
+                <option
+                  *ngFor="let c of masterData.modelGenders"
+                  value="{{ c.value }}"
+                  >{{ c.name }}</option
+                >
+              </select>
+              <div *ngIf="statusErrorDocumentsInfo && gender.invalid">
+                <span *ngIf="gender.errors?.required" class="text-danger">{{
+                  'required_desc' | translate
+                }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer actions">
+          <button
+            type="button"
+            class="btn btn-danger btn-sm m-btn"
+            (click)="cancelDocumentInfo()"
+          >
+            <span>
+              <i class="fa fa-close"></i>
+              <span>{{ 'common.cancel' | translate }}</span>
+            </span>
+          </button>
+          <button
+            [disabled]="saving"
+            type="submit"
+            class="btn btn-success btn-sm m-btn"
+          >
+            <span>
+              <i *ngIf="!saving" class="fa fa-check"></i>
+              <i *ngIf="saving" class="fa fa-spinner fa-spin"></i>
+              <span>{{ 'common.save' | translate }}</span>
+            </span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- modal update model release -->
+<div
+  class="modal fade"
+  bsModal
+  #updateModelRelease="bs-modal"
+  id="update-model-release"
+  role="basic"
+  tabindex="-1"
+  aria-hidden="true"
+  [config]="{ backdrop: 'static' }"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">{{ 'footage.confirm' | translate }}</h4>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          (click)="updateModelRelease.hide()"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <p>{{ 'footage.update_model_release_dec' | translate }}!</p>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-danger"
+          data-dismiss="modal"
+          style="width: 80px;"
+          (click)="updateModelRelease.hide()"
+        >
+          {{ 'common.no' | translate }}
+        </button>
+        <button
+          type="submit"
+          class="btn btn-success"
+          (click)="updateDocumentsInfo()"
+        >
+          {{ 'footage.btn.update' | translate }}
+        </button>
+      </div>
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+
+<!-- modal-sharers -->
+<div
+  class="modal fade modal-scroll"
+  bsModal
+  #sharersModal="bs-modal"
+  [config]="{ backdrop: 'static' }"
+  tabindex="-1"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-lg" id="sharers">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <b>{{ 'footage.sharing_revenue_tab' | translate }}</b>
+        </h5>
+        <button type="button" class="close" (click)="sharersModal.hide()">
+          <span aria-hidden="true">
+            &times;
+          </span>
+        </button>
+      </div>
+      <div class="modal-body" id="m_blockui_sharers_content">
+        <div style="height:auto" data-always-visible="1" data-rail-visible1="1">
+          <div class="row">
+            <div class="col-md-12 table-wrapper">
+              <h5>
+                <b>{{ 'footage.current_assigned_sharer' | translate }}</b>
+              </h5>
+              <div *ngIf="currentSharers.length == 0">
+                <p style="color: #c2cad8">
+                  <i>{{ 'footage.no_assigned_sharer' | translate }}</i>
+                </p>
+              </div>
+              <div
+                class="table-scrollable table-scroll"
+                *ngIf="currentSharers.length > 0"
+              >
+                <table
+                  class="table table-striped table-hover"
+                  style="margin-bottom: 0"
+                >
+                  <tr>
+                    <th width="50px">
+                      <div>#</div>
+                    </th>
+                    <th width="300px">
+                      <div>{{ 'footage.full_name' | translate }}</div>
+                    </th>
+                    <th width="100px">
+                      <div>{{ 'footage.sharing_percent' | translate }}</div>
+                    </th>
+                    <th>
+                      <div></div>
+                    </th>
+                  </tr>
+                </table>
+
+                <div>
+                  <table class="table table-hover">
+                    <tbody>
+                      <tr *ngFor="let sharer of currentCurators; index as i">
+                        <td width="50px">{{ i + 1 }}</td>
+                        <td width="300px">
+                          <span *ngIf="sharer.collabType == 'curator'">
+                            <img
+                              class="img-avatar m--img-rounded m--marginless m--img-centered"
+                              [src]="
+                                avatarUrlB.replace('{memberId}', sharer.id)
+                              "
+                            />
+                            <span>{{ sharer.fullName }} (Curator)</span>
+                          </span>
+                        </td>
+                        <td class="form-group" width="100px">
+                          <input
+                            class="form-control"
+                            [(ngModel)]="sharer.collabShare"
+                            min="1"
+                            type="number"
+                            max="99"
+                            [disabled]="sharer.collabType == 'curator'"
+                          />
+                        </td>
+                        <td style="text-align: right">
+                          <a
+                            *ngIf="sharer.collabType != 'curator'"
+                            (click)="removedCurrentSharer(sharer)"
+                            ><i class=" fa fa-minus-circle remove-item"></i
+                          ></a>
+                        </td>
+                      </tr>
+
+                      <tr *ngFor="let sharer of currentSharers; index as i">
+                        <td width="50px">
+                          {{ i + 1 + currentCurators.length }}
+                        </td>
+                        <td width="300px">
+                          <a
+                            data-toggle="collapse"
+                            href="#mcollapse{{ i }}"
+                            *ngIf="sharer.collabType != 'curator'"
+                          >
+                            <img
+                              class="img-avatar m--img-rounded m--marginless m--img-centered"
+                              [src]="
+                                avatarUrlB.replace('{memberId}', sharer.id)
+                              "
+                            />
+                            <span>{{ sharer.fullName }}</span>
+                          </a>
+                          <span *ngIf="sharer.collabType == 'curator'">
+                            <img
+                              class="img-avatar m--img-rounded m--marginless m--img-centered"
+                              [src]="
+                                avatarUrlB.replace('{memberId}', sharer.id)
+                              "
+                            />
+                            <span>{{ sharer.fullName }} (Curator)</span>
+                          </span>
+                          <div
+                            *ngIf="sharer.collabType != 'curator'"
+                            id="mcollapse{{ i }}"
+                            class="panel-collapse collapse"
+                            style="clear: both;"
+                          >
+                            <div class="panel-body">
+                              <div class="row">
+                                <div class="col-md-3">
+                                  {{ 'footage.location_column' | translate }}
+                                </div>
+                                <div class="col-md-9">
+                                  {{ sharer.address }}
+                                </div>
+                              </div>
+                              <div class="row">
+                                <div class="col-md-3">
+                                  {{ 'footage.role_field' | translate }}
+                                </div>
+                                <div class="col-md-9">
+                                  {{ sharer.roles }}
+                                </div>
+                              </div>
+                              <div class="row">
+                                <div class="col-md-3">
+                                  {{ 'footage.about_field' | translate }}
+                                </div>
+                                <div class="col-md-9">
+                                  {{ sharer.about }}
+                                  <p
+                                    style="margin: 0;"
+                                    *ngFor="let item of sharer.bioData"
+                                  >
+                                    {{ item.answerTitle }}:
+                                    {{ item.answerContent }}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td class="form-group" width="100px">
+                          <input
+                            class="form-control"
+                            [(ngModel)]="sharer.collabShare"
+                            min="1"
+                            type="number"
+                            max="99"
+                            [disabled]="sharer.collabType == 'curator'"
+                          />
+                        </td>
+                        <td style="text-align: right">
+                          <a
+                            *ngIf="sharer.collabType != 'curator'"
+                            (click)="removedCurrentSharer(sharer)"
+                            ><i class=" fa fa-minus-circle remove-item"></i
+                          ></a>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12">
+              <h5>
+                <b>{{ 'footage.available_sharers' | translate }}</b>
+              </h5>
+              <div
+                class="input-group m-input-icon m-input-icon--right"
+                style="margin-bottom: 20px"
+              >
+                <div class="controls">
+                  <select
+                    (change)="filterSharers(keywordSearch.text)"
+                    [(ngModel)]="memberAttribute"
+                    class="form-control"
+                    id="searchMemberAttribute"
+                  >
+                    <option
+                      *ngFor="let item of memberAttributeList"
+                      [value]="item.value"
+                      >{{ item.name }}</option
+                    >
+                  </select>
+                </div>
+                &nbsp;
+                <input
+                  #searchSharers
+                  type="text"
+                  [(ngModel)]="keywordSearch.text"
+                  (keyup)="
+                    !keywordSearch.text ? filterSharers(keywordSearch.text) : ''
+                  "
+                  (keyup.enter)="filterSharers(keywordSearch.text)"
+                  class="form-control form-control-sm m-input"
+                  placeholder="{{ 'footage.filter_sharers' | translate }}"
+                />
+                <span
+                  *ngIf="keywordSearch.text != ''"
+                  class="m-input-icon__icon m-input-icon__icon--right clear-icon-input"
+                  (click)="clearSearchSharers()"
+                >
+                  <i class="fa fa-remove"></i>
+                </span>
+                <div
+                  class="input-group-append"
+                  (click)="filterSharers(keywordSearch.text)"
+                >
+                  <button class="btn btn-secondary active">
+                    <i class="fa fa-search"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="table-scrollable table-scroll">
+                <table
+                  class="table table-striped table-hover"
+                  *ngIf="sharers.length > 0"
+                  style="margin-bottom: 0"
+                >
+                  <tr>
+                    <th width="50px">#</th>
+                    <th width="300px">{{ 'footage.full_name' | translate }}</th>
+                    <th width="100px">
+                      {{ 'footage.sharing_percent' | translate }}
+                    </th>
+                    <th></th>
+                  </tr>
+                </table>
+
+                <div *ngIf="sharers.length == 0" class="text-center">
+                  <p>{{ 'footage.no_available_sharers' | translate }}</p>
+                </div>
+                <div class="overflow" *ngIf="sharers.length > 0">
+                  <table class="table table-hover">
+                    <tr *ngFor="let sharer of sharers; index as i">
+                      <td width="50px">{{ i + 1 }}</td>
+                      <td width="300px">
+                        <a data-toggle="collapse" href="#collapse{{ i }}">
+                          <img
+                            class="img-avatar m--img-rounded m--marginless m--img-centerede"
+                            [src]="avatarUrlB.replace('{memberId}', sharer.id)"
+                          />
+                          <span>{{ sharer.fullName }}</span>
+                        </a>
+                        <div
+                          id="collapse{{ i }}"
+                          class="panel-collapse collapse"
+                          style="clear: both;"
+                        >
+                          <div class="panel-body">
+                            <div class="row">
+                              <div class="col-md-3">
+                                {{ 'footage.location_column' | translate }}
+                              </div>
+                              <div class="col-md-9">
+                                {{ sharer.address }}
+                              </div>
+                            </div>
+                            <div class="row">
+                              <div class="col-md-3">
+                                {{ 'footage.role_field' | translate }}
+                              </div>
+                              <div class="col-md-9">
+                                {{ sharer.roles }}
+                              </div>
+                            </div>
+                            <div class="row">
+                              <div class="col-md-3">
+                                {{ 'footage.about_field' | translate }}
+                              </div>
+                              <div class="col-md-9">
+                                {{ sharer.about }}
+                                <p
+                                  style="margin: 0;"
+                                  *ngFor="let item of sharer.bioData"
+                                >
+                                  {{ item.answerTitle }}:
+                                  {{ item.answerContent }}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="form-group" width="100px">
+                        <input
+                          class="form-control"
+                          [(ngModel)]="sharer.collabShare"
+                          type="number"
+                          max="99"
+                        />
+                      </td>
+                      <td style="text-align: right">
+                        <a (click)="addCurrentSharer(sharer)"
+                          ><i class="fa fa-plus-circle add-item"></i
+                        ></a>
+                      </td>
+                    </tr>
+                  </table>
+                </div>
+
+                <div class="paging" *ngIf="sharers.length">
+                  <div class="pull-left">
+                    <p>
+                      <strong
+                        >{{ 'common.showing' | translate }}
+                        {{
+                          pagingSharer.currentPage * pagingSharer.pageSize +
+                            1 -
+                            pagingSharer.pageSize
+                        }}
+                        {{ 'common.to' | translate }}
+                        {{
+                          pagingSharer.currentPage * pagingSharer.pageSize >
+                          pagingSharer.total
+                            ? pagingSharer.total
+                            : pagingSharer.currentPage * pagingSharer.pageSize
+                        }}
+                        {{ 'common.entries' | translate }}
+                        {{ pagingSharer.total }}</strong
+                      >
+                    </p>
+                  </div>
+                  <div class="pull-right">
+                    <pagination
+                      [totalItems]="pagingSharer.total"
+                      [maxSize]="5"
+                      [rotate]="true"
+                      [itemsPerPage]="pagingSharer.pageSize"
+                      [(ngModel)]="pagingSharer.currentPage"
+                      (pageChanged)="pageSharerChanged($event)"
+                      previousText="<"
+                      nextText=">"
+                      [boundaryLinks]="true"
+                      firstText="{{ 'common.first' | translate }}"
+                      lastText="{{ 'common.last' | translate }}"
+                      [boundaryLinks]="showBoundaryLinks"
+                    >
+                    </pagination>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div *ngIf="totalPercentStatus">
+          <p class="text-danger text-center">
+            <b>{{ 'footage.percent_error_msg' | translate }}</b>
+          </p>
+        </div>
+      </div>
+      <div class="modal-footer actions">
+        <button
+          type="button"
+          class="btn btn-danger m-btn"
+          (click)="sharersModal.hide()"
+        >
+          <span>
+            <i class="fa fa-close"></i>
+            <span>{{ 'footage.btn.cancel' | translate }}</span>
+          </span>
+        </button>
+        <button
+          [disabled]="savingSharers"
+          type="button"
+          class="btn btn-success m-btn"
+          (click)="changeSharer()"
+        >
+          <span>
+            <i *ngIf="!savingSharers" class="fa fa-check"></i>
+            <i *ngIf="savingSharers" class="fa fa-spinner fa-spin"></i>
+            <span>{{ 'footage.btn.save_changes' | translate }}</span>
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  id="modal-notify-new-release"
+  bsModal
+  #notifyNewRelease="bs-modal"
+  [config]="{ backdrop: 'static' }"
+  class="modal  modal-inverse  fade"
+  role="dialog"
+  tabindex="-1"
+>
+  <div class="modal-dialog">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4>Notice</h4>
+        <a class="close" data-dismiss="modal" (click)="notifyNewRelease.hide()"
+          >&times;</a
+        >
+      </div>
+      <div class="modal-body">
+        <div>
+          <p>
+            Please note that there is a new property release template that you
+            need to download and use.
+          </p>
+          <p>
+            Link:
+            <a
+              class="btn-link"
+              style="font-size: 14px"
+              routerLink="/legal-forms"
+              >Legal Forms</a
+            >
+          </p>
+        </div>
+        <br />
+        <div class="icheck-default icheck-inline">
+          <label class="m-checkbox m-checkbox--solid m-checkbox--dark">
+            <input type="checkbox" [(ngModel)]="canSaveLocal" />
+            {{ 'footage.dont_show_message' | translate }}
+            <span></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="modal-footer text-center-i">
+        <button (click)="getDataProperty(tempProperty)" class="btn btn-success">
+          OK
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal confirm submit footage -->
+<div
+  id="submit-footages-confirm-modal"
+  class="modal fade modal-scroll"
+  tabindex="-1"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-lg">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4>{{ 'footage.confirm' | translate }}</h4>
+        <button
+          type="button"
+          class="close pull-right"
+          aria-label="Close"
+          data-dismiss="modal"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>
+          <strong
+            >Footage will be submitted. Before you SUBMIT your footage please
+            ensure they meet these quality standards or your footage may be
+            rejected.</strong
+          >
+        </p>
+        <ul style="color: #575962;">
+          <li>
+            <strong>PROPER CLIP TRIMMING - </strong>remove unwanted camera moves
+            or black frames at the beginning and end.
+          </li>
+          <li>
+            <strong>STEADY - </strong>your clips must be steady with no shaky
+            movements of any kind. This includes Gimbal “bobble”.
+          </li>
+          <li>
+            <strong>SHARP FOCUS - </strong>Footage should be in
+            <strong>Sharp Focus</strong> or it may be rejected.
+          </li>
+          <li>
+            <strong>NO JUMP CUTS or SEQUENCES - </strong>Each clip must be a
+            single continuous shot.
+          </li>
+          <li>
+            <strong>NOISE/PIXELATION/BANDING - </strong>Inspect your footage
+            carefully for noise & grain (dark areas can be an issue) and other
+            defects.
+          </li>
+          <li>
+            <strong>SHUTTER ARTIFACTS - </strong>"rolling shutter", "jutter" and
+            other shutter issues common with action cams, phones and drones
+            (especially in AUTO mode) will render a clip useless.
+          </li>
+          <li>
+            <strong>REC 709 COLOUR TREATMENT - </strong>Clips should "pop" and
+            stand out visually against the other clips on the agencies.
+          </li>
+          <li>
+            <strong>CORRECT WHITE BALANCE - </strong>your clip must not have
+            incorrect white balance or shifting white balance from shooting in
+            AUTO MODE.
+          </li>
+          <li>
+            <strong>NO LOGOS, TRADEMARKS or RECOGNIZABLE PEOPLE </strong>without
+            a release.
+          </li>
+          <li>
+            <strong>CLIP SPAMMING - </strong>Obvious clip spamming is not
+            allowed and “near duplicate” and obviously excess clips will be
+            rejected.
+          </li>
+        </ul>
+
+        <p *ngIf="footage.noteToOwner">
+          Please make sure you have reviewed the notes from the curator.
+        </p>
+
+        <p>
+          Failure to do so may make your content invalid for approvals. There is
+          no way to make changes after you SUBMIT, are you sure you want to
+          proceed?
+        </p>
+
+        <br />
+
+        <div class="icheck-default icheck-inline">
+          <label
+            style="font-weight: unset;"
+            class="m-checkbox m-checkbox--solid m-checkbox--dark"
+          >
+            <input
+              type="checkbox"
+              class="checkbox option-input"
+              [(ngModel)]="canSaveLocal"
+            />
+            {{ 'footage.dont_show_message' | translate }}
+            <span></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-danger m-btn" data-dismiss="modal" type="button">
+          <span>
+            <i class="fa fa-close"></i>
+            <span>{{ 'common.no' | translate }}</span>
+          </span>
+        </button>
+        <button
+          class="btn btn-success m-btn"
+          (click)="saveOrSubmitFootage(false, true)"
+        >
+          <span>
+            <i class="fa fa-check"></i>
+            <span>{{ 'common.yes' | translate }}</span>
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal confirm release footage -->
+<div
+  bsModal
+  #confirmRelease="bs-modal"
+  [config]="{ backdrop: 'static' }"
+  class="modal fade modal-scroll"
+  tabindex="-1"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-sm">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4>{{ 'footage.confirm' | translate }}</h4>
+      </div>
+      <div class="modal-body">
+        <p>{{ 'footage.confirm_release_dec' | translate }}</p>
+        <p>{{ 'footage.confirm_release_dec2' | translate }}</p>
+      </div>
+
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-danger m-btn"
+          (click)="confirmRelease.hide()"
+        >
+          <span>
+            <i class="fa fa-close"></i>
+            <span>{{ 'common.no' | translate }}</span>
+          </span>
+        </button>
+        <button
+          type="submit"
+          class="btn btn-success m-btn"
+          (click)="closeConfirmRelease()"
+        >
+          <span>
+            <i class="fa fa-check"></i>
+            <span>{{ 'common.yes' | translate }}</span>
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade"
+  bsModal
+  #justUploadedRelease="bs-modal"
+  [config]="{ backdrop: 'static' }"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="dialog-static-name"
+>
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 id="dialog-static-name" class="modal-title pull-left">
+          {{ 'footage.confirm' | translate }}
+        </h4>
+        <button
+          type="button"
+          class="close pull-right"
+          aria-label="Close"
+          (click)="justUploadedRelease.hide()"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        {{ 'footage.just_uploaded_release' | translate }}<br /><br />
+        {{ 'footage.just_uploaded_release2' | translate }}
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-danger m-btn"
+          (click)="justUploadedRelease.hide()"
+        >
+          <span>
+            <i class="fa fa-close"></i>
+            <span>{{ 'common.no' | translate }}</span>
+          </span>
+        </button>
+        <button
+          type="submit"
+          class="btn btn-success m-btn"
+          (click)="yesJustUploadedRelease()"
+        >
+          <span>
+            <i class="fa fa-check"></i>
+            <span>{{ 'common.yes' | translate }}</span>
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal re-submisson footage -->
+<div
+  bsModal
+  #resubmitFootageModal="bs-modal"
+  [config]="{ backdrop: 'static', keyboard: false }"
+  class="modal fade modal-scroll"
+  tabindex="-1"
+  aria-hidden="true"
+  id="resubmitFootageModal"
+>
+  <div class="modal-dialog">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4>{{ 'footage.resubmit_footage' | translate }}</h4>
+      </div>
+      <form #submitFootageForm="ngForm" class="m-form m-form--state">
+        <div class="modal-body">
+          <div style="text-align: center; word-break: break-all">
+            <h5>{{ footage.originalFileName }}</h5>
+          </div>
+          <div
+            class="form-group"
+            [ngClass]="{
+              'has-danger': text.invalid && (text.dirty || text.touched),
+              'has-success': text.valid
+            }"
+          >
+            <span>{{ 'footage.resubmission_text' | translate }}</span>
+            <span class="required">{{ 'required_symbol' | translate }}</span
+            >:
+            <textarea
+              #text="ngModel"
+              name="resubmissionText"
+              class="form-control form-control-sm"
+              [(ngModel)]="footage.resubmissionText"
+              required
+            ></textarea>
+            <div *ngIf="text.invalid && (text.dirty || text.touched)">
+              <span
+                class="text-danger help-block"
+                *ngIf="text.errors?.required"
+                >{{ 'required_desc' | translate }}</span
+              >
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-danger m-btn"
+            (click)="resubmitFootageModal.hide(); footage.resubmissionText = ''"
+          >
+            <span>
+              <i class="fa fa-close"></i>
+              <span>{{ 'common.cancel' | translate }}</span>
+            </span>
+          </button>
+          <button
+            type="submit"
+            class="btn btn-success m-btn"
+            (click)="
+              submitFootageForm.form.valid && saveOrSubmitFootage(false, true)
+            "
+          >
+            <span>
+              <i class="fa fa-check"></i>
+              <span>{{ 'common.submit' | translate }}</span>
+            </span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade"
+  bsModal
+  id="confirmModal"
+  #confirmModal="bs-modal"
+  [config]="{ backdrop: 'static' }"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="dialog-static-name"
+>
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 id="dialog-static-name" class="modal-title pull-left">
+          Confirmation
+        </h4>
+        <button
+          type="button"
+          class="close pull-right"
+          aria-label="Close"
+          (click)="confirmModal.hide()"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        {{ responseMessage }}
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-danger m-btn"
+          (click)="confirmModal.hide()"
+        >
+          <span>
+            <i class="fa fa-close"></i>
+            <span>{{ 'common.no' | translate }}</span>
+          </span>
+        </button>
+        <button type="button" class="btn btn-success m-btn btn-ok">
+          <span>
+            <i class="fa fa-check"></i>
+            <span>{{ 'common.yes' | translate }}</span>
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade"
+  bsModal
+  #viewReleaseModal="bs-modal"
+  [config]="{ backdrop: true }"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="dialog-static-name"
+>
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <ngx-image-viewer [src]="dataImage"></ngx-image-viewer>
+    </div>
+  </div>
+</div>
+
+<!-- Modal confirm to use the apply to batch option -->
+<div
+  class="modal fade"
+  id="confirmationModal"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="confirmationModalTitleId"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ 'common.confirmation' | translate }}</h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>{{ confirmationDesc }}</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger m-btn" data-dismiss="modal">
+          <span>
+            <i class="fa fa-close"></i>
+            <span>{{ 'common.no' | translate }}</span>
+          </span>
+        </button>
+        <button type="submit" class="btn btn-success m-btn">
+          <span>
+            <i class="fa fa-check"></i>
+            <span>{{ 'common.yes' | translate }}</span>
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

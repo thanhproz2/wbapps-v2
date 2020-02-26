@@ -1,0 +1,822 @@
+<div style="margin: 0">
+  <div class="m-content">
+    <div class="row row-chart">
+      <div class="col-md-5">
+        <div class="background-row-chart" style="margin-top: 5px">
+          <div class="login-time">
+            <p>
+              <span
+                >{{ 'account.welcome' | translate }}:
+                {{ sessionData.fullname }}</span
+              >
+              <span style=" vertical-align:middle; padding-left: 50px"
+                >{{ 'account.last_login_time_was' | translate }}:
+                {{
+                  sessionData.lastLoginTime | date: 'MMM. dd, yyyy @h:mma'
+                }}</span
+              >
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-7">
+        <div
+          class="input-group m-input-icon m-input-icon--right"
+          style="height: 100%; margin-top: 10px; padding-bottom: 22px"
+        >
+          <input
+            #searchFootageOrProject
+            style="border-radius: 5px 0 0 5px"
+            class="form-control"
+            (keyup)="onChangeSearchKeywords()"
+            [(ngModel)]="searchKeyWords"
+            name="searchKeyWords"
+            type="text"
+            placeholder="{{ 'dashboard.filter_footages' | translate }}"
+            (keyup.enter)="search()"
+          />
+          <span
+            *ngIf="searchKeyWords != ''"
+            class="m-input-icon__icon m-input-icon__icon--right clear-icon-input"
+            (click)="clearSearch(); allowShow = false"
+          >
+            <i class="fa fa-remove"></i>
+          </span>
+          <div class="input-group-append">
+            <button
+              class="btn btn-secondary active"
+              style="border-radius: 0 5px 5px 0"
+              type="button"
+              (click)="search()"
+            >
+              <i class="fa fa-search"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="m-content" [hidden]="!allowShow">
+    <div class="row row-chart">
+      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div
+          class="alert alert-dismissible fade show   m-alert m-alert--air m-alert--outline m-alert--outline-2x width"
+          role="alert"
+        >
+          <button
+            type="button"
+            (click)="allowShow = false"
+            class="close"
+          ></button>
+
+          <div class="col-md-12" *ngIf="allowShow" style="margin-top: 50px">
+            <div class="row">
+              <div class="col-md-12" style="text-align: center; margin: -35px">
+                <h5>
+                  <strong>{{
+                    'dashboard.search_result_label' | translate
+                  }}</strong>
+                </h5>
+              </div>
+              <div class="col-md-8" style="font-size: 12px">
+                <p style="text-align: center">
+                  <strong>{{ 'dashboard.footage_title' | translate }}</strong>
+                </p>
+                <p style="text-align: center" *ngIf="footageResult.length == 0">
+                  {{ 'dashboard.no_footage_label' | translate }}
+                </p>
+                <div style="overflow: auto;">
+                  <div class="search-result" *ngIf="footageResult.length > 0">
+                    <table
+                      class="table m-table m-table--head-no-border title-table table-hover"
+                    >
+                      <thead>
+                        <tr>
+                          <th width="110px">
+                            <!-- {{'dashboard.thumbnail' | translate}} -->
+                          </th>
+                          <th width="40%">
+                            {{ 'dashboard.file_name' | translate }}
+                          </th>
+                          <th width="200px">
+                            {{ 'footage.keywords_label' | translate }}
+                          </th>
+                          <th width="40%">
+                            {{ 'dashboard.description' | translate }}
+                          </th>
+                          <th *ngIf="!sessionData.isAdmin" width="100px">
+                            {{ 'dashboard.status' | translate }}
+                          </th>
+                          <th *ngIf="sessionData.isAdmin" width="100px">
+                            {{ 'dashboard.owner' | translate }}
+                          </th>
+                          <th width="100px">
+                            {{ 'footage.date_uploaded' | translate }}
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr
+                          *ngFor="let item of footageResult"
+                          style="cursor: pointer;"
+                        >
+                          <td width="110px">
+                            <span style="width: 110px"
+                              ><img
+                                src="{{ thumbnailUrl }}{{ item.footageId }}"
+                                (click)="previewFootage(item)"
+                            /></span>
+                          </td>
+                          <td width="40%" (click)="goLocated(item)">
+                            <span style="min-width: 250px;">
+                              <p>{{ item.originalFileName }}</p>
+                            </span>
+                          </td>
+                          <td width="100px" (click)="goLocated(item)">
+                            <span style="width: 100px">{{
+                              item.keywords
+                            }}</span>
+                          </td>
+                          <td width="40%" (click)="goLocated(item)">
+                            <span style="min-width: 250px;">
+                              <p>{{ item.description }}</p>
+                            </span>
+                          </td>
+                          <td
+                            *ngIf="!sessionData.isAdmin"
+                            width="100px"
+                            (click)="goLocated(item)"
+                          >
+                            <span
+                              class="capitalize-text"
+                              style="width: 100px"
+                              >{{ item.transitionStatus }}</span
+                            >
+                          </td>
+                          <td
+                            *ngIf="sessionData.isAdmin"
+                            width="100px"
+                            (click)="goLocated(item)"
+                          >
+                            <span style="width: 100px">{{
+                              item.ownerFullName
+                            }}</span>
+                          </td>
+                          <td width="100px" (click)="goLocated(item)">
+                            <span style="width: 100px">{{
+                              item.createdAt | date: 'MMM dd, yyyy'
+                            }}</span>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div *ngIf="footageResult.length > 0" style="margin-top: 10px">
+                  <div class="pull-left">
+                    <p>
+                      <strong
+                        >{{ 'common.showing' | translate }}
+                        {{
+                          paging.currentPage * paging.pageSize +
+                            1 -
+                            paging.pageSize
+                        }}
+                        {{ 'common.to' | translate }}
+                        {{
+                          paging.currentPage * paging.pageSize > paging.total
+                            ? paging.total
+                            : paging.currentPage * paging.pageSize
+                        }}
+                        {{ 'common.entries' | translate }}
+                        {{ paging.total }}</strong
+                      >
+                    </p>
+                  </div>
+                  <div class="pull-right">
+                    <pagination
+                      [totalItems]="paging.total"
+                      [maxSize]="7"
+                      [rotate]="true"
+                      [itemsPerPage]="paging.pageSize"
+                      [(ngModel)]="paging.currentPage"
+                      (pageChanged)="pageFootageResult($event)"
+                      previousText="<"
+                      nextText=">"
+                      [boundaryLinks]="true"
+                      firstText="{{ 'common.first' | translate }}"
+                      lastText="{{ 'common.last' | translate }}"
+                      [boundaryLinks]="showBoundaryLinks"
+                    >
+                    </pagination>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4" style="font-size: 12px">
+                <p style="text-align: center">
+                  <strong>{{ 'dashboard.project_title' | translate }}</strong>
+                </p>
+                <p style="text-align: center" *ngIf="projectResult.length == 0">
+                  {{ 'dashboard.no_project_label' | translate }}
+                </p>
+
+                <div style="overflow: auto;">
+                  <div *ngIf="projectResult.length > 0" style="height: 200px;">
+                    <table
+                      class="table m-table m-table--head-no-border title-table table-hover"
+                    >
+                      <thead>
+                        <tr>
+                          <th>Project Name</th>
+                          <th>Status</th>
+                          <th>Create At</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr
+                          style="cursor: pointer"
+                          *ngFor="let item of projectResult"
+                          (click)="goLocated(item, true)"
+                        >
+                          <td>{{ item.projectName }}</td>
+                          <td class="capitalize-text">{{ item.status }}</td>
+                          <td>{{ item.createdAt | date: 'longDate' }}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div *ngIf="projectResult.length > 0" style="margin-top: 10px">
+                  <div class="pull-left">
+                    <p>
+                      <strong
+                        >{{ 'common.showing' | translate }}
+                        {{
+                          pagingProject.currentPage * pagingProject.pageSize +
+                            1 -
+                            pagingProject.pageSize
+                        }}
+                        {{ 'common.to' | translate }}
+                        {{
+                          pagingProject.currentPage * pagingProject.pageSize >
+                          pagingProject.total
+                            ? pagingProject.total
+                            : pagingProject.currentPage * pagingProject.pageSize
+                        }}
+                        {{ 'common.entries' | translate }}
+                        {{ pagingProject.total }}</strong
+                      >
+                    </p>
+                  </div>
+                  <div class="pull-right">
+                    <pagination
+                      [totalItems]="pagingProject.total"
+                      [maxSize]="5"
+                      [rotate]="true"
+                      [itemsPerPage]="pagingProject.pageSize"
+                      [(ngModel)]="pagingProject.currentPage"
+                      (pageChanged)="pageProjectResult($event)"
+                      previousText="<"
+                      nextText=">"
+                      [boundaryLinks]="true"
+                      firstText="{{ 'common.first' | translate }}"
+                      lastText="{{ 'common.last' | translate }}"
+                      [boundaryLinks]="showBoundaryLinks"
+                    >
+                    </pagination>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="m-content">
+    <div class="row row-chart">
+      <div class="col-md-5">
+        <div
+          class="background-row-chart"
+          [ngStyle]="{ height: sessionData.isCurator ? '355px' : '294px' }"
+        >
+          <div class="row" style="padding: 20px 20px 0px 0px; color: #5f5f5f">
+            <div class="col-xs-12 col-sm-4 col-md-4 col-lg-3">
+              <h4 style="margin-left: 30px;">
+                {{ 'dashboard.earnings' | translate }}
+              </h4>
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-8 col-lg-9">
+              <div class="row justify-content-end">
+                <div class="col-auto">
+                  <div class="my-input-group">
+                    <span>{{ 'dashboard.period' | translate }}</span>
+                    <select
+                      [(ngModel)]="periodValue"
+                      class="form-control"
+                      (change)="filterByPeriod()"
+                    >
+                      <option *ngFor="let p of periods" [value]="p.value">{{
+                        p.name
+                      }}</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="row justify-content-end"
+            *ngIf="periodValue === 0"
+            style="padding-right: 20px; padding-top: 5px;"
+          >
+            <div class="col-5">
+              <div class="my-input-group">
+                <span>{{ 'common.from' | translate }}</span>
+                <input
+                  type="text"
+                  class="form-control"
+                  bsDatepicker
+                  [bsValue]="dates.fromDate"
+                  (bsValueChange)="enable && onChangeFromDate($event)"
+                  [maxDate]="dates.maxFromDate"
+                  [bsConfig]="bsConfig"
+                />
+              </div>
+            </div>
+            <div class="col-5">
+              <div class="my-input-group">
+                <span>{{ 'common.to2' | translate }}</span>
+                <input
+                  type="text"
+                  class="form-control"
+                  bsDatepicker
+                  [bsValue]="dates.toDate"
+                  (bsValueChange)="enable && onChangeToDate($event)"
+                  [minDate]="dates.fromDate"
+                  [maxDate]="dates.maxDate"
+                  [bsConfig]="bsConfig"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-lg-12" style="margin-left: 30px;">
+              <h5>
+                <strong>${{ totalEarnings | number: '.2' }}</strong>
+              </h5>
+            </div>
+          </div>
+
+          <div (window:resize)="onResize($event)">
+            <google-chart
+              [data]="barChart"
+              style="height: 100%;"
+            ></google-chart>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-7">
+        <div class="row mobile">
+          <div class="col">
+            <div class="background-row-chart" *ngIf="sessionData.isCurator">
+              <div
+                class="m-form__group form-group row"
+                style="font-size: 14px;"
+              >
+                <label
+                  class="col col-form-label"
+                  style="padding: 15px 10px 15px 35px;"
+                >
+                  {{
+                    availableCuration
+                      ? 'I am available to do curation work'
+                      : 'I am not available to do curation work'
+                  }}
+                </label>
+
+                <div
+                  class="col custom-popover"
+                  style="text-align: center; padding: 0px; max-width: 100px;"
+                >
+                  <span
+                    class="m-switch m-switch--outline m-switch--icon m-switch--info"
+                    [popover]="popCurationTemplate"
+                    triggers="mouseenter:mouseleave"
+                  >
+                    <label style="margin-bottom: -25px;">
+                      <input
+                        type="checkbox"
+                        checked="checked"
+                        [(ngModel)]="availableCuration"
+                        name="availableCuration"
+                        (change)="changeCuration()"
+                      />
+                      <span></span>
+                    </label>
+                  </span>
+                  <ng-template #popCurationTemplate>{{
+                    'dashboard.curation_pop_desc' | translate
+                  }}</ng-template>
+                </div>
+              </div>
+            </div>
+            <div class="background-row-chart">
+              <table class="table table-striped m-table revenue">
+                <thead>
+                  <tr>
+                    <td>
+                      {{ 'dashboard.panel_revenue_to_date_label' | translate }}
+                    </td>
+                    <th>${{ summaryInfo.RevenueToDate | number: '.2' }}</th>
+                  </tr>
+                </thead>
+                <tr>
+                  <td>
+                    {{ 'dashboard.panel_revenue_this_month_label' | translate }}
+                  </td>
+                  <th>${{ summaryInfo.RevenueThisMonth | number: '.2' }}</th>
+                </tr>
+                <tr>
+                  <td>
+                    {{ 'dashboard.panel_referral_to_date_label' | translate }}
+                  </td>
+                  <th>${{ summaryInfo.ReferralToDate | number: '.2' }}</th>
+                </tr>
+                <tr>
+                  <td>
+                    {{
+                      'dashboard.panel_referral_this_month_label' | translate
+                    }}
+                  </td>
+                  <th>${{ summaryInfo.ReferralThisMonth | number: '.2' }}</th>
+                </tr>
+                <!-- <tr>
+                              <td>{{'dashboard.panel_member_status_label' | translate}}</td>
+                              <th style="color: green">{{summaryInfo.MemberStatus}}</th>
+                          </tr> -->
+                <tr>
+                  <td *ngIf="!summaryInfo.OutstandingCollaborativeInvitations">
+                    {{
+                      'dashboard.panel_outstanding_collaborative_label'
+                        | translate
+                    }}
+                    <span
+                      tooltip="{{
+                        'dashboard.outstanding_collaborative_invitations_tooltip'
+                          | translate
+                      }}"
+                      class="hot-text glyphicon glyphicon-info-sign"
+                      style="cursor: pointer; color: #008eff"
+                    ></span>
+                  </td>
+                  <td
+                    *ngIf="summaryInfo.OutstandingCollaborativeInvitations > 0"
+                  >
+                    <a
+                      class="link"
+                      (click)="
+                        gotoFootageProjectCollaborate(
+                          summaryInfo.OutstandingCollaborativeInvitations
+                        )
+                      "
+                      >{{
+                        'dashboard.panel_outstanding_collaborative_label'
+                          | translate
+                      }}</a
+                    >
+                    <span
+                      tooltip="{{
+                        'dashboard.outstanding_collaborative_invitations_tooltip'
+                          | translate
+                      }}"
+                      class="hot-text glyphicon glyphicon-info-sign"
+                      style="cursor: pointer; color: #008eff"
+                    ></span>
+                  </td>
+                  <th>
+                    {{ summaryInfo.OutstandingCollaborativeInvitations }}
+                  </th>
+                </tr>
+                <tr>
+                  <td *ngIf="!summaryInfo.AvailableOpportunities">
+                    {{
+                      'dashboard.panel_available_opportunities_label'
+                        | translate
+                    }}
+                    <span
+                      tooltip="{{
+                        'dashboard.available_opportunities_tooltip' | translate
+                      }}"
+                      class="hot-text glyphicon glyphicon-info-sign"
+                      style="cursor: pointer; color: #008eff"
+                    ></span>
+                  </td>
+                  <td *ngIf="summaryInfo.AvailableOpportunities > 0">
+                    <a
+                      class="link"
+                      (click)="
+                        gotoFootageProjectCollaborate(
+                          summaryInfo.AvailableOpportunities
+                        )
+                      "
+                      >{{
+                        'dashboard.panel_available_opportunities_label'
+                          | translate
+                      }}</a
+                    >
+                    <span
+                      tooltip="{{
+                        'dashboard.available_opportunities_tooltip' | translate
+                      }}"
+                      class="hot-text glyphicon glyphicon-info-sign"
+                      style="cursor: pointer; color: #008eff"
+                    ></span>
+                  </td>
+                  <th>
+                    {{ summaryInfo.AvailableOpportunities }}
+                  </th>
+                </tr>
+                <tr>
+                  <td *ngIf="!summaryInfo.ReferralMembers">
+                    {{ 'dashboard.referral_list' | translate }}
+                  </td>
+                  <td *ngIf="summaryInfo.ReferralMembers > 0">
+                    <a
+                      class="link"
+                      (click)="showReferralList(summaryInfo.ReferralMembers)"
+                      >{{ 'dashboard.referral_list' | translate }}</a
+                    >
+                  </td>
+                  <th>
+                    {{ summaryInfo.ReferralMembers }}
+                  </th>
+                </tr>
+              </table>
+            </div>
+          </div>
+          <div class="background-row-chart notifications">
+            <table
+              class="table revenue"
+              style="margin-bottom: 0px; border-bottom: 1px solid; border-color: #f4f5f8;"
+            >
+              <tr>
+                <td class="m-btn">
+                  <span>
+                    <i class="fa fa-bell-o"></i>
+                    <span style="font-weight: 500;">{{
+                      'dashboard.notifications' | translate
+                    }}</span>
+                  </span>
+                </td>
+                <td style="text-align: right;">
+                  <span
+                    *ngIf="isNew"
+                    class="m-badge m-badge--info m-badge--wide"
+                  >
+                    {{ 'dashboard.new' | translate }}
+                  </span>
+                </td>
+              </tr>
+            </table>
+
+            <div class="body">
+              <p
+                style="text-align: center; padding-top: 25px;"
+                *ngIf="!notifications.length"
+              >
+                No available notifications
+              </p>
+              <table class="table revenue" *ngIf="notifications.length">
+                <tbody>
+                  <tr
+                    class="item"
+                    *ngFor="let item of notifications"
+                    [ngClass]="{ new: item.memberNotificationStatus === 'new' }"
+                  >
+                    <td
+                      class="notification-tilte"
+                      (click)="readNotification(item)"
+                      [popover]="showNotifications"
+                      #hideNotifications="bs-popover"
+                      placement="{{ placementNotification }}"
+                      [outsideClick]="true"
+                      popoverTitle="{{ item.title }}"
+                    >
+                      {{ item.title }}
+                    </td>
+                    <td style="text-align: right;">
+                      <span
+                        tooltip="Clear"
+                        class="icon-remove"
+                        (click)="removeNotification(item)"
+                      >
+                        <i class="fa fa-close"></i>
+                      </span>
+                    </td>
+                    <ng-template #showNotifications>
+                      <div>
+                        <p [innerHtml]="item.message"></p>
+                      </div>
+                    </ng-template>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footage" style="min-height: 352px" id="footage">
+    <div class="row">
+      <div class="col-md-12" style="text-align: center;">
+        <h4>
+          <strong>{{ 'dashboard.recently_online' | translate }}</strong>
+        </h4>
+      </div>
+
+      <div
+        class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12"
+        *ngFor="let item of recentlyOnlineFootages"
+      >
+        <div
+          class="thumbnail-cover"
+          [ngStyle]="{
+            'background-image': ' url(' + thumbnailUrl + item.id + ')'
+          }"
+          (click)="previewFootage(item)"
+        >
+          <div class="over-lay">
+            <i class="fa fa-play-circle-o"></i>
+            <span>{{ item.ownerName }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="referralMemberModal"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="referralMemberModalTitleId"
+  aria-hidden="true"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ 'dashboard.referral_list' | translate }}</h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div
+          style="margin-bottom: 20px"
+          class="input-group m-input-icon m-input-icon--right"
+        >
+          <input
+            #searchReferralMembers
+            type="text"
+            [(ngModel)]="keywordSearch"
+            class="form-control m-input"
+            placeholder="{{ 'dashboard.email_or_username_note' | translate }}"
+          />
+          <span
+            *ngIf="keywordSearch != ''"
+            class="m-input-icon__icon m-input-icon__icon--right clear-icon-input"
+            (click)="clearSearchReferralMembers()"
+          >
+            <i class="fa fa-remove"></i>
+          </span>
+          <div class="input-group-append">
+            <button class="btn btn-secondary active">
+              <i class="fa fa-search"></i>
+            </button>
+          </div>
+        </div>
+        <div style="height:auto" data-always-visible="1" data-rail-visible1="1">
+          <div class="row">
+            <div class="col-md-12 table-wrapper">
+              <div *ngIf="members.length == 0">
+                <p style="color: #c2cad8">
+                  <i>{{ 'dashboard.no_member' | translate }}</i>
+                </p>
+              </div>
+              <div
+                class="table-scrollable table-scroll"
+                *ngIf="members.length > 0"
+              >
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th width="430px">
+                        <div>{{ 'dashboard.name_field' | translate }}</div>
+                      </th>
+                      <th width="100px">
+                        <div>
+                          {{ 'dashboard.referral_percentage' | translate }}
+                        </div>
+                      </th>
+                      <th style="text-align: right;">
+                        <div>
+                          {{ 'dashboard.referral_revenue' | translate }}
+                        </div>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let member of members | filter: keywordSearch">
+                      <td>
+                        <a data-toggle="collapse" href="#{{ member.id }}">
+                          <img
+                            class="img-avatar m--img-rounded m--marginless m--img-centered"
+                            [src]="avatarUrlB.replace('{memberId}', member.id)"
+                          />
+                          <span>{{ member.fullName }}</span>
+                        </a>
+                        <div
+                          id="{{ member.id }}"
+                          class="panel-collapse collapse"
+                          style="clear: both;"
+                        >
+                          <div class="panel-body">
+                            <div class="row">
+                              <div class="col-md-3">
+                                {{ 'dashboard.location_column' | translate }}:
+                              </div>
+                              <div class="col-md-9">
+                                {{ member.address }}
+                              </div>
+                            </div>
+                            <div class="row">
+                              <div class="col-md-3">
+                                {{ 'dashboard.role_field' | translate }}:
+                              </div>
+                              <div class="col-md-9">
+                                {{ member.roles }}
+                              </div>
+                            </div>
+                            <div class="row">
+                              <div class="col-md-3">
+                                {{ 'dashboard.about_field' | translate }}:
+                              </div>
+                              <div class="col-md-9">
+                                {{ member.about }}
+                                <p
+                                  style="margin: 0;"
+                                  *ngFor="let item of member.bioData"
+                                >
+                                  {{ item.answerTitle }}:
+                                  {{ item.answerContent }}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="form-group">
+                        <input
+                          class="form-control"
+                          [(ngModel)]="member.referralPercentage"
+                          min="1"
+                          type="number"
+                          max="99"
+                          readonly
+                        />
+                      </td>
+                      <td style="text-align: right;">
+                        ${{ member.referralRevenue }}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-player #videoModal></app-player>

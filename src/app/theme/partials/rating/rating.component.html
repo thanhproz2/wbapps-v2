@@ -1,0 +1,354 @@
+<style>
+  /****** Style Star Rating Widget *****/
+  .rating {
+    border: none;
+    float: left;
+  }
+  .rating > input {
+    display: none;
+  }
+  .rating > label:before {
+    margin: 0 5px;
+    font-size: 30px;
+    font-family: FontAwesome;
+    display: inline-block;
+    content: '\f005';
+  }
+  .rating > .half:before {
+    content: '\f089';
+    position: absolute;
+  }
+  .rating > label {
+    color: #ddd;
+    float: right;
+  }
+  /***** CSS Magic to Highlight Stars on Hover *****/
+  .rating > input:checked ~ label,
+  .rating:not(:checked) > label:hover,
+  .rating:not(:checked) > label:hover ~ label {
+    /* color: #ff6639; */
+    color: #009fe3;
+  }
+  /* hover previous stars in list */
+  .rating > input:checked + label:hover,
+  .rating > input:checked ~ label:hover,
+  .rating > label:hover ~ input:checked ~ label,
+  .rating > input:checked ~ label:hover ~ label {
+    color: #ffed85;
+  }
+  /*css rating for comment*/
+  .stars-comment {
+    padding-bottom: 15px;
+  }
+  .stars-comment span.stars,
+  .stars-comment span.stars span {
+    display: block;
+    background: url('https://apppresser.com/wp-content/uploads/2015/11/stars.png')
+      0 -16px repeat-x;
+    width: 80px;
+    height: 16px;
+  }
+  .stars-comment span.stars span {
+    background-position: 0 0;
+  }
+  .stars-comment .alignright {
+    float: left;
+  }
+</style>
+
+<div
+  class="modal fade"
+  id="modalRating"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="ratingProject"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title pull-left">{{ 'Rating' | translate }}</h4>
+        <button
+          type="button"
+          class="close pull-right"
+          aria-label="Close"
+          (click)="closeModalRating()"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" style="padding: 10px 25px" *ngIf="ratingModel">
+        <form #formRating="ngForm" class="m-form m-form--state">
+          <div class="form-group row" *ngIf="ratingModel.name">
+            <label
+              for="ratingModelName"
+              class="col-3 col-form-label form-control-sm"
+            >
+              {{ 'footage.project_name_field' | translate }}
+              <span class="required">{{ 'required_symbol' | translate }}</span
+              >:
+            </label>
+            <div class="col-9">
+              <input
+                name="ratingModelName"
+                class="form-control form-control-sm m-input"
+                type="text"
+                [ngModel]="ratingModel.name"
+                disabled
+              />
+            </div>
+          </div>
+          <!-- <div class="form-group row">
+            <label class="col-3 col-form-label form-control-sm">{{'Number of project' | translate}}
+              <span class="required">{{'required_symbol'| translate}}</span>:
+            </label>
+            <div class="col-9">
+              <input name="numberOfProject" class="form-control form-control-sm m-input" type="text"
+                [ngModel]="ratingModel.numberOfProject" disabled>
+            </div>
+          </div> -->
+          <div class="form-group row">
+            <label class="col-3 col-form-label form-control-sm"
+              >{{ 'Number of footage curated' | translate
+              }}<span class="required">{{ 'required_symbol' | translate }}</span
+              >:</label
+            >
+            <div class="col-9">
+              <input
+                name="numberOfFootage"
+                class="form-control form-control-sm m-input"
+                type="text"
+                [ngModel]="ratingModel.numberOfFootage"
+                disabled
+              />
+            </div>
+          </div>
+          <!-- <div class="form-group row">
+            <label class="col-3 col-form-label form-control-sm">{{'Reject rate at BB' | translate}}<span
+                class="required">{{'required_symbol'| translate}}</span>:</label>
+            <div class="col-9">
+              <input name="rejectRateAtBB" class="form-control form-control-sm m-input" type="text"
+              [ngModel]="ratingModel.rejectRateAtBB" disabled>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-3 col-form-label form-control-sm">{{'Reject rate at storefront' | translate}}<span
+                class="required">{{'required_symbol'| translate}}</span>:</label>
+            <div class="col-9">
+              <input name="rejectRateAtStorefront" class="form-control form-control-sm m-input" type="text"
+              [ngModel]="ratingModel.rejectRateAtStorefront" disabled>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-3 col-form-label form-control-sm">{{'Number footage sold' | translate}}<span
+                class="required">{{'required_symbol'| translate}}</span>:</label>
+            <div class="col-9">
+              <input name="numberOfFootageSold" class="form-control form-control-sm m-input" type="text"
+              [ngModel]="ratingModel.numberOfFootageSold" disabled>
+            </div>
+          </div> -->
+          <div class="form-group row">
+            <label class="col-3 col-form-label form-control-sm"
+              >{{ 'Rating' | translate
+              }}<span class="required">{{ 'required_symbol' | translate }}</span
+              >:</label
+            >
+            <div class="col-9">
+              <!-- <div class="stars-comment">
+                <span class="stars alignright">
+                    <span [ngStyle]="{ 'width': getStars(numberRating) }"></span>
+                </span>
+              </div> -->
+              <p style="font-size: 12px;">
+                How would you rate this collaborator for the service he/she
+                provided ? (1 to 5 stars – half a star is allowed)
+              </p>
+              <div id="rating" class="form-rating rating">
+                <input
+                  type="radio"
+                  id="star5"
+                  name="rating"
+                  value="5"
+                  [(ngModel)]="numberRating"
+                  (ngModelChange)="chooseStar()"
+                /><label class="full" for="star5"></label>
+                <input
+                  type="radio"
+                  id="star4half"
+                  name="rating"
+                  value="4.5"
+                  [(ngModel)]="numberRating"
+                  (ngModelChange)="chooseStar()"
+                /><label class="half" for="star4half"></label>
+                <input
+                  type="radio"
+                  id="star4"
+                  name="rating"
+                  value="4"
+                  [(ngModel)]="numberRating"
+                  (ngModelChange)="chooseStar()"
+                /><label class="full" for="star4"></label>
+                <input
+                  type="radio"
+                  id="star3half"
+                  name="rating"
+                  value="3.5"
+                  [(ngModel)]="numberRating"
+                  (ngModelChange)="chooseStar()"
+                /><label class="half" for="star3half"></label>
+                <input
+                  type="radio"
+                  id="star3"
+                  name="rating"
+                  value="3"
+                  [(ngModel)]="numberRating"
+                  (ngModelChange)="chooseStar()"
+                /><label class="full" for="star3"></label>
+                <input
+                  type="radio"
+                  id="star2half"
+                  name="rating"
+                  value="2.5"
+                  [(ngModel)]="numberRating"
+                  (ngModelChange)="chooseStar()"
+                /><label class="half" for="star2half"></label>
+                <input
+                  type="radio"
+                  id="star2"
+                  name="rating"
+                  value="2"
+                  [(ngModel)]="numberRating"
+                  (ngModelChange)="chooseStar()"
+                /><label class="full" for="star2"></label>
+                <input
+                  type="radio"
+                  id="star1half"
+                  name="rating"
+                  value="1.5"
+                  [(ngModel)]="numberRating"
+                  (ngModelChange)="chooseStar()"
+                /><label class="half" for="star1half"></label>
+                <input
+                  type="radio"
+                  id="star1"
+                  name="rating"
+                  value="1"
+                  [(ngModel)]="numberRating"
+                  (ngModelChange)="chooseStar()"
+                /><label class="full" for="star1"></label>
+                <input
+                  type="radio"
+                  id="starhalf"
+                  name="rating"
+                  value="0.5"
+                  [(ngModel)]="numberRating"
+                  (ngModelChange)="chooseStar()"
+                /><label class="half" for="starhalf"></label>
+              </div>
+              <div *ngIf="ratingErrorMsg != ''" class="d-inline-block">
+                <span class="text-danger" style="font-size: 12px;">{{
+                  ratingErrorMsg
+                }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-3 col-form-label form-control-sm"
+              >{{ 'Rating type' | translate
+              }}<span class="required">{{ 'required_symbol' | translate }}</span
+              >:</label
+            >
+            <div class="col-9">
+              <div class="row">
+                <div class="col-lg-6">
+                  <label class="m-radio m-radio--info">
+                    <input
+                      type="radio"
+                      name="ratingType"
+                      value="positive"
+                      [(ngModel)]="ratingType"
+                      (ngModelChange)="chooseRatingType()"
+                      [disabled]="ratingModel.rated"
+                    />
+                    Positive
+                    <span></span>
+                  </label>
+                </div>
+
+                <div class="col-lg-6">
+                  <label class="m-radio m-radio--info">
+                    <input
+                      type="radio"
+                      name="ratingType"
+                      value="negative"
+                      [(ngModel)]="ratingType"
+                      (ngModelChange)="chooseRatingType()"
+                      [disabled]="ratingModel.rated"
+                    />
+                    Negative
+                    <span></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-3 col-form-label form-control-sm"
+              >{{ 'Comments' | translate
+              }}<span class="required">{{ 'required_symbol' | translate }}</span
+              >:</label
+            >
+            <div class="col-9">
+              <p style="font-size: 12px;">
+                Please provide brief comment if necessary (max 50 words)
+              </p>
+              <textarea
+                rows="4"
+                class="form-control form-control-sm"
+                name="commentRating"
+                [(ngModel)]="commentRating"
+                placeholder="Enter your comment based on your rating type"
+                (ngModelChange)="checkValidDesc()"
+                required
+                [disabled]="ratingModel.rated"
+              ></textarea>
+              <span
+                [ngClass]="{ 'text-danger': commentWords > 50 }"
+                style="font-size: 12px;"
+                >{{ commentWords }}/50</span
+              >
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer text-right">
+        <div class="actions">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            (click)="closeModalRating()"
+          >
+            <span>
+              <span>{{ 'footage.btn.close' | translate }}</span>
+            </span>
+          </button>
+          <button
+            class="btn btn-success btn-ok"
+            (click)="save()"
+            [disabled]="
+              numberRating == 0 ||
+              commentRating == '' ||
+              commentWords > 50 ||
+              ratingModel.rated ||
+              ratingErrorMsg != ''
+            "
+          >
+            <span>
+              <i class="fa fa-check"></i>
+              <span> {{ 'common.save' | translate }}</span>
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

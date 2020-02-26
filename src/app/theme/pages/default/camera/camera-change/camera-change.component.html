@@ -1,0 +1,94 @@
+<style>
+  .heading {
+    margin-bottom: 10px;
+  }
+</style>
+
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="changeCameraModal"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="changeCameraModalTitle"
+  aria-hidden="true"
+  data-backdrop="static"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Change Camera Type Used</h5>
+        <button type="button" class="close" (click)="hide()" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="heading">
+          <button
+            type="button"
+            class="btn btn-info m-btn m-btn--icon m-btn--pill"
+            (click)="showNewCameraModal()"
+          >
+            <span>
+              <i class="fa fa-plus"></i>
+              <span>Add a camera type Used</span>
+            </span>
+          </button>
+        </div>
+
+        <div *ngIf="!cameras.length" class="text-center">
+          <span>No available camera type used</span>
+        </div>
+
+        <table *ngIf="cameras.length" class="table hover">
+          <thead>
+            <tr>
+              <th>Camera Type</th>
+              <th>Camera Brand</th>
+              <th>Select</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of cameras">
+              <td>
+                {{ item.cameraType }}
+              </td>
+              <td>
+                <span *ngIf="item.cameraBrand">{{ item.cameraBrand }}</span>
+                <span *ngIf="item.cameraBrandOther">
+                  - {{ item.cameraBrandOther }}</span
+                >
+              </td>
+              <td>
+                <label class="m-radio">
+                  <input
+                    type="radio"
+                    name="selection"
+                    [value]="item.cameraId"
+                    [(ngModel)]="selectedCameraId"
+                    (change)="change(selectedCameraId)"
+                  />
+                  <span></span>
+                </label>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-secondary m-btn m-btn--pill"
+          (click)="hide()"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-camera-new
+  #newCameraModal
+  (cameraInfoEvent)="receiveCameraInfo($event)"
+></app-camera-new>

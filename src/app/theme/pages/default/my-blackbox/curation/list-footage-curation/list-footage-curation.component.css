@@ -1,0 +1,96 @@
+.csv {
+  /* width: 650px; */
+  font-size: 12px;
+}
+.csv th {
+  font-size: 13px;
+}
+.csv td {
+  font-size: 13px;
+}
+.csv strong {
+  font-size: 13px;
+}
+.header span {
+  padding-top: 5px;
+}
+.header select {
+  border-radius: 5px !important;
+  width: 65px;
+  margin: 0 5px;
+}
+.header {
+  display: flex;
+}
+.csv table tr th {
+  border: 2px solid #fff;
+}
+.csv table tr td {
+  border: 2px solid #fff;
+}
+.csv table {
+  background-color: #f4f5f8;
+}
+.table tr td {
+  word-wrap: break-word;
+}
+/* .table .title span.cl{
+  font-weight: 600;
+} */
+.table tr td {
+  vertical-align: middle;
+}
+.head {
+  min-width: 880px;
+  overflow: auto;
+}
+.thumbnails {
+  width: 88px;
+  height: 50px;
+  border-radius: 3px;
+}
+.size {
+  max-height: 250px;
+  overflow-y: auto;
+  width: 100%;
+}
+.title .info {
+  /* max-height: 125px; */
+  overflow-y: hidden;
+}
+.title .info:hover {
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+.title .info::-webkit-scrollbar {
+  width: 5px;
+}
+.title .info::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.title .info::-webkit-scrollbar-thumb {
+  background: #888;
+}
+
+.title .info::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.row .m-portlet__body {
+  padding: 0px 10px 10px 10px;
+}
+
+.row .m-portlet__head {
+  height: 4rem;
+  padding: 0 10px;
+}
+
+.btn-link {
+  cursor: pointer;
+  color: #539dff !important;
+}
+
+#editMediaProductsModal .help-block {
+  font-size: 11px !important;
+}
