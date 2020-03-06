@@ -1,0 +1,87 @@
+.border-left{
+    border-left: 2px solid #ebedf2 !important;
+}
+.border-right{
+    border-right: 2px solid #ebedf2 !important;
+}
+.caption{
+    padding: 10px 0;
+    font-size: 18px;
+    border-bottom: 2px solid #ebedf2;
+}
+.caption i{
+    font-size: 18px;
+}
+.video{
+    padding: 15px;
+}
+.btn-link{
+    cursor: pointer;
+    color: #539DFF !important;
+    font-size: 12px;
+}
+.btn-link:hover{
+    font-weight: 600;
+}
+label{
+    font-weight: 600;
+}
+.overflow{
+    height: auto;
+    max-height: 300px;
+    overflow-y: auto;
+}
+.overflow .table tr td{
+    vertical-align: middle;
+}
+.colorText{
+    color: #539DFF !important;
+    cursor: pointer;
+}
+.colorText:hover{
+    text-decoration: underline !important;
+}
+.add-item{
+    color:#004988;
+    font-size: 20px;
+    cursor: pointer;
+}
+.remove-item{
+    color:#ed6b75;
+    font-size: 20px;
+    cursor: pointer;
+}
+#sharers .table tr td{
+    vertical-align: middle;
+}
+.item{
+    padding: 0;
+}
+.item a{
+    margin: 0 4px;
+}
+.item a:hover span{
+    font-weight: 600;
+}
+.item a:hover i{
+    font-weight: 600;
+}
+.actions button{
+    min-width: 153px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    text-align: -webkit-center;
+    text-align: -moz-center;
+}
+.text-release{
+    font-size: 12px;
+    padding-left: 10px;
+    margin-top: -5px;
+}
+.edit-footage .col-md-3{
+    padding-right: 0;
+}
+.action a{
+    width: 90px;
+    margin-bottom:5px; 
+}

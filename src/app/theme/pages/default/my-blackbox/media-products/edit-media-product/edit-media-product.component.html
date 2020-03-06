@@ -1,0 +1,1054 @@
+<div class="edit-footage">
+    <div class="row">
+          <div class="col-md-8" *ngIf="footage != null" [id]="footage.mediaProductId">
+            <div class="m-portlet m-portlet--bordered m-portlet--rounded  m-portlet--last">
+                <div class="m-portlet__body">
+                    <form #editFootage='ngForm' class="m-form m-form--state">
+                        <div class="form-body">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="row" style="margin-top: 5px">
+                                        <div class="title-width">
+                                            <label class="form-control form-control-sm">{{'File name' | translate}}:</label>
+                                        </div>
+                                        <div class="col">
+                                            <input type="text" name="originalFileName" disabled class="form-control form-control-sm input-sm"
+                                                [(ngModel)]="footage.originalFileName">
+                                        </div>
+                                    </div>
+                                    <div class="row" style="margin-top: 5px">
+                                      <div class="title-width">
+                                          <label class="form-control form-control-sm">{{'Title' | translate}}:</label>
+                                      </div>
+                                      <div class="col">
+                                          <input type="text" name="title" #title="ngModel" class="form-control form-control-sm"
+                                              [(ngModel)]="footage.title" required>
+                                          <div *ngIf="title.invalid" style="font-size: 12px;">
+                                              <span class="text-danger">{{'required_desc' | translate}}</span>
+                                          </div>
+                                          <div *ngIf="footage.title && footage.title.length > 80" style="font-size: 12px;">
+                                              <span class="help-block text-danger">The title is limited 80 characters.</span>
+                                          </div>
+                                      </div>
+                                  </div>
+                                </div>
+                            </div>
+                            <div class="row" style="padding: 5px 0">
+                                <div class="col-md-12" [ngClass]="{'has-danger':(description.invalid || footage.invalidDesc == true),
+                                      'has-success': description.valid && footage.invalidDesc != true}">
+                                    <div class="row">
+                                        <div class="title-width">
+                                            <label class="form-control form-control-sm">{{'footage.description' | translate}}<span
+                                                    class="required">{{'required_symbol' | translate}}</span>:</label>
+                                        </div>
+                                        <div class="col">
+                                            <textarea rows="2" style="font-size: 12px;" #description="ngModel" name="description"
+                                                class="form-control form-control-sm" [(ngModel)]="footage.description" required
+                                                placeholder="{{'footage.description_note' | translate}}"
+                                                (ngModelChange)="checkValidDesc(footage)"></textarea>
+                                            <div *ngIf="description.invalid" style="font-size: 12px;">
+                                                <span class="text-danger">{{'required_desc' | translate}}</span>
+                                            </div>
+                                            <div *ngIf="footage.maxTimes" style="font-size: 12px;">
+                                                <span class="help-block text-danger">Sorry, "{{footage.maxTimes.word}}" is used too many times.</span>
+                                            </div>
+                                            <div [hidden]="description.invalid" style="font-size: 12px;">
+                                              <span class="font-size12"><b *ngIf="footage.description.length>0">{{footage.descriptionCharacters.length}} characters (exclude spaces) - </b></span>
+                                                <span class="help-block"
+                                                    [class.text-danger]="footage.invalidDesc == true">{{'footage.description_note' | translate}}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row" style="padding: 5px 0" [ngStyle]="{'background' : is_keywords ? '#eff3f8' : 'none'}">
+                                <div class="col-md-12">
+                                    <div class="row">
+                                      <div class="title-width">
+                                          <label class="form-control form-control-sm">{{'footage.keywords_field' | translate}} <span
+                                                  class="required">{{'required_symbol' | translate}}</span>:</label>
+                                      </div>
+                                      <div class="col">
+                                          <div style="border: 1px solid #c2cad8" class="edit-keywords"
+                                              [ngStyle]="{'border' : (footage.invalidKeywords == true || footage.keywordsArray == 0) ? '1px solid red' : '1px solid #ebedf2'}">
+                                              <tag-input style="font-size: 12px; margin: 0 5px 5px 5px" name="keywordsArray"
+                                                  [theme]="'minimal'" [(ngModel)]='footage.keywordsArray'
+                                                  placeholder="{{ 'footage.new_keywords' | translate }}"
+                                                  secondaryPlaceholder="{{ 'footage.add_keywords' | translate }}"
+                                                  [separatorKeyCodes]="[44, 188]" [inputClass]="'myinput'" [addOnPaste]="true" [maxItems]="maxItem"
+                                                  (ngModelChange)="checkKeywordsNumber(footage);" [dragZone]="'zone1'" 
+                                                  [editable]="false" [onlyFromAutocomplete]="false" (onTextChange)="getListKeywords($event);">
+                                                  <tag-input-dropdown [showDropdownIfEmpty]="false" [autocompleteItems]="listKeywords" limitItemsTo="100">
+                                                      <ng-template let-item="item" let-index="item">
+                                                          {{ item.display }}
+                                                      </ng-template>
+                                                  </tag-input-dropdown>
+                                              </tag-input>
+                                          </div>
+                                          <div class="row" style="margin: 0">
+                                              <div class="col-sm-12" style="padding: 0">
+                                                  <span class="font-size12"
+                                                      [class.text-danger]="(footage.invalidKeywords == true || footage.keywordsArray == 0)">{{footage.keywordsArray | count}}</span>
+                                                  <span class="font-size12"> / 49 - </span>
+                                                  <span class="help-block" style="font-size: 12px"
+                                                      [class.text-danger]="(footage.invalidKeywords == true || footage.keywordsArray == 0)">
+                                                      {{'footage.footage_keywords_validate' | translate}}
+                                                  </span>
+                                                  <div class="pull-right">
+                                                      <a class="btn-link btnCopy" (click)="copyKeywords()">
+                                                          {{'footage.copy' | translate}}
+                                                      </a> &nbsp;|&nbsp;
+                                                      <a class="btn-link" (click)="clearKeywords(footage)">{{'footage.clear_all' | translate}}</a>
+                                                  </div>
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
+                                </div>
+                            </div>
+                            <div class="row" style="padding: 5px 0" [ngStyle]="{'background' : is_categories ? '#eff3f8' : 'none'}">
+                              <div class="col-md-12" [ngClass]="{'has-danger':category.invalid, 'has-success': category.valid}">
+                                  <div class="row">
+                                      <div class="title-width">
+                                          <label class="form-control form-control-sm">{{'footage.categories_field' | translate}} <span
+                                                  class="required">{{'required_symbol' | translate}}</span>:</label>
+                                      </div>
+                                      <div class="col">
+                                          <select name="category" [(ngModel)]="footage.category" #category="ngModel" style="width:100%;"
+                                              class="form-control form-control-sm input-sm" required>
+                                              <option *ngFor="let cat of masterData.footageCategories" [value]="cat.value">{{cat.text}}
+                                              </option>
+                                          </select>
+                                          <div *ngIf="category.invalid">
+                                              <span class="text-danger">{{'required_desc' | translate}}</span>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                            <div class="row" style="padding: 5px 0" *ngIf="footage.documents != undefined"
+                                [ngStyle]="{'background' : is_documents ? '#eff3f8' : 'none'}">
+                                <div class="col-md-12">
+                                    <div class="row">
+                                        <div class="title-width">
+                                            <label
+                                                class="form-control form-control-sm">{{'footage.attach_documents_field' | translate}}:</label>
+                                        </div>
+                                        <div style="margin: 0 10px">
+                                            <div
+                                                *ngIf="!(footage.documents.modelDocuments.length > 0) && !(footage.documents.propertyDocuments.length > 0)">
+                                                <button style="margin: 0 5px; width: 110px;" type="button"
+                                                    (click)="getDataModel(footage.documents.modelDocuments)" class="btn btn-dark btn-sm"
+                                                    title="{{'footage.upload_model_button_tooltip' | translate}}"
+                                                    onmouseenter="$(this).tooltip('show')">{{'footage.btn.upload_model' | translate}}</button>
+                                                <button style="margin: 0 5px" type="button"
+                                                    (click)="showNotifyNewReleaseModal(footage.documents.propertyDocuments)"
+                                                    class="btn btn-dark btn-sm" title="{{'footage.upload_model_button_tooltip' | translate}}"
+                                                    onmouseenter="$(this).tooltip('show')">{{'footage.btn.upload_property' | translate}}</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="row">
+                                            <div class="title-width"></div>
+                                            <div class="col">
+                                                <div class="row" style="margin-left: 0">
+                                                    <div class="col-md-6 release"
+                                                        [hidden]="(footage.documents.modelDocuments.length == 0) && (footage.documents.propertyDocuments.length == 0)">
+                                                        <div class="row">
+                                                            <div class="title-width">
+                                                                <label
+                                                                    class="form-control form-control-sm">{{'footage.upload_model_label' | translate}}:</label>
+                                                            </div>
+                                                            <div class="col" style="margin-top: -2px;">
+                                                                <a [hidden]="!(footage.documents.modelDocuments.length > 0)"
+                                                                    (click)="getDataModel(footage.documents.modelDocuments)"
+                                                                    class="btn-link">{{'footage.btn.change' | translate}}</a>
+                                                                <a (click)="getDataModel(footage.documents.modelDocuments)"
+                                                                    [hidden]="footage.documents.modelDocuments.length > 0"
+                                                                    class="btn-link">{{'footage.btn.add' | translate}}</a>
+                                                            </div>
+                                                        </div>
+                                                        <div class="text-release">
+                                                            <div *ngIf="footage.documents.modelDocuments.length == 0">
+                                                                <span
+                                                                    style="color: #92969b;">{{'footage.no_property_release' | translate}}</span>
+                                                            </div>
+                                                            <div *ngIf="footage.documents.modelDocuments.length > 0">
+                                                                <div *ngFor="let item of footage.documents.modelDocuments">
+                                                                    <div class="break-word">
+                                                                        <div [ngClass]="{'text-danger': item.reviewStatus == 'rejected'}"><span
+                                                                                class="pull-left">-&nbsp;</span><span>{{item.modelAgreementName}}</span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6 release"
+                                                        [hidden]="(footage.documents.modelDocuments.length == 0) && (footage.documents.propertyDocuments.length == 0)">
+                                                        <div class="row">
+                                                            <div class="title-width">
+                                                                <label
+                                                                    class="form-control form-control-sm">{{'footage.upload_property_label' | translate}}:</label>
+                                                            </div>
+                                                            <div class="col" style="margin-top: -2px;">
+                                                                <a [hidden]="!(footage.documents.propertyDocuments.length > 0)"
+                                                                    (click)="showNotifyNewReleaseModal(footage.documents.propertyDocuments)"
+                                                                    class="btn-link">{{'footage.btn.change' | translate}}</a>
+                                                                <a [hidden]="footage.documents.propertyDocuments.length > 0"
+                                                                    (click)="showNotifyNewReleaseModal(footage.documents.propertyDocuments)"
+                                                                    class="btn-link">{{'footage.btn.add' | translate}}</a>
+                                                            </div>
+                                                        </div>
+                                                        <div class="text-release">
+                                                            <div *ngIf="footage.documents.propertyDocuments.length == 0">
+                                                                <span
+                                                                    style="color: #92969b;">{{'footage.no_property_release' | translate}}</span>
+                                                            </div>
+                                                            <div *ngIf="footage.documents.propertyDocuments.length > 0">
+                                                                <div *ngFor="let item of footage.documents.propertyDocuments">
+                                                                    <div class="break-word">
+                                                                        <div [ngClass]="{'text-danger': item.reviewStatus == 'rejected'}"><span
+                                                                                class="pull-left">-&nbsp;</span><span>{{item.propertyAgreementName}}</span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                              <div class="col-md-12">
+                                  <div class="row" style="margin-top: 5px">
+                                      <div class="title-width">
+                                          <label class="form-control form-control-sm">{{'Video Location' | translate}}:</label>
+                                      </div>
+                                      <div class="col">
+                                          <input type="text" name="videoLocation" class="form-control form-control-sm input-sm"
+                                              [(ngModel)]="footage.videoLocation">
+                                      </div>
+                                  </div>
+                                  <div class="row" style="margin-top: 5px">
+                                      <div class="title-width">
+                                          <label class="form-control form-control-sm">{{'Recording Date' | translate}}:</label>
+                                      </div>
+                                      <div class="col-md-6">
+                                          <!-- <input type="text" name="recordingDate" class="form-control form-control-sm input-sm"
+                                              [(ngModel)]="footage.recordingDate"> -->
+                                              <input name="recordingDate" class="form-control m-input form-control-sm" type="text" id="recordingDate"
+                                               bsDatepicker  [bsConfig]="bsConfig" [(ngModel)]="recordingDate" (ngModelChange)="changeRecordingDate()">
+                                      </div>
+                                  </div>
+                                  <div class="row" style="margin-top: 5px">
+                                      <div class="title-width">
+                                          <label class="form-control form-control-sm">{{'URL Link' | translate}}:</label>
+                                      </div>
+                                      <div class="col">
+                                          <input type="text" name="urlLink" class="form-control form-control-sm input-sm"
+                                              [(ngModel)]="footage.urlLink">
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                        </div>
+                        <div class="form-actions text-right">
+                            <div class="actions">
+                                <button type="button" class="btn btn-danger btn-sm m-btn" (click)='cancelEditFootage()'>
+                                    <span>
+                                        <i class="fa fa-close"></i>
+                                        <span>{{'footage.btn.return' | translate}}</span>
+                                    </span>
+                                </button>
+                                <button type="button" [disabled]="!editFootage.valid" class="btn btn-success btn-sm m-btn" type="button"
+                                    (click)="saveMediaProduct(footage)">
+                                    <span>
+                                        <i class="fa fa-check" *ngIf="!loading"></i>
+                                        <i class="fa fa-spinner fa-spin" *ngIf="loading"></i>
+                                        <span>{{'footage.btn.save' | translate}}</span>
+                                    </span>
+                                </button>
+                                <button type="button" [disabled]="!editFootage.valid" class="btn btn-success btn-sm m-btn" type="button"
+                                    (click)="saveMediaProduct(footage, true)">
+                                    <span>
+                                        <i class="fa fa-check" *ngIf="!loading"></i>
+                                        <i class="fa fa-spinner fa-spin" *ngIf="loading"></i>
+                                        <span>{{'Save & Next' | translate}}</span>
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4" [hidden]="footage == null" [ngClass]="{'order-first' : setWidth}" [ngStyle]="{'margin-bottom' : setWidth ? '5px': '0'}">
+            <div class="my-center">
+                <div class="m-portlet m-portlet--rounded">
+                      <div class="m-portlet__body" style="padding: 0px;">
+                          <div [hidden]="!hidePlayFootage">
+                              <img id="thumbnail" class="customize_image" (click)="previewFootage(footage)" style="cursor: pointer;" [src]="getThumbnail()">
+                          </div>
+  
+                          <div class="customize_image" [hidden]="hidePlayFootage">
+                              <video id="videoControl" class="video-js video-preview-control" controls loop preload="auto"></video>
+                          </div>
+                      </div>
+                      <div class="row">
+                          <div class="col-md-12" style="margin-top: 10px;">
+                              <div class="d-block">
+                                  <strong>Video thumbnail</strong>
+                              </div>
+                              <div class="d-inline-block">
+                                  <img id="customThumbnail" class="customize_image"
+                                  style="width: 150px; height: 90px; margin-top: -30px;">
+                              </div>
+                              <div class="d-inline-block" style="padding: 10px;">
+                                  <button type="button" title="Slide playback marker to desire location then click create thumbnail"
+                                  onmouseenter="$(this).tooltip('show')" class="btn btn-success btn-sm btn-block m-btn" (click)="createThumbnail()">
+                                      <span>
+                                          <i class="fa fa-picture-o"></i>
+                                          <span>Create Thumbnail</span>
+                                      </span>
+                                  </button>
+                                  <button type="button" class="btn btn-info btn-sm btn-block m-btn" (click)="importThumbnail()">
+                                      <span>
+                                          <i class="fa fa fa-upload"></i>
+                                          <span>Import</span>
+                                      </span>
+                                  </button>
+                              </div>
+                          </div>
+                      </div>
+                      <div class="row">
+                          <div class="col-md-12" style="margin-top: 10px;">
+                              <div class="d-block">
+                                  <strong>Call To Action screen image</strong>
+                              </div>
+                              <div class="d-inline-block">
+                                  <img id="callToAction" title="Blank box for Call to Action Image"
+                                  onmouseenter="$(this).tooltip('show')" class="customize_image" style="width: 150px; height: 90px; margin-top: -30px;">
+                              </div>
+                              <div class="d-inline-block" style="padding: 10px;">
+                                  <button type="button" class="btn btn-info btn-sm btn-block m-btn" (click)="importCallToAction()">
+                                      <span>
+                                          <i class="fa fa-picture-o"></i>
+                                          <span>{{'Import' | translate}}</span>
+                                      </span>
+                                  </button>
+                                  <button type="button" class="btn btn-danger btn-sm btn-block m-btn" (click)="deleteCallToAction()">
+                                      <span>
+                                          <i class="fa fa fa-upload"></i>
+                                          <span>{{'Delete' | translate}}</span>
+                                      </span>
+                                  </button>
+                              </div>
+                          </div>
+                      </div>
+                      <div class="row">
+                          <div class="col-md-12" style="margin-top: 10px;">
+                              <div class="d-block">
+                                  <strong>End screen Image</strong>
+                              </div>
+                              <div class="d-inline-block">
+                                  <img id="endScreen" title="Blank box for End Screen Image"
+                                  onmouseenter="$(this).tooltip('show')" class="customize_image" style="width: 150px; height: 90px; margin-top: -30px;">
+                              </div>
+                              <div class="d-inline-block" style="padding: 10px;">
+                                  <button type="button" class="btn btn-info btn-sm btn-block m-btn" (click)="importEndScreen()">
+                                      <span>
+                                          <i class="fa fa-picture-o"></i>
+                                          <span>{{'Import' | translate}}</span>
+                                      </span>
+                                  </button>
+                                  <button type="button" class="btn btn-danger btn-sm btn-block m-btn" (click)="deleteEndScreen()">
+                                      <span>
+                                          <i class="fa fa fa-upload"></i>
+                                          <span>{{'Delete' | translate}}</span>
+                                      </span>
+                                  </button>
+                              </div>
+                          </div>
+                      </div>
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>
+  
+  <!-- modal Document Model -->
+  <div id="model-document" bsModal #modelDocument="bs-modal" [config]="{backdrop: 'static'}" class="modal fade modal-scroll" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title"><b>{{'footage.upload_model_label'| translate}}</b></h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true" (click)="closeReleaseModal()"></button>
+            </div>
+            <div class="modal-body">
+                <div style="height:auto" data-always-visible="1" data-rail-visible1="1">
+                    <div class="row">
+                        <div class="col-md-12 table-wrapper">
+                            <label style="font-size: 14px; margin-right: 5px; font-weight: 400">{{'footage.release_download_form_dec'| translate}} </label>
+                            <button class="btn-link" (click)="routerLegalForms('modelDocument')"><span><i style="margin-right: 5px;" class="fa fa-download"></i><span>{{'footage.btn.download_form'| translate}}</span></span></button>
+                            <!-- <button data-dismiss="modal" routerLink="/legal-forms" class="btn btn-dark" style="width:100%">{{'footage.download_a_release_form'| translate}}</button><br> -->
+                            <h5 style="margin-top: 10px"><b>{{'footage.upload_a_new_model_release'| translate}}:</b></h5>
+                            <form enctype="multipart/form-data">
+                                <input id="fModel" name="document" type="file" />
+                            </form>
+                            <br>
+                            <h5><b>{{'footage.current_release_list'| translate}}</b></h5>
+                            <div *ngIf="selectedModelReleases.length == 0">
+                                <p style="color: #c2cad8"><i>{{'footage.no_current_release'| translate}}</i></p>
+                            </div>
+                            <div class="table-scrollable table-scroll" *ngIf="selectedModelReleases.length > 0">
+                                <div class="overflow">
+                                <table class="table table-hover">
+                                    <tbody>
+                                        <tr *ngFor="let model of selectedModelReleases; index as i">
+                                            <td>
+                                                <div style="word-break: break-all;">
+                                                    <a class="colorText" (click)="viewRelease(model)">{{model.modelAgreementName}}</a>
+                                                </div>
+                                            </td>
+                                            <td width="115px">
+                                                <p style="margin: 0">
+                                                    <span tooltip="{{ 'footage.review_state' | translate }}" class="m-badge m-badge--wide"
+                                                        [ngClass]="{'m-badge--info': model.status === 'pending', 'm-badge--danger': model.status === 'rejected', 'm-badge--success': model.status === 'approved'}">
+                                                        {{ model.status }}
+                                                    </span>
+                                                    <span *ngIf="model.status == 'rejected'" class="glyphicon glyphicon-info-sign ng-scope"
+                                                        style="cursor: pointer; color: #008eff" (click)="showRejectedReasonOfRelease(model)"></span>
+                                                </p>
+                                            </td>
+                                            <td width="120px" style="text-align: right; padding-right: 5px" class="item"><a (click)="removeModelRelease(model)" tooltip="{{'footage.detach_release_button_tooltip' | translate}}"><i class="fa fa-minus-circle" style="color:#ed6b75;font-size: 20px;cursor: pointer;"></i></a></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+  
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h5>
+                                <b>{{'footage.available_releases'| translate}}</b>
+                                <span style="font-size: 1.1rem; font-style: italic"> ({{ countModelReleases }})</span>
+                            </h5>
+                            <div class="input-group m-input-icon m-input-icon--right" style="margin-bottom: 5px">
+                                <input #searchModelDocuments type="text" class="form-control form-control-sm" [(ngModel)]="keywordsDocument" (keyup.enter)='filterModelDocuments()'
+                                    placeholder="{{'footage.placeholder_search' | translate}}" (keyup)="!keywordsDocument ? filterModelDocuments() : keywordsDocument">
+                                <span *ngIf="keywordsDocument != ''" class="m-input-icon__icon m-input-icon__icon--right clear-icon-input" (click)="clearSearchModelDocuments()">
+                                    <i class="fa fa-remove"></i>
+                                </span>
+                                <div class="input-group-append">
+                                    <button class="btn btn-secondary active" type="button" (click)="filterModelDocuments()"><i class="fa fa-search"></i></button>
+                                </div>
+                            </div>
+                            <div *ngIf = "modelReleases.length == 0 || isAttachedAll">
+                                <p style="color: #c2cad8"><i>{{'footage.no_available_releases'| translate}}</i></p>
+                            </div>
+                            <div class="table-scrollable table-scroll" *ngIf="modelReleases.length > 0">
+                                <div class="overflow">
+                                    <table class="table table-hover table-hover" style="width: 100%">
+                                        <tr *ngFor="let model of modelReleases; index as i" [hidden]="model.selectedCheck">
+                                            <td>
+                                                <div style="word-break: break-all;">
+                                                    <a class="colorText" (click)="viewRelease(model)">{{model.modelAgreementName}}</a>
+                                                </div>
+                                            </td>
+                                            <td width="115px">
+                                                <p style="margin: 0">
+                                                    <span tooltip="{{ 'footage.review_state' | translate }}" class="m-badge m-badge--wide"
+                                                        [ngClass]="{'m-badge--info': model.status === 'pending', 'm-badge--danger': model.status === 'rejected', 'm-badge--success': model.status === 'approved'}">
+                                                        {{ model.status }}
+                                                    </span>
+                                                    <span *ngIf="model.status == 'rejected'" class="glyphicon glyphicon-info-sign ng-scope"
+                                                        style="cursor: pointer; color: #008eff" (click)="showRejectedReasonOfRelease(model)"></span>
+                                                </p>
+                                            </td>
+                                            <td width="100px" style="text-align: right; padding-right: 5px">
+                                                <div class="item">
+                                                    <a class="" [hidden]="!model.canDelete" #popoverDeleteModel="bs-popover" placement="left" [popover]="deleteModel"
+                                                    popoverTitle="{{'footage.delete_release_title' | translate}}" [outsideClick]="true"
+                                                    tooltip="{{'footage.delete_release_button_tooltip' | translate}}"><i class="fa fa-trash-o" style="color:#f4516c;font-size: 20px;cursor: pointer;"></i></a>
+                                                    <ng-template #deleteModel>
+                                                        <div class="action">
+                                                            <p>{{'common.are_you_sure' | translate}}</p>
+                                                            <div style="height: 40px;color: #fff">
+                                                                <a class="btn btn-sm btn-danger" style="margin-left: 0"(click)="popoverDeleteModel.hide()"><i
+                                                                    class="glyphicon glyphicon-remove"></i> {{'common.no'| translate}}</a>
+                                                                <a class="btn btn-sm btn-success" (click)="deleteRelease(model, true, false); popoverDeleteModel.hide()"><i
+                                                                        class="glyphicon glyphicon-ok"></i> {{'common.yes'| translate}}</a>
+                                                            </div>
+                                                        </div>
+                                                    </ng-template>
+                                                    <a (click)="updateDocumentInfo(model)" tooltip="{{'footage.edit_release_button_tooltip' | translate}}"><span class="fa fa-edit" style="color:#34bfa3;font-size: 20px;cursor: pointer;"></span></a>
+                                                    <a (click)="addModelRelease(model)" *ngIf="model.status != 'rejected'" tooltip="{{'footage.attach_release_button_tooltip' | translate}}"><i class="fa fa-plus-circle" style="color:#004988;font-size: 20px;cursor: pointer;"></i></a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer actions">
+                <button type="button" class="btn btn-danger m-btn" (click)="closeReleaseModal()">
+                    <span>
+                        <i class="fa fa-close"></i>
+                        <span>{{'footage.btn.cancel'| translate}}</span>
+                    </span>
+                </button>
+                <button [disabled]="saving" type="button" class="btn btn-success m-btn" (click)="saveDocument(true, false)">
+                    <span>
+                        <i *ngIf="!saving" class="fa fa-check"></i>
+                        <i *ngIf="saving" class="fa fa-spin fa-spinner"></i>
+                        <span>{{'footage.btn.save_changes'| translate}}</span>
+                    </span>
+                </button>
+            </div>
+        </div>
+    </div>
+  </div>
+  
+  <!-- modal Property Document -->
+  <div id="property-document" bsModal #propertyDocument="bs-modal" [config]="{backdrop: 'static'}" class="modal fade modal-scroll" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title"><b>{{'footage.upload_property_label'| translate}}</b></h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true" (click)="propertyDocument.hide()"></button>
+            </div>
+            <div class="modal-body">
+                <div style="height:auto" data-always-visible="1" data-rail-visible1="1">
+                    <div class="row">
+                        <div class="col-md-12 table-wrapper">
+                            <label style="font-size: 14px; margin-right: 5px; font-weight: 400">{{'footage.release_download_form_dec'| translate}} </label>
+                            <button class="btn-link" (click)="routerLegalForms('propertyDocument')"><span><i style="margin-right: 5px;" class="fa fa-download"></i><span>{{'footage.btn.download_form'| translate}}</span></span></button>
+                            <!-- <button data-dismiss="modal" routerLink="/legal-forms" class="btn btn-dark" style="width:100%">{{'footage.download_a_release_form'| translate}}</button> -->
+                            <h5 style="margin-top: 10px"><b>{{'footage.upload_a_new_property_release'| translate}}:</b></h5>
+                            <form enctype="multipart/form-data">
+                                <input id="fProperty" name="document" type="file" />
+                            </form>
+                            <br>
+                            <h5><b>{{'footage.current_release_list'| translate}}</b></h5>
+                            <div *ngIf="selectedPropertyReleases.length == 0">
+                                <p style="color: #c2cad8"><i>{{'footage.no_current_release'| translate}}</i></p>
+                            </div>
+                            <div class="table-scrollable table-scroll" *ngIf="selectedPropertyReleases.length > 0">
+                                <div class="overflow" *ngIf="selectedPropertyReleases.length > 0">
+                                    <table class="table table-hover">
+                                        <tbody>
+                                            <tr *ngFor="let property of selectedPropertyReleases; index as i">
+                                                <td>
+                                                    <div style="word-break: break-all;">
+                                                    <a class="colorText" (click)="viewRelease(property)">{{property.propertyAgreementName}}</a>
+                                                </div>
+                                            </td>
+                                            <td width="115px">
+                                                <p style="margin: 0">
+                                                    <span tooltip="{{ 'footage.review_state' | translate }}" class="m-badge m-badge--wide"
+                                                        [ngClass]="{'m-badge--info': property.status === 'pending', 'm-badge--danger': property.status === 'rejected', 'm-badge--success': property.status === 'approved'}">
+                                                        {{ property.status }}
+                                                    </span>
+                                                    <span *ngIf="property.status == 'rejected'" class="glyphicon glyphicon-info-sign ng-scope"
+                                                        style="cursor: pointer; color: #008eff" (click)="showRejectedReasonOfRelease(property)"></span>
+                                                </p>
+                                            </td>
+                                            <td style="text-align: right; padding-right: 5px" width="100px">
+                                                <div class="item">
+                                                    <a (click)="removePropertyRelease(property)" tooltip="{{'footage.detach_release_button_tooltip' | translate}}">
+                                                        <i class="fa fa-minus-circle" style="color:#ed6b75;font-size: 20px;cursor: pointer;"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h5>
+                                <b>{{'footage.available_releases'| translate}}</b>
+                                <span style="font-size: 1.1rem; font-style: italic"> ({{ countPropertyReleases }})</span>
+                            </h5>
+                            <div class="input-group m-input-icon m-input-icon--right" style="margin-bottom: 5px">
+                                <input #searchPropertyDocuments type="text" class="form-control form-control-sm" [(ngModel)]="keywordsDocument" (keyup.enter)='filterPropertyDocuments()'
+                                    placeholder="{{'footage.placeholder_search' | translate}}" (keyup)="!keywordsDocument ? filterPropertyDocuments() : keywordsDocument">
+                                <span *ngIf="keywordsDocument != ''" class="m-input-icon__icon m-input-icon__icon--right clear-icon-input" (click)="clearSearchPropertyDocuments()">
+                                    <i class="fa fa-remove"></i>
+                                </span>
+                                <div class="input-group-append">
+                                    <button class="btn btn-secondary active" type="button" (click)="filterPropertyDocuments()"><i class="fa fa-search"></i></button>
+                                </div>
+                            </div>
+                            <div *ngIf = "propertyReleases.length == 0 || isAttachedAll">
+                                <p style="color: #c2cad8"><i>{{'footage.no_available_releases'| translate}}</i></p>
+                            </div>
+                            <div class="table-scrollable table-scroll" *ngIf = "propertyReleases.length > 0">
+                                <div *ngIf="propertyReleases.length == 0" class="text-center">
+                                    <p>{{'footage.no_available_releases'| translate}}</p>
+                                </div>
+                                <div class="overflow" *ngIf="propertyReleases.length > 0">
+                                    <table class="table table-hover item">
+                                        <tr *ngFor="let property of propertyReleases; index as i" [hidden]="property.selectedCheck">
+                                            <td>
+                                                <div style="word-break: break-all;">
+                                                    <a class="colorText" (click)="viewRelease(property)">{{property.propertyAgreementName}}</a>
+                                                </div>
+                                            </td>
+                                            <td width="115px">
+                                                <p style="margin: 0">
+                                                    <span tooltip="{{ 'footage.review_state' | translate }}" class="m-badge m-badge--wide"
+                                                        [ngClass]="{'m-badge--info': property.status === 'pending', 'm-badge--danger': property.status === 'rejected', 'm-badge--success': property.status === 'approved'}">
+                                                        {{ property.status }}
+                                                    </span>
+                                                    <span *ngIf="property.status == 'rejected'" class="glyphicon glyphicon-info-sign ng-scope"
+                                                        style="cursor: pointer; color: #008eff" (click)="showRejectedReasonOfRelease(property)"></span>
+                                                </p>
+                                            </td>
+                                            <td width="100px" style="text-align: right; padding-right: 5px">
+                                                <a class="" [hidden]="!property.canDelete" #popoverDeleteProperty="bs-popover" placement="left" [popover]="deleteProperty"
+                                                popoverTitle="{{'footage.delete_release_title' | translate}}" [outsideClick]="true"
+                                                tooltip="{{'footage.delete_release_button_tooltip' | translate}}"><i class="fa fa-trash-o" style="color:#f4516c;font-size: 20px;cursor: pointer;"></i></a>
+                                                <ng-template #deleteProperty>
+                                                    <div class="action">
+                                                        <p>{{'common.are_you_sure' | translate}}</p>
+                                                        <div style="height: 40px;color: #fff">
+                                                            <a class="btn btn-sm btn-danger" style="margin-left: 0" (click)="popoverDeleteProperty.hide()"><i
+                                                                class="glyphicon glyphicon-remove"></i> {{'common.no'| translate}}</a>
+                                                            <a class="btn btn-sm btn-success" (click)="deleteRelease(property, false, true); popoverDeleteProperty.hide()"><i
+                                                                    class="glyphicon glyphicon-ok"></i> {{'common.yes'| translate}}</a>
+                                                        </div>
+                                                    </div>
+                                                </ng-template>
+                                                <a (click)="addPropertyRelease(property)" *ngIf="property.status != 'rejected'" tooltip="{{'footage.attach_release_button_tooltip' | translate}}">
+                                                    <i class="fa fa-plus-circle" style="color:#004988; cursor: pointer;;font-size: 20px;"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer actions">
+                <button type="button" class="btn btn-danger m-btn" (click)="closeReleaseModal()">
+                    <span>
+                        <i class="fa fa-close"></i>
+                        <span>{{'footage.btn.cancel'| translate}}</span>
+                    </span>
+                </button>
+                <button [disabled]="saving" type="button" class="btn btn-success m-btn" (click)="saveDocument(false, true)">
+                    <span>
+                        <i *ngIf="!saving" class="fa fa-check"></i>
+                        <i *ngIf="saving" class="fa fa-spin fa-spinner"></i>
+                        <span>{{'footage.btn.save_changes'| translate}}</span>
+                    </span>
+                </button>
+            </div>
+        </div>
+    </div>
+  </div>
+  
+  <!-- modal change model release -->
+  <div bsModal #changeModelDocument="bs-modal" class="modal fade" id="change-model-document" tabindex="-1" role="dialog" aria-labelledby="dialog-static-name" [config]="{backdrop: 'static'}">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title"><b>{{ 'footage.edit_release' | translate }}</b></h4>
+                <button type="button" class="close" (click)="hideChildModal()"></button>
+            </div>
+            <form class="formDocument m-form m-form--state" #modelRelease="ngForm" (ngSubmit)="statusErrorDocumentsInfo = true; modelRelease.form.valid && saveDocumentInfo(currentDocument)">
+            <div class="modal-body" style="word-wrap: break-word;">
+                <h4 style="text-align: center">{{currentDocument.modelAgreementName}}</h4>
+                <br>
+                    <div class="row form-group">
+                        <div class="col-md-4 offset-md-1">
+                            <label>{{'footage.model_ethnicity' | translate}} <span class="required">{{'required_symbol' | translate}}</span></label>
+                        </div>
+                        <div class="col-md-6" [ngClass]="{
+                            'has-danger': (statusErrorDocumentsInfo && modelEthnicities.invalid),
+                            'has-success': modelEthnicities.valid
+                            }">
+                            <select [(ngModel)]="currentDocument.ethnicity" #modelEthnicities="ngModel" class="form-control form-control-sm" name="ethnicity" required>
+                                <option *ngFor="let c of masterData.modelEthnicities" value="{{c.value}}">{{c.name}}</option>
+                            </select>
+                            <div *ngIf="(statusErrorDocumentsInfo && modelEthnicities.invalid)">
+                                <span *ngIf="modelEthnicities.errors?.required" class="text-danger">{{'required_desc' | translate}}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-md-4 offset-md-1">
+                            <label>{{'footage.model_age' | translate}} <span class="required">{{'required_symbol' | translate}}</span></label>
+                        </div>
+                        <div class="col-md-6" [ngClass]="{
+                            'has-danger': (statusErrorDocumentsInfo && age.invalid),
+                            'has-success': age.valid
+                            }">
+                            <select [(ngModel)]="currentDocument.age" #age="ngModel" class="form-control form-control-sm" name="age" required>
+                                <option *ngFor="let c of masterData.modelAges" value="{{c.value}}">{{c.name}}</option>
+                            </select>
+                            <div *ngIf="(statusErrorDocumentsInfo && age.invalid)">
+                                <span *ngIf="age.errors?.required" class="text-danger">{{'required_desc' | translate}}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-md-4 offset-md-1">
+                            <label>{{'footage.model_gender' | translate}} <span class="required">{{'required_symbol' | translate}}</span></label>
+                        </div>
+                        <div class="col-md-6" [ngClass]="{
+                            'has-danger': (statusErrorDocumentsInfo && gender.invalid),
+                            'has-success': gender.valid
+                            }">
+                            <select [(ngModel)]="currentDocument.gender" #gender="ngModel" class="form-control form-control-sm" name="gender" required>
+                                <option *ngFor="let c of masterData.modelGenders" value="{{c.value}}">{{c.name}}</option>
+                            </select>
+                            <div *ngIf="(statusErrorDocumentsInfo && gender.invalid)">
+                                <span *ngIf="gender.errors?.required" class="text-danger">{{'required_desc' | translate}}</span>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+            <div class="modal-footer actions">
+                <button type="button" class="btn btn-danger btn-sm m-btn" (click)='cancelDocumentInfo()'>
+                    <span>
+                        <i class="fa fa-close"></i>
+                        <span>{{'common.cancel' | translate }}</span>
+                    </span>
+                </button>
+                <button [disabled]="saving" type="submit" class="btn btn-success btn-sm m-btn">
+                    <span>
+                        <i *ngIf="!saving" class="fa fa-check"></i>
+                        <i *ngIf="saving" class="fa fa-spinner fa-spin"></i>
+                        <span>{{ 'common.save' | translate }}</span>
+                    </span>
+                </button>
+            </div>
+        </form>
+        </div>
+    </div>
+  </div>
+  
+  <!-- modal update model release -->
+  <div class="modal fade" bsModal #updateModelRelease="bs-modal" id="update-model-release" role="basic" tabindex="-1" aria-hidden="true" [config]="{backdrop: 'static'}">
+  <div class="modal-dialog">
+     <div class="modal-content">
+         <div class="modal-header">
+             <h4 class="modal-title">{{ 'footage.confirm' | translate }} </h4>
+             <button type="button" class="close" data-dismiss="modal" (click)="updateModelRelease.hide()"></button>
+         </div>
+         <div class="modal-body">
+             <p>{{ 'footage.update_model_release_dec' | translate }}!</p>
+         </div>
+         <div class="modal-footer">
+            <button type="button" class="btn btn-danger" data-dismiss="modal" style="width: 80px;" (click)="updateModelRelease.hide()">{{'common.no' | translate}}</button>
+            <button type="submit" class="btn btn-success" (click)="updateDocumentsInfo()">{{'footage.btn.update' | translate}}</button>
+         </div>
+     </div>
+     <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+  </div>
+  
+  <div id="modal-notify-new-release"  bsModal #notifyNewRelease="bs-modal" [config]="{backdrop: 'static'}"  class="modal  modal-inverse  fade" role="dialog" tabindex='-1'>
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4>Notice</h4>
+                <a class="close" data-dismiss="modal" (click)="notifyNewRelease.hide()">&times;</a>
+            </div>
+            <div class="modal-body">
+                <div>
+                    <p>Please note that there is a new property release template that you need to download and use.</p>
+                    <p>Link: <a class="btn-link" style="font-size: 14px" routerLink="/legal-forms">Legal Forms</a></p>
+                </div>
+                <br>
+                <div class="icheck-default icheck-inline">
+                    <label class="m-checkbox m-checkbox--solid m-checkbox--dark">
+                        <input type="checkbox" [(ngModel)]="canSaveLocal"/>
+                        {{ 'footage.dont_show_message' | translate }}
+                        <span></span>
+                    </label>
+                </div>
+            </div>
+  
+            <div class="modal-footer text-center-i">
+                <button (click)="getDataProperty(tempProperty)" class="btn btn-success">
+                    OK
+                </button>
+            </div>
+        </div>
+    </div>
+  </div>
+  
+  <!-- Modal confirm release footage -->
+  <div bsModal #confirmRelease="bs-modal" [config]="{backdrop: 'static'}" class="modal fade modal-scroll" tabindex="-1"
+    aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4>{{ 'footage.confirm' | translate }}</h4>
+            </div>
+            <div class="modal-body">
+                <p>{{ 'footage.confirm_release_dec' | translate }}</p>
+                <p>{{ 'footage.confirm_release_dec2' | translate }}</p>
+            </div>
+  
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger m-btn" (click)='confirmRelease.hide()'>
+                    <span>
+                        <i class="fa fa-close"></i>
+                        <span>{{'common.no' | translate }}</span>
+                    </span>
+                </button>
+                <button type="submit" class="btn btn-success m-btn" (click)="closeConfirmRelease()">
+                    <span>
+                        <i class="fa fa-check"></i>
+                        <span>{{ 'common.yes' | translate }}</span>
+                    </span>
+                </button>
+            </div>
+        </div>
+    </div>
+  </div>
+  
+  <div class="modal fade" bsModal #justUploadedRelease="bs-modal" [config]="{backdrop: 'static'}"
+     tabindex="-1" role="dialog" aria-labelledby="dialog-static-name">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 id="dialog-static-name" class="modal-title pull-left">{{ 'footage.confirm' | translate }}</h4>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="justUploadedRelease.hide()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        {{ 'footage.just_uploaded_release' | translate }}<br><br>
+        {{ 'footage.just_uploaded_release2' | translate }}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger m-btn" (click)='justUploadedRelease.hide()'>
+            <span>
+                <i class="fa fa-close"></i>
+                <span>{{'common.no' | translate }}</span>
+            </span>
+        </button>
+        <button type="submit" class="btn btn-success m-btn" (click)="yesJustUploadedRelease()">
+            <span>
+                <i class="fa fa-check"></i>
+                <span>{{ 'common.yes' | translate }}</span>
+            </span>
+        </button>
+      </div>
+    </div>
+  </div>
+  </div>
+  
+  <div class="modal fade" bsModal id="confirmModal" #confirmModal="bs-modal" [config]="{backdrop: 'static'}" tabindex="-1"
+    role="dialog" aria-labelledby="dialog-static-name">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 id="dialog-static-name" class="modal-title pull-left">Confirmation</h4>
+                <button type="button" class="close pull-right" aria-label="Close" (click)="confirmModal.hide()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                {{ responseMessage }}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger m-btn" (click)='confirmModal.hide()'>
+                    <span>
+                        <i class="fa fa-close"></i>
+                        <span>{{'common.no' | translate }}</span>
+                    </span>
+                </button>
+                <button type="button" class="btn btn-success m-btn btn-ok">
+                    <span>
+                        <i class="fa fa-check"></i>
+                        <span>{{ 'common.yes' | translate }}</span>
+                    </span>
+                </button>
+            </div>
+        </div>
+    </div>
+  </div>
+  
+  <div class="modal fade" bsModal #viewReleaseModal="bs-modal" [config]="{backdrop: true}" tabindex="-1"
+    role="dialog" aria-labelledby="dialog-static-name">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <ngx-image-viewer [src]="dataImage"></ngx-image-viewer>
+        </div>
+    </div>
+  </div>
+  <!-- modal Document Model -->
+  <div id="modal-import-thumbnail" bsModal #modalImportThumbnail="bs-modal" [config]="{backdrop: 'static'}" class="modal fade modal-scroll" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <h4 class="modal-title"><b>{{titleImport}}</b></h4>
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true" (click)="closeModalImportThumbnail()"></button>
+              </div>
+              <div class="modal-body">
+                  <div style="height:auto" data-always-visible="1" data-rail-visible1="1">
+                      <div class="row">
+                          <div class="col-md-12 table-wrapper">
+                              <form enctype="multipart/form-data">
+                                  <input id="importThumbnail" name="document" type="file" />
+                              </form>
+                              <br>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+              <div class="modal-footer actions">
+                  <button type="button" class="btn btn-danger m-btn" (click)="closeModalImportThumbnail()">
+                      <span>
+                          <i class="fa fa-close"></i>
+                          <span>{{'footage.btn.cancel'| translate}}</span>
+                      </span>
+                  </button>
+              </div>
+          </div>
+      </div>
+  </div>
+  <div id="modal-import-call-to-action" bsModal #modalImportCallToAction="bs-modal" [config]="{backdrop: 'static'}" class="modal fade modal-scroll" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <h4 class="modal-title"><b>{{titleImport}}</b></h4>
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true" (click)="closeModalImportCallToAction()"></button>
+              </div>
+              <div class="modal-body">
+                  <div style="height:auto" data-always-visible="1" data-rail-visible1="1">
+                      <div class="row">
+                          <div class="col-md-12 table-wrapper">
+                              <form enctype="multipart/form-data">
+                                  <input id="importCallToAction" name="document" type="file" />
+                              </form>
+                              <br>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+              <div class="modal-footer actions">
+                  <button type="button" class="btn btn-danger m-btn" (click)="closeModalImportCallToAction()">
+                      <span>
+                          <i class="fa fa-close"></i>
+                          <span>{{'footage.btn.cancel'| translate}}</span>
+                      </span>
+                  </button>
+              </div>
+          </div>
+      </div>
+  </div>
+  <div id="modal-import-end-screen" bsModal #modalImportEndscreen="bs-modal" [config]="{backdrop: 'static'}" class="modal fade modal-scroll" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <h4 class="modal-title"><b>{{titleImport}}</b></h4>
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true" (click)="closeModalImportEndScreen()"></button>
+              </div>
+              <div class="modal-body">
+                  <div style="height:auto" data-always-visible="1" data-rail-visible1="1">
+                      <div class="row">
+                          <div class="col-md-12 table-wrapper">
+                              <form enctype="multipart/form-data">
+                                  <input id="importEndScreen" name="document" type="file" />
+                              </form>
+                              <br>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+              <div class="modal-footer actions">
+                  <button type="button" class="btn btn-danger m-btn" (click)="closeModalImportEndScreen()">
+                      <span>
+                          <i class="fa fa-close"></i>
+                          <span>{{'footage.btn.cancel'| translate}}</span>
+                      </span>
+                  </button>
+              </div>
+          </div>
+      </div>
+  </div>
+  <div bsModal id="modalRemoveCallToAction" #modalRemoveCallToAction="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="removeCallToAction">
+      <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title pull-left">{{'Remove Call To Action' | translate}}</h5>
+            <button type="button" class="close pull-right" aria-label="Close" (click)="modalRemoveCallToAction.hide()">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p>{{'common.are_you_sure' | translate}}</p>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-danger" (click)="modalRemoveCallToAction.hide()">
+              <span>
+                <i class="fa fa-close"></i>
+                <span> {{'common.no'| translate}}</span>
+              </span>
+            </button>
+            <button style="margin-left: 10px" class="btn btn-success btn-ok">
+              <span>
+                <i class="fa fa-check"></i>
+                <span> {{'common.yes'| translate}}</span>
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
+  </div>
+  <div bsModal id="modalRemoveEndScreen" #modalRemoveEndScreen="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="removeEndScreen">
+      <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title pull-left">{{'Remove End Screen' | translate}}</h5>
+            <button type="button" class="close pull-right" aria-label="Close" (click)="modalRemoveEndScreen.hide()">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p>{{'common.are_you_sure' | translate}}</p>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-danger" (click)="modalRemoveEndScreen.hide()">
+              <span>
+                <i class="fa fa-close"></i>
+                <span> {{'common.no'| translate}}</span>
+              </span>
+            </button>
+            <button style="margin-left: 10px" class="btn btn-success btn-ok">
+              <span>
+                <i class="fa fa-check"></i>
+                <span> {{'common.yes'| translate}}</span>
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
+  </div>
+  

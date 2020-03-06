@@ -2,7 +2,6 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
 import { MyBlackboxComponent } from './my-blackbox.component';
-import { MediaProductsComponent } from './media-products/media-products.component';
 
 const routes: Routes = [
   {
@@ -18,7 +17,9 @@ const routes: Routes = [
         loadChildren: () => import('./curation/curation.module').then(m => m.CurationModule)
 
       },
-      { path: 'media-products', component: MediaProductsComponent },
+      { path: 'media-products',
+        loadChildren: () => import('./media-products/media-products.module').then(m => m.MediaProductsModule)
+      },
       {
         path: 'submitted-content',
         loadChildren: () =>

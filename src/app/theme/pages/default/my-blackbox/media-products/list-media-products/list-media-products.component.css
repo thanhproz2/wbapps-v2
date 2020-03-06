@@ -1,0 +1,374 @@
+.info .pull-left{
+    font-weight: 600;
+}
+.info{
+    word-wrap: break-word;
+}
+.info p{
+    margin: 0;
+}
+.colorText{
+    color: #539DFF !important;
+    cursor: pointer;
+}
+.colorText:hover{
+    text-decoration: underline !important;
+}
+.thumb {
+    width: 130px;
+}
+.pull-right button{
+    width: 105px;
+    margin-bottom: 6px;
+    margin-right: 5px;
+}
+
+@media screen and (max-width: 767px){
+.table-responsive>.table>tbody>tr>td {
+    white-space: normal !important;
+}
+}
+td div p{
+    margin: 0px;
+}
+td, th {
+    margin:0;
+    border-top-width:0px; 
+    white-space:normal;
+    vertical-align: top;
+}
+div .aa { 
+    /* width: 100%;  */
+    overflow-x:auto;  
+    margin-left:50px; 
+    overflow-y:auto;
+    padding-bottom:1px;
+}
+.headcol {
+    position:absolute; 
+    width:50px; 
+    left:0;
+    top:auto;
+    border-right: 0px none black; 
+}
+tr {
+    border-bottom: 1px solid #e7ecf1;
+}
+.hide{
+    display: hidden;
+}
+
+.description textarea{
+    /* resize: none; */
+    width:100%;
+    min-width: 169px;
+    padding: 10px;
+    margin-top: 2px;
+    height: 95px;
+    /* font-family: Roboto,"Helvetica Neue",sans-serif; */
+    font-size: 13px;
+    border: 1px solid #c2cad8;
+}
+ 
+.overflow{
+    max-height: 130px;
+    overflow-y: auto;
+}
+a{
+    text-decoration: none;
+}
+
+a:hover{
+    color: blue;
+    /* font-weight: 600; */
+}
+
+a:active{
+    color: blue;
+    /* font-weight: 600; */
+}
+.light-small{
+    color: #999;
+}
+.header span{
+    padding-top: 5px;
+}
+.header select{
+    border-radius: 5px !important;
+    width: 65px;
+    margin: 0 5px;
+}
+.header{
+    display: flex;
+}
+.center{
+    text-align: center;
+    vertical-align: middle;
+}
+
+.formDocument label{
+    font-weight: 600;
+}
+.formDocument{
+    font-size: 13px;
+}
+.video-modal{
+    font-size: 12px;
+    margin-right: 10px;
+}
+.video-modal input{
+    font-size: 12px;
+}
+.video-modal label{
+    font-weight: 600;
+    font-size: 11px;
+}
+.editorial{
+    margin-top: -15px;
+    margin-bottom: 15px
+}
+.editorial .form-group{
+    margin-bottom: 0;
+}
+.button button{
+    margin-right: 10px;
+}
+.img-avatar{
+    margin-right: 5px;
+    width: 50px;
+    height: 50px;
+}
+.text-center{
+    text-align: center;
+}
+.thumbnails{
+    width: 88px;
+    height: 50px;
+}
+.csv{
+    /* width: 650px; */
+    font-size: 12px;
+}
+.csv th{
+    font-size: 13px;
+}
+.csv td{
+    font-size: 13px;
+}
+.csv strong{
+    font-size: 13px;
+}
+/* p {
+    color: #000;
+} */
+.width{
+    width: 70%;
+}
+.head tr th{
+    vertical-align: middle;
+}
+.scrollbar{
+    height: 130px;
+    overflow: hidden;
+} 
+.scrollbar:hover {
+    overflow-y: auto;
+}
+.scrollbar::-webkit-scrollbar {
+    width: 5px;
+}
+
+.scrollbar::-webkit-scrollbar-track {
+    background: #f1f1f1; 
+}
+
+.scrollbar::-webkit-scrollbar-thumb {
+    background: #888; 
+}
+
+.scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #555; 
+}
+
+.description textarea::-webkit-scrollbar {
+    width: 5px;
+}
+
+.description textarea::-webkit-scrollbar-track {
+    background: #f1f1f1; 
+}
+
+.description textarea::-webkit-scrollbar-thumb {
+    background: #888; 
+}
+
+.description textarea::-webkit-scrollbar-thumb:hover {
+    background: #555; 
+}
+
+.keyword{
+    resize: vertical;
+    background: #fff;
+    height: 95px;
+    overflow: auto;
+    border: 1px solid #c2cad8;
+    margin-top: 3px;
+    margin-bottom: 5px;
+    padding: 0 5px 5px 5px;
+}
+
+div.keyword::-webkit-scrollbar {
+    width: 5px;
+}
+
+div.keyword::-webkit-scrollbar-track {
+    background: #f1f1f1; 
+}
+
+div.keyword::-webkit-scrollbar-thumb {
+    background: #888; 
+}
+
+div.keyword::-webkit-scrollbar-thumb:hover {
+    background: #555; 
+}
+
+.font-size12 a.btn-link{
+    color: blue;
+    cursor: pointer;
+}
+.font-size12 a.btn-link:hover{
+    text-decoration: underline;
+    color: blue;
+}
+
+.text-keyword{
+    height: 130px;
+    overflow: hidden;
+}
+.text-keyword:hover{
+    height: 130px;
+    overflow: auto;
+}
+
+div.text-keyword::-webkit-scrollbar {
+    width: 5px;
+}
+
+div.text-keyword::-webkit-scrollbar-track {
+    background: #f1f1f1; 
+}
+
+div.text-keyword::-webkit-scrollbar-thumb {
+    background: #888; 
+}
+
+div.text-keyword::-webkit-scrollbar-thumb:hover {
+    background: #555; 
+}
+.csv table tr th{
+    border: 2px solid #fff;
+}
+.csv table tr td{
+    border: 2px solid #fff;
+}
+.csv table{
+    background-color: #f4f5f8;
+}
+
+.scrollbar {
+    scrollbar-width: thin;
+}
+
+.description textarea{
+    scrollbar-width: thin;
+}
+
+div.keyword {
+    scrollbar-width: thin;
+}
+
+div.text-keyword {
+    scrollbar-width: thin;
+}
+.add-item{
+    color:#004988;
+    font-size: 20px;
+    cursor: pointer;
+}
+.remove-item{
+    color:#ed6b75;
+    font-size: 20px;
+    cursor: pointer;
+}
+#sharers .table tr td{
+    vertical-align: middle;
+}
+.alert .btn-link{
+    color: #4E94F3;
+}
+.item{
+    padding: 0;
+}
+.item a{
+    margin: 0 4px;
+}
+.item a:hover span{
+    font-weight: 600;
+}
+.item a:hover i{
+    font-weight: 600;
+}
+.btn.btn-submit{
+    border-color: #0049AB;
+    background: none;
+    color: #0049AB !important;
+}
+.btn.btn-submit:hover{
+    background-color: #0049AB;
+    color: #FFF !important;
+}
+.modal-footer button{
+    min-width: 100px;
+}
+.action a{
+    width: 90px;
+    margin-bottom:5px; 
+}
+.action a.btn-outline-success{
+    margin-right: 5px; 
+}
+.tips .btn-link{
+    color: #4E94F3;
+}
+.tips p{
+    text-align: center;
+    margin-bottom: 0px;
+}
+.title-table{
+    width: 100%
+}
+.title-table th{
+    padding: 5px;
+}
+.re-submit{
+    max-height: 500px;
+    overflow-y: auto;
+}
+.re-submit table tr td{
+    vertical-align: middle;
+}
+.re-submit table tr:first-child{
+    border-top: 1px solid #e7ecf1;
+}
+.re-submit table tr td .re-action{
+    text-align: right;
+}
+.re-submit table tr td .re-action button{
+    width: 85px;
+    margin-bottom: 5px;
+}
+.centre-align td {
+    display: table-cell;
+    vertical-align: middle
+}
